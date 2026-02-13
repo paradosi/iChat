@@ -138,3 +138,4 @@ Data persists across sessions. Use `/ichat clear` or the settings panel to manag
 
 - **Author:** paradosi (Dreamscythe)
 - **Emoji:** [Google Noto Emoji](https://github.com/googlefonts/noto-emoji) (Apache 2.0 License)
+- **Emoji Integration:** [Emoji-Core](https://github.com/KittenBall/Emoji-Core) by KittenBall — optional emoji autocomplete and rendering library
