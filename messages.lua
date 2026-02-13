@@ -199,6 +199,11 @@ end
 
 -- Send a whisper
 function ns.SendWhisper(target, text)
+    -- Retail 12.0+: check for chat lockdown
+    if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
+        DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Cannot send — chat is locked down.")
+        return
+    end
     if C_ChatInfo and C_ChatInfo.SendChatMessage then
         C_ChatInfo.SendChatMessage(text, "WHISPER", nil, target)
     else
