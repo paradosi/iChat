@@ -81,10 +81,42 @@ function ns.CreateMinimapButton()
         GameTooltip:Hide()
     end)
 
+    -- Unread badge (red dot with count)
+    local badge = CreateFrame("Frame", nil, btn)
+    badge:SetSize(18, 18)
+    badge:SetPoint("TOPRIGHT", 4, 4)
+    local badgeBg = badge:CreateTexture(nil, "ARTWORK")
+    badgeBg:SetAllPoints()
+    badgeBg:SetColorTexture(1.0, 0.22, 0.17, 1)
+    local badgeCount = badge:CreateFontString(nil, "OVERLAY")
+    badgeCount:SetFont("Fonts\\FRIZQT__.TTF", 9, "OUTLINE")
+    badgeCount:SetPoint("CENTER")
+    badgeCount:SetTextColor(1, 1, 1)
+    badge:Hide()
+    btn.unreadBadge = badge
+    btn.unreadCount = badgeCount
+
     ns.minimapButton = btn
 
     if not ns.db.settings.showMinimapButton then
         btn:Hide()
+    end
+end
+
+-- Update the unread badge on the floating button
+function ns.UpdateButtonBadge()
+    if not ns.minimapButton or not ns.minimapButton.unreadBadge then return end
+    local total = 0
+    if ns.db and ns.db.conversations then
+        for _, convo in pairs(ns.db.conversations) do
+            total = total + (convo.unread or 0)
+        end
+    end
+    if total > 0 then
+        ns.minimapButton.unreadCount:SetText(total > 99 and "99+" or tostring(total))
+        ns.minimapButton.unreadBadge:Show()
+    else
+        ns.minimapButton.unreadBadge:Hide()
     end
 end
 

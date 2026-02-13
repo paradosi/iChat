@@ -112,8 +112,8 @@ function ns:CHAT_MSG_WHISPER(text, sender, ...)
     -- Check if this contact is muted
     local isMuted = ns.db.mutedContacts and ns.db.mutedContacts[sender]
 
-    -- Flash taskbar icon if player is AFK (skip if muted)
-    if not isMuted and UnitIsAFK("player") and FlashClientIcon then
+    -- Flash taskbar icon on incoming whisper (skip if muted)
+    if not isMuted and FlashClientIcon then
         FlashClientIcon()
     end
 
@@ -123,6 +123,9 @@ function ns:CHAT_MSG_WHISPER(text, sender, ...)
     end
 
     -- Update UI
+    if ns.UpdateButtonBadge then
+        ns.UpdateButtonBadge()
+    end
     if ns.RefreshConversationList then
         ns.RefreshConversationList()
     end
