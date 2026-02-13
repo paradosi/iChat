@@ -1060,84 +1060,89 @@ end
 function ns.ShowContextMenu(playerName)
     if not playerName then return end
 
-    -- Create the dropdown frame once
-    if not ns.contextMenuFrame then
-        ns.contextMenuFrame = CreateFrame("Frame", "iChatContextMenu", UIParent, "UIDropDownMenuTemplate")
-    end
-
     local isPinned = ns.db.pinnedConversations and ns.db.pinnedConversations[playerName]
     local isMuted = ns.db.mutedContacts and ns.db.mutedContacts[playerName]
     local hasNote = ns.db.contactNotes and ns.db.contactNotes[playerName]
 
-    local menuList = {
-        {
-            text = isPinned and "Unpin" or "Pin to Top",
-            notCheckable = true,
-            func = function()
-                if not ns.db.pinnedConversations then ns.db.pinnedConversations = {} end
-                if isPinned then
-                    ns.db.pinnedConversations[playerName] = nil
-                else
-                    ns.db.pinnedConversations[playerName] = true
-                end
-                ns.RefreshConversationList()
-            end,
-        },
-        {
-            text = isMuted and "Unmute" or "Mute Notifications",
-            notCheckable = true,
-            func = function()
-                if not ns.db.mutedContacts then ns.db.mutedContacts = {} end
-                if isMuted then
-                    ns.db.mutedContacts[playerName] = nil
-                else
-                    ns.db.mutedContacts[playerName] = true
-                end
-                ns.RefreshConversationList()
-            end,
-        },
-        {
-            text = hasNote and "Edit Note" or "Add Note",
-            notCheckable = true,
-            func = function()
-                ns.ShowNoteEditor(playerName)
-            end,
-        },
-        {
-            text = "Copy Name",
-            notCheckable = true,
-            func = function()
-                ns.ShowCopyPopup(playerName, "Copy Name")
-            end,
-        },
-        {
-            text = "Delete Conversation",
-            notCheckable = true,
-            colorCode = "|cffcc4444",
-            func = function()
-                if ns.activeConversation == playerName then
-                    ns.activeConversation = nil
-                    ns.headerName:SetText("")
-                    if ns.headerNote then ns.headerNote:SetText("") end
-                    if ns.emptyText then ns.emptyText:Show() end
-                    for _, bubble in ipairs(ns.activeBubbles) do bubble:Hide() end
-                    wipe(ns.activeBubbles)
-                    if ns.activeSeparators then
-                        for _, sep in ipairs(ns.activeSeparators) do sep:Hide() end
-                        wipe(ns.activeSeparators)
-                    end
-                    ns.UpdateHeaderButtons()
-                end
-                ns.db.conversations[playerName] = nil
-                if ns.db.pinnedConversations then ns.db.pinnedConversations[playerName] = nil end
-                if ns.db.contactNotes then ns.db.contactNotes[playerName] = nil end
-                if ns.db.mutedContacts then ns.db.mutedContacts[playerName] = nil end
-                ns.RefreshConversationList()
-            end,
-        },
-    }
+    -- Shared action functions
+    local function pinFunc()
+        if not ns.db.pinnedConversations then ns.db.pinnedConversations = {} end
+        if isPinned then
+            ns.db.pinnedConversations[playerName] = nil
+        else
+            ns.db.pinnedConversations[playerName] = true
+        end
+        ns.RefreshConversationList()
+    end
 
-    EasyMenu(menuList, ns.contextMenuFrame, "cursor", 0, 0, "MENU")
+    local function muteFunc()
+        if not ns.db.mutedContacts then ns.db.mutedContacts = {} end
+        if isMuted then
+            ns.db.mutedContacts[playerName] = nil
+        else
+            ns.db.mutedContacts[playerName] = true
+        end
+        ns.RefreshConversationList()
+    end
+
+    local function noteFunc()
+        ns.ShowNoteEditor(playerName)
+    end
+
+    local function copyFunc()
+        ns.ShowCopyPopup(playerName, "Copy Name")
+    end
+
+    local function deleteFunc()
+        if ns.activeConversation == playerName then
+            ns.activeConversation = nil
+            ns.headerName:SetText("")
+            if ns.headerNote then ns.headerNote:SetText("") end
+            if ns.emptyText then ns.emptyText:Show() end
+            for _, bubble in ipairs(ns.activeBubbles) do bubble:Hide() end
+            wipe(ns.activeBubbles)
+            if ns.activeSeparators then
+                for _, sep in ipairs(ns.activeSeparators) do sep:Hide() end
+                wipe(ns.activeSeparators)
+            end
+            ns.UpdateHeaderButtons()
+        end
+        ns.db.conversations[playerName] = nil
+        if ns.db.pinnedConversations then ns.db.pinnedConversations[playerName] = nil end
+        if ns.db.contactNotes then ns.db.contactNotes[playerName] = nil end
+        if ns.db.mutedContacts then ns.db.mutedContacts[playerName] = nil end
+        ns.RefreshConversationList()
+    end
+
+    local pinText = isPinned and "Unpin" or "Pin to Top"
+    local muteText = isMuted and "Unmute" or "Mute Notifications"
+    local noteText = hasNote and "Edit Note" or "Add Note"
+
+    if MenuUtil and MenuUtil.CreateContextMenu then
+        -- Retail 11.0+
+        MenuUtil.CreateContextMenu(UIParent, function(owner, rootDescription)
+            rootDescription:CreateButton(pinText, pinFunc)
+            rootDescription:CreateButton(muteText, muteFunc)
+            rootDescription:CreateButton(noteText, noteFunc)
+            rootDescription:CreateButton("Copy Name", copyFunc)
+            rootDescription:CreateButton("|cffcc4444Delete Conversation|r", deleteFunc)
+        end)
+    else
+        -- Classic (EasyMenu)
+        if not ns.contextMenuFrame then
+            ns.contextMenuFrame = CreateFrame("Frame", "iChatContextMenu", UIParent, "UIDropDownMenuTemplate")
+        end
+
+        local menuList = {
+            { text = pinText, notCheckable = true, func = pinFunc },
+            { text = muteText, notCheckable = true, func = muteFunc },
+            { text = noteText, notCheckable = true, func = noteFunc },
+            { text = "Copy Name", notCheckable = true, func = copyFunc },
+            { text = "Delete Conversation", notCheckable = true, colorCode = "|cffcc4444", func = deleteFunc },
+        }
+
+        EasyMenu(menuList, ns.contextMenuFrame, "cursor", 0, 0, "MENU")
+    end
 end
 
 ---------------------------------------------------------------------------
