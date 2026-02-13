@@ -120,6 +120,18 @@ function ns.UpdateButtonBadge()
     end
 end
 
+-- Flash the button on incoming whisper (visual pulse regardless of unread state)
+function ns.FlashButton()
+    if not ns.minimapButton then return end
+    local btn = ns.minimapButton
+    btn.bg:SetColorTexture(1.0, 0.22, 0.17, 1.0) -- red flash
+    btn.label:SetTextColor(1, 1, 1)
+    C_Timer.After(0.3, function()
+        if not btn.bg then return end
+        btn.bg:SetColorTexture(0.0, 0.48, 1.0, 0.9) -- back to blue
+    end)
+end
+
 function ns.SetMinimapButtonVisible(show)
     if not ns.minimapButton then return end
     if show then

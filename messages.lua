@@ -117,6 +117,11 @@ function ns:CHAT_MSG_WHISPER(text, sender, ...)
         FlashClientIcon()
     end
 
+    -- Flash the floating button (skip if muted)
+    if not isMuted and ns.FlashButton then
+        ns.FlashButton()
+    end
+
     -- Play notification sound (skip if muted)
     if not isMuted and ns.PlayNotifySound then
         ns.PlayNotifySound()
@@ -216,7 +221,7 @@ end
 
 -- Chat filter to suppress whispers from default chat frame
 function ns.WhisperFilter(self, event, ...)
-    if ns.db.settings.suppressDefault and ns.mainWindow and ns.mainWindow:IsShown() then
+    if ns.db.settings.suppressDefault then
         return true
     end
     return false, ...
