@@ -2,6 +2,9 @@ local _, ns = ...
 
 local defaults = {
     conversations = {},
+    pinnedConversations = {},
+    contactNotes = {},
+    mutedContacts = {},
     settings = {
         scale = 1.0,
         suppressDefault = true,
@@ -12,6 +15,16 @@ local defaults = {
         bgAlpha = 0.95,
         quickReplies = {},
         notifySound = "glass",
+        showTimestampOnHover = true,
+        showDateSeparators = true,
+        enableItemLinks = true,
+        showOnlineStatus = true,
+        classColoredNames = true,
+        autoReplyEnabled = false,
+        autoReplyMessage = "I'm currently away. I'll respond when I return!",
+        enableKeyboardShortcuts = true,
+        showMinimapButton = true,
+        minimapButtonAngle = 220,
     },
 }
 
@@ -40,6 +53,11 @@ function ns.InitDB()
             ICHAT_DATA.settings[k] = v
         end
     end
+
+    -- Ensure new top-level tables exist
+    if not ICHAT_DATA.pinnedConversations then ICHAT_DATA.pinnedConversations = {} end
+    if not ICHAT_DATA.contactNotes then ICHAT_DATA.contactNotes = {} end
+    if not ICHAT_DATA.mutedContacts then ICHAT_DATA.mutedContacts = {} end
 
     -- Check if WIM is loaded — avoid double-suppression
     if C_AddOns.IsAddOnLoaded("WIM") then

@@ -9,10 +9,13 @@ local BUBBLE_PADDING_V = 8
 local BUBBLE_MARGIN = 4
 local TIMESTAMP_HEIGHT = 14
 local CORNER_SIZE = 14
+local SEPARATOR_HEIGHT = 24
 
--- Frame pool
+-- Frame pools
 local bubblePool = {}
+local separatorPool = {}
 ns.activeBubbles = {}
+ns.activeSeparators = {}
 
 local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
 
@@ -28,6 +31,7 @@ end
 local function CreateBubbleFrame(parent)
     local bubble = CreateFrame("Frame", nil, parent)
     bubble.parts = {}
+    bubble:EnableMouse(true)
 
     local function AddPart(tex)
         table.insert(bubble.parts, tex)
@@ -95,6 +99,20 @@ local function CreateBubbleFrame(parent)
     timeText:SetTextColor(0.45, 0.45, 0.45)
     bubble.timeText = timeText
 
+    -- Item link support
+    bubble:SetHyperlinksEnabled(true)
+    bubble:SetScript("OnHyperlinkEnter", function(self, link)
+        GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
+        GameTooltip:SetHyperlink(link)
+        GameTooltip:Show()
+    end)
+    bubble:SetScript("OnHyperlinkLeave", function()
+        GameTooltip:Hide()
+    end)
+    bubble:SetScript("OnHyperlinkClick", function(self, link, text, button)
+        ChatFrame_OnHyperlinkShow(ChatFrame1, link, text, button)
+    end)
+
     bubble.SetBubbleColor = SetBubbleColor
     bubble:Hide()
     return bubble
@@ -113,7 +131,86 @@ end
 local function ReleaseBubble(bubble)
     bubble:Hide()
     bubble:ClearAllPoints()
+    bubble:SetScript("OnEnter", nil)
+    bubble:SetScript("OnLeave", nil)
+    bubble:SetScript("OnMouseUp", nil)
+    bubble._rawText = nil
     table.insert(bubblePool, bubble)
+end
+
+---------------------------------------------------------------------------
+-- Separator Frame (date separators + unread separator)
+---------------------------------------------------------------------------
+local function CreateSeparatorFrame(parent)
+    local sep = CreateFrame("Frame", nil, parent)
+    sep:SetHeight(SEPARATOR_HEIGHT)
+
+    local leftLine = sep:CreateTexture(nil, "ARTWORK")
+    leftLine:SetHeight(1)
+    leftLine:SetPoint("LEFT", 16, 0)
+    leftLine:SetColorTexture(0.25, 0.25, 0.25, 1)
+    sep.leftLine = leftLine
+
+    local text = sep:CreateFontString(nil, "OVERLAY")
+    text:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
+    text:SetTextColor(0.45, 0.45, 0.45)
+    text:SetPoint("CENTER")
+    sep.text = text
+
+    local rightLine = sep:CreateTexture(nil, "ARTWORK")
+    rightLine:SetHeight(1)
+    rightLine:SetPoint("RIGHT", -16, 0)
+    rightLine:SetColorTexture(0.25, 0.25, 0.25, 1)
+    sep.rightLine = rightLine
+
+    -- Lines extend from edges to text
+    leftLine:SetPoint("RIGHT", text, "LEFT", -8, 0)
+    rightLine:SetPoint("LEFT", text, "RIGHT", 8, 0)
+
+    sep:Hide()
+    return sep
+end
+
+local function AcquireSeparator(parent)
+    local sep = table.remove(separatorPool)
+    if not sep then
+        sep = CreateSeparatorFrame(parent)
+    else
+        sep:SetParent(parent)
+    end
+    return sep
+end
+
+local function ReleaseSeparator(sep)
+    sep:Hide()
+    sep:ClearAllPoints()
+    table.insert(separatorPool, sep)
+end
+
+---------------------------------------------------------------------------
+-- Date Formatting for Separators
+---------------------------------------------------------------------------
+local function GetDateLabel(timestamp)
+    local msgDate = date("*t", timestamp)
+    local today = date("*t", time())
+
+    if msgDate.year == today.year and msgDate.yday == today.yday then
+        return "Today"
+    end
+
+    local yesterday = date("*t", time() - 86400)
+    if msgDate.year == yesterday.year and msgDate.yday == yesterday.yday then
+        return "Yesterday"
+    end
+
+    return date("%b %d", timestamp)
+end
+
+local function IsSameDay(t1, t2)
+    if not t1 or not t2 then return false end
+    local d1 = date("*t", t1)
+    local d2 = date("*t", t2)
+    return d1.year == d2.year and d1.yday == d2.yday
 end
 
 ---------------------------------------------------------------------------
@@ -200,11 +297,73 @@ local function LayoutBubble(bubble, entry, chatWidth, yOffset)
     end
 
     -- Timestamp
-    bubble.timeText:SetText(ns.FormatTimestamp(entry.time))
+    local relativeTime = ns.FormatTimestamp(entry.time)
+    bubble.timeText:SetText(relativeTime)
+
+    -- Store raw text for copy
+    bubble._rawText = entry.text
+
+    -- Right-click to copy message
+    bubble:SetScript("OnMouseUp", function(self, button)
+        if button == "RightButton" and self._rawText and ns.ShowCopyPopup then
+            ns.ShowCopyPopup(self._rawText, "Copy Message")
+        end
+    end)
+
+    -- Hover to show exact timestamp
+    if ns.db.settings.showTimestampOnHover then
+        bubble._entryTime = entry.time
+        bubble._relativeTime = relativeTime
+        bubble:SetScript("OnEnter", function(self)
+            if self._entryTime then
+                self.timeText:SetText(date("%I:%M:%S %p", self._entryTime))
+                self.timeText:SetTextColor(0.6, 0.6, 0.6)
+            end
+        end)
+        bubble:SetScript("OnLeave", function(self)
+            self.timeText:SetText(self._relativeTime or "")
+            self.timeText:SetTextColor(0.45, 0.45, 0.45)
+        end)
+    else
+        bubble:SetScript("OnEnter", nil)
+        bubble:SetScript("OnLeave", nil)
+    end
 
     bubble:Show()
 
     return bubbleHeight + TIMESTAMP_HEIGHT + BUBBLE_MARGIN
+end
+
+---------------------------------------------------------------------------
+-- Layout an Unread Separator
+---------------------------------------------------------------------------
+local function LayoutUnreadSeparator(parent, chatWidth, yOffset)
+    local sep = AcquireSeparator(parent)
+    sep:ClearAllPoints()
+    sep:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset)
+    sep:SetPoint("RIGHT", parent, "RIGHT")
+    sep.text:SetText("New Messages")
+    sep.text:SetTextColor(0.0, 0.48, 1.0)
+    sep.leftLine:SetColorTexture(0.0, 0.48, 1.0, 0.5)
+    sep.rightLine:SetColorTexture(0.0, 0.48, 1.0, 0.5)
+    sep:Show()
+    return sep
+end
+
+---------------------------------------------------------------------------
+-- Layout a Date Separator
+---------------------------------------------------------------------------
+local function LayoutDateSeparator(parent, chatWidth, yOffset, timestamp)
+    local sep = AcquireSeparator(parent)
+    sep:ClearAllPoints()
+    sep:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, -yOffset)
+    sep:SetPoint("RIGHT", parent, "RIGHT")
+    sep.text:SetText(GetDateLabel(timestamp))
+    sep.text:SetTextColor(0.45, 0.45, 0.45)
+    sep.leftLine:SetColorTexture(0.25, 0.25, 0.25, 1)
+    sep.rightLine:SetColorTexture(0.25, 0.25, 0.25, 1)
+    sep:Show()
+    return sep
 end
 
 ---------------------------------------------------------------------------
@@ -216,6 +375,11 @@ function ns.RebuildBubbles(playerName)
     end
     wipe(ns.activeBubbles)
 
+    for _, sep in ipairs(ns.activeSeparators) do
+        ReleaseSeparator(sep)
+    end
+    wipe(ns.activeSeparators)
+
     local convo = ns.db.conversations[playerName]
     if not convo or not convo.messages then return end
 
@@ -223,12 +387,32 @@ function ns.RebuildBubbles(playerName)
     if chatWidth <= 0 then chatWidth = 300 end
 
     local yOffset = 8
+    local prevTime = nil
+    local showDateSep = ns.db.settings.showDateSeparators
+    local unreadSepIndex = convo.unreadSepIndex
 
-    for _, entry in ipairs(convo.messages) do
+    for i, entry in ipairs(convo.messages) do
+        -- Date separator
+        if showDateSep and entry.time then
+            if not prevTime or not IsSameDay(prevTime, entry.time) then
+                local sep = LayoutDateSeparator(ns.chatScrollChild, chatWidth, yOffset, entry.time)
+                table.insert(ns.activeSeparators, sep)
+                yOffset = yOffset + SEPARATOR_HEIGHT
+            end
+        end
+
+        -- Unread separator (before first unread message)
+        if unreadSepIndex and i == unreadSepIndex then
+            local sep = LayoutUnreadSeparator(ns.chatScrollChild, chatWidth, yOffset)
+            table.insert(ns.activeSeparators, sep)
+            yOffset = yOffset + SEPARATOR_HEIGHT
+        end
+
         local bubble = AcquireBubble(ns.chatScrollChild)
         local height = LayoutBubble(bubble, entry, chatWidth, yOffset)
         table.insert(ns.activeBubbles, bubble)
         yOffset = yOffset + height
+        prevTime = entry.time
     end
 
     local scrollHeight = ns.chatScrollFrame:GetHeight()
@@ -244,10 +428,28 @@ function ns.AddBubble(entry, playerName)
     local chatWidth = ns.chatScrollChild:GetWidth()
     if chatWidth <= 0 then chatWidth = 300 end
 
+    -- Calculate current yOffset from existing elements
     local yOffset = 8
     for _, b in ipairs(ns.activeBubbles) do
         local bh = b:GetHeight()
         yOffset = yOffset + bh + TIMESTAMP_HEIGHT + BUBBLE_MARGIN
+    end
+    for _, s in ipairs(ns.activeSeparators) do
+        yOffset = yOffset + SEPARATOR_HEIGHT
+    end
+
+    -- Check if we need a date separator
+    local showDateSep = ns.db.settings.showDateSeparators
+    if showDateSep and entry.time then
+        local convo = ns.db.conversations[playerName]
+        if convo and convo.messages and #convo.messages > 1 then
+            local prevEntry = convo.messages[#convo.messages - 1]
+            if prevEntry and not IsSameDay(prevEntry.time, entry.time) then
+                local sep = LayoutDateSeparator(ns.chatScrollChild, chatWidth, yOffset, entry.time)
+                table.insert(ns.activeSeparators, sep)
+                yOffset = yOffset + SEPARATOR_HEIGHT
+            end
+        end
     end
 
     local bubble = AcquireBubble(ns.chatScrollChild)

@@ -554,6 +554,177 @@ function ns.CreateSettingsPanel()
     yPos = yPos + 52
 
     -----------------------------------------------------------------------
+    -- Display Section
+    -----------------------------------------------------------------------
+    local displayDiv = child:CreateTexture(nil, "OVERLAY")
+    displayDiv:SetHeight(1)
+    displayDiv:SetPoint("TOPLEFT", 0, -yPos)
+    displayDiv:SetPoint("RIGHT", child, "RIGHT")
+    displayDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
+    yPos = yPos + 12
+
+    local displayLabel = child:CreateFontString(nil, "OVERLAY")
+    displayLabel:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+    displayLabel:SetTextColor(0.65, 0.65, 0.65)
+    displayLabel:SetPoint("TOPLEFT", 0, -yPos)
+    displayLabel:SetText("Display")
+    yPos = yPos + 18
+
+    local dateSepCB = CreateSettingsCheckbox(child, "Show date separators",
+        function() return ns.db.settings.showDateSeparators end,
+        function(v)
+            ns.db.settings.showDateSeparators = v
+            if ns.activeConversation then ns.RebuildBubbles(ns.activeConversation) end
+        end
+    )
+    dateSepCB:SetPoint("TOPLEFT", 0, -yPos)
+    dateSepCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local hoverTimeCB = CreateSettingsCheckbox(child, "Show timestamps on hover",
+        function() return ns.db.settings.showTimestampOnHover end,
+        function(v)
+            ns.db.settings.showTimestampOnHover = v
+            if ns.activeConversation then ns.RebuildBubbles(ns.activeConversation) end
+        end
+    )
+    hoverTimeCB:SetPoint("TOPLEFT", 0, -yPos)
+    hoverTimeCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local itemLinksCB = CreateSettingsCheckbox(child, "Enable item links",
+        function() return ns.db.settings.enableItemLinks end,
+        function(v) ns.db.settings.enableItemLinks = v end
+    )
+    itemLinksCB:SetPoint("TOPLEFT", 0, -yPos)
+    itemLinksCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local classColorCB = CreateSettingsCheckbox(child, "Class-colored names",
+        function() return ns.db.settings.classColoredNames end,
+        function(v)
+            ns.db.settings.classColoredNames = v
+            ns.RefreshConversationList()
+        end
+    )
+    classColorCB:SetPoint("TOPLEFT", 0, -yPos)
+    classColorCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local onlineStatusCB = CreateSettingsCheckbox(child, "Show online status",
+        function() return ns.db.settings.showOnlineStatus end,
+        function(v)
+            ns.db.settings.showOnlineStatus = v
+            ns.RefreshConversationList()
+        end
+    )
+    onlineStatusCB:SetPoint("TOPLEFT", 0, -yPos)
+    onlineStatusCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 30
+
+    -----------------------------------------------------------------------
+    -- Behavior Section
+    -----------------------------------------------------------------------
+    local behaviorDiv = child:CreateTexture(nil, "OVERLAY")
+    behaviorDiv:SetHeight(1)
+    behaviorDiv:SetPoint("TOPLEFT", 0, -yPos)
+    behaviorDiv:SetPoint("RIGHT", child, "RIGHT")
+    behaviorDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
+    yPos = yPos + 12
+
+    local behaviorLabel = child:CreateFontString(nil, "OVERLAY")
+    behaviorLabel:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+    behaviorLabel:SetTextColor(0.65, 0.65, 0.65)
+    behaviorLabel:SetPoint("TOPLEFT", 0, -yPos)
+    behaviorLabel:SetText("Behavior")
+    yPos = yPos + 18
+
+    local kbShortcutsCB = CreateSettingsCheckbox(child, "Enable keyboard shortcuts",
+        function() return ns.db.settings.enableKeyboardShortcuts end,
+        function(v) ns.db.settings.enableKeyboardShortcuts = v end
+    )
+    kbShortcutsCB:SetPoint("TOPLEFT", 0, -yPos)
+    kbShortcutsCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local minimapBtnCB = CreateSettingsCheckbox(child, "Show minimap button",
+        function() return ns.db.settings.showMinimapButton end,
+        function(v)
+            ns.db.settings.showMinimapButton = v
+            if ns.SetMinimapButtonVisible then
+                ns.SetMinimapButtonVisible(v)
+            end
+        end
+    )
+    minimapBtnCB:SetPoint("TOPLEFT", 0, -yPos)
+    minimapBtnCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 30
+
+    -----------------------------------------------------------------------
+    -- Auto-Reply Section
+    -----------------------------------------------------------------------
+    local autoReplyDiv = child:CreateTexture(nil, "OVERLAY")
+    autoReplyDiv:SetHeight(1)
+    autoReplyDiv:SetPoint("TOPLEFT", 0, -yPos)
+    autoReplyDiv:SetPoint("RIGHT", child, "RIGHT")
+    autoReplyDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
+    yPos = yPos + 12
+
+    local autoReplyLabel = child:CreateFontString(nil, "OVERLAY")
+    autoReplyLabel:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+    autoReplyLabel:SetTextColor(0.65, 0.65, 0.65)
+    autoReplyLabel:SetPoint("TOPLEFT", 0, -yPos)
+    autoReplyLabel:SetText("Auto-Reply")
+    yPos = yPos + 18
+
+    local autoReplyCB = CreateSettingsCheckbox(child, "Enable auto-reply",
+        function() return ns.db.settings.autoReplyEnabled end,
+        function(v)
+            ns.db.settings.autoReplyEnabled = v
+            if v then
+                ns.autoRepliedTo = {}
+            end
+        end
+    )
+    autoReplyCB:SetPoint("TOPLEFT", 0, -yPos)
+    autoReplyCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    -- Auto-reply message EditBox
+    local arMsgLabel = child:CreateFontString(nil, "OVERLAY")
+    arMsgLabel:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
+    arMsgLabel:SetTextColor(0.5, 0.5, 0.5)
+    arMsgLabel:SetPoint("TOPLEFT", 0, -yPos)
+    arMsgLabel:SetText("Message:")
+    yPos = yPos + 14
+
+    local arMsgRow = CreateFrame("Frame", nil, child)
+    arMsgRow:SetHeight(24)
+    arMsgRow:SetPoint("TOPLEFT", 0, -yPos)
+    arMsgRow:SetPoint("RIGHT", child, "RIGHT")
+
+    local arMsgBox = CreateFrame("EditBox", nil, arMsgRow)
+    arMsgBox:SetPoint("LEFT", 0, 0)
+    arMsgBox:SetPoint("RIGHT")
+    arMsgBox:SetHeight(20)
+    arMsgBox:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+    arMsgBox:SetTextColor(0.9, 0.9, 0.9)
+    arMsgBox:SetAutoFocus(false)
+    arMsgBox:SetMaxLetters(200)
+
+    local arMsgBg = arMsgBox:CreateTexture(nil, "BACKGROUND")
+    arMsgBg:SetAllPoints()
+    arMsgBg:SetColorTexture(0.1, 0.1, 0.1, 1)
+
+    arMsgBox:SetText(ns.db.settings.autoReplyMessage or "")
+    arMsgBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
+    arMsgBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
+    arMsgBox:SetScript("OnEditFocusLost", function(self)
+        ns.db.settings.autoReplyMessage = self:GetText()
+    end)
+    yPos = yPos + 30
+
+    -----------------------------------------------------------------------
     -- Quick Replies Section
     -----------------------------------------------------------------------
     local qrDiv = child:CreateTexture(nil, "OVERLAY")
@@ -694,6 +865,15 @@ function ns.CreateSettingsPanel()
         historySlider.Refresh()
         openWhisperCB.Refresh()
         suppressCB.Refresh()
+        dateSepCB.Refresh()
+        hoverTimeCB.Refresh()
+        itemLinksCB.Refresh()
+        classColorCB.Refresh()
+        onlineStatusCB.Refresh()
+        kbShortcutsCB.Refresh()
+        minimapBtnCB.Refresh()
+        autoReplyCB.Refresh()
+        arMsgBox:SetText(ns.db.settings.autoReplyMessage or "")
         clearAllConfirm = false
         clearAllBtn.label:SetText("Clear All History")
         -- Refresh quick reply boxes

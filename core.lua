@@ -1,6 +1,6 @@
 local addonName, ns = ...
 
-ns.version = "1.0.0"
+ns.version = "1.1.0"
 ns.playerName = nil
 ns.activeConversation = nil
 
@@ -38,6 +38,11 @@ function ns:ADDON_LOADED(loadedName)
         ns.RegisterChatFilters()
     end
 
+    -- Create minimap button
+    if ns.CreateMinimapButton then
+        ns.CreateMinimapButton()
+    end
+
     -- Slash commands
     SLASH_ICHAT1 = "/ichat"
     SlashCmdList["ICHAT"] = function(msg)
@@ -49,6 +54,11 @@ function ns:PLAYER_LOGIN()
     ns.playerName = UnitName("player")
     C_FriendList.ShowFriends()
     frame:UnregisterEvent("PLAYER_LOGIN")
+
+    -- Poll friend list every 30s to keep online status current
+    C_Timer.NewTicker(30, function()
+        C_FriendList.ShowFriends()
+    end)
 end
 
 function ns.SlashHandler(msg)
@@ -83,12 +93,32 @@ function ns.SlashHandler(msg)
         else
             DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Scale must be between 0.5 and 2.0")
         end
+    elseif msg == "autoreply" then
+        ns.db.settings.autoReplyEnabled = not ns.db.settings.autoReplyEnabled
+        if ns.db.settings.autoReplyEnabled then
+            wipe(ns.autoRepliedTo or {})
+            ns.autoRepliedTo = {}
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Auto-reply |cff00ff00enabled|r: " .. (ns.db.settings.autoReplyMessage or ""))
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Auto-reply |cffff4444disabled|r")
+        end
+    elseif msg:match("^search%s+") then
+        local query = msg:match("^search%s+(.+)")
+        if query and ns.searchBox then
+            if ns.mainWindow and not ns.mainWindow:IsShown() then
+                ns.mainWindow:Show()
+            end
+            ns.searchBox:SetText(query)
+            ns.searchBox:SetFocus()
+        end
     else
         DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat|r commands:")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat - Toggle window")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat clear - Clear current conversation")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat scale <n> - Set scale (0.5-2.0)")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat emoji - Show available emoji shortcodes")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat autoreply - Toggle auto-reply")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat search <text> - Search conversations")
     end
 end
 

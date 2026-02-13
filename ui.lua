@@ -19,6 +19,7 @@ ns.C = C
 
 local LEFT_WIDTH = 140
 local ENTRY_HEIGHT = 52
+local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
 
 ---------------------------------------------------------------------------
 -- Main Window
@@ -83,6 +84,9 @@ function ns.CreateMainWindow()
 
     -- Set up always-on fade behavior
     ns.SetupFadeHooks()
+
+    -- Set up keyboard shortcuts
+    ns.SetupKeyboardShortcuts()
 end
 
 ---------------------------------------------------------------------------
@@ -179,9 +183,67 @@ function ns.CreateLeftPanel(parent)
     bg:SetColorTexture(unpack(C.BG_PANEL))
     ns.leftPanelBg = bg
 
-    -- Scroll frame
+    -- Search bar
+    local searchBar = CreateFrame("Frame", nil, panel)
+    searchBar:SetHeight(24)
+    searchBar:SetPoint("TOPLEFT", 4, -4)
+    searchBar:SetPoint("TOPRIGHT", -4, -4)
+
+    local searchBg = searchBar:CreateTexture(nil, "BACKGROUND")
+    searchBg:SetAllPoints()
+    searchBg:SetColorTexture(0.1, 0.1, 0.1, 1)
+
+    local searchBox = CreateFrame("EditBox", "iChatSearchBox", searchBar)
+    searchBox:SetPoint("LEFT", 6, 0)
+    searchBox:SetPoint("RIGHT", -20, 0)
+    searchBox:SetHeight(20)
+    searchBox:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
+    searchBox:SetTextColor(0.8, 0.8, 0.8)
+    searchBox:SetAutoFocus(false)
+    searchBox:SetMaxLetters(50)
+
+    -- Placeholder text
+    local placeholder = searchBox:CreateFontString(nil, "OVERLAY")
+    placeholder:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
+    placeholder:SetTextColor(0.35, 0.35, 0.35)
+    placeholder:SetPoint("LEFT", 0, 0)
+    placeholder:SetText("Search...")
+
+    searchBox:SetScript("OnTextChanged", function(self)
+        local text = self:GetText()
+        if text and text ~= "" then
+            placeholder:Hide()
+        else
+            placeholder:Show()
+        end
+        ns.searchFilter = (text and text ~= "") and text:lower() or nil
+        ns.RefreshConversationList()
+    end)
+    searchBox:SetScript("OnEscapePressed", function(self)
+        self:SetText("")
+        self:ClearFocus()
+    end)
+
+    -- Clear button
+    local clearBtn = CreateFrame("Button", nil, searchBar)
+    clearBtn:SetSize(16, 16)
+    clearBtn:SetPoint("RIGHT", -2, 0)
+    local clearText = clearBtn:CreateFontString(nil, "OVERLAY")
+    clearText:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+    clearText:SetPoint("CENTER")
+    clearText:SetText("x")
+    clearText:SetTextColor(0.4, 0.4, 0.4)
+    clearBtn:SetScript("OnClick", function()
+        searchBox:SetText("")
+        searchBox:ClearFocus()
+    end)
+
+    ns.searchBox = searchBox
+    ns.searchFilter = nil
+
+    -- Scroll frame (below search bar)
     local scroll = CreateFrame("ScrollFrame", "iChatConvoScroll", panel)
-    scroll:SetPoint("TOPLEFT")
+    scroll:SetPoint("TOPLEFT", searchBar, "BOTTOMLEFT", -4, -2)
     scroll:SetPoint("BOTTOMRIGHT")
     scroll:EnableMouseWheel(true)
 
@@ -211,21 +273,49 @@ function ns.CreateConvoEntry(index)
     entry:SetHeight(ENTRY_HEIGHT)
     entry:SetPoint("TOPLEFT", ns.convoScrollChild, "TOPLEFT", 0, -(index - 1) * ENTRY_HEIGHT)
     entry:SetPoint("RIGHT", ns.convoScrollChild, "RIGHT")
+    entry:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 
     local bg = entry:CreateTexture(nil, "BACKGROUND")
     bg:SetAllPoints()
     bg:SetColorTexture(0, 0, 0, 0)
     entry.bg = bg
 
-    -- Player name
+    -- Online status dot
+    local statusDot = entry:CreateTexture(nil, "OVERLAY")
+    statusDot:SetSize(8, 8)
+    statusDot:SetPoint("TOPLEFT", 4, -10)
+    statusDot:SetTexture(PILL_TEXTURE)
+    statusDot:SetVertexColor(0.4, 0.4, 0.4) -- default: gray/offline
+    statusDot:Hide()
+    entry.statusDot = statusDot
+
+    -- Player name (shifted right if status dot is shown)
     local name = entry:CreateFontString(nil, "OVERLAY")
     name:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
     name:SetTextColor(unpack(C.TEXT_WHITE))
-    name:SetPoint("TOPLEFT", 8, -8)
+    name:SetPoint("TOPLEFT", 14, -8)
     name:SetPoint("RIGHT", -30, 0)
     name:SetJustifyH("LEFT")
     name:SetWordWrap(false)
     entry.nameText = name
+
+    -- Pin icon (small text indicator)
+    local pinIcon = entry:CreateFontString(nil, "OVERLAY")
+    pinIcon:SetFont("Fonts\\FRIZQT__.TTF", 8, "")
+    pinIcon:SetTextColor(0.5, 0.5, 0.5)
+    pinIcon:SetPoint("LEFT", name, "RIGHT", 2, 0)
+    pinIcon:SetText("")
+    pinIcon:Hide()
+    entry.pinIcon = pinIcon
+
+    -- Muted icon
+    local mutedIcon = entry:CreateFontString(nil, "OVERLAY")
+    mutedIcon:SetFont("Fonts\\FRIZQT__.TTF", 8, "")
+    mutedIcon:SetTextColor(0.5, 0.5, 0.5)
+    mutedIcon:SetPoint("BOTTOMLEFT", 14, 10)
+    mutedIcon:SetText("")
+    mutedIcon:Hide()
+    entry.mutedIcon = mutedIcon
 
     -- Preview
     local preview = entry:CreateFontString(nil, "OVERLAY")
@@ -267,9 +357,13 @@ function ns.CreateConvoEntry(index)
     div:SetPoint("BOTTOMRIGHT", -8, 0)
     div:SetColorTexture(unpack(C.DIVIDER))
 
-    -- Click
-    entry:SetScript("OnClick", function(self)
-        ns.SelectConversation(self.playerName)
+    -- Click (left = select, right = context menu)
+    entry:SetScript("OnClick", function(self, button)
+        if button == "RightButton" then
+            ns.ShowContextMenu(self.playerName)
+        else
+            ns.SelectConversation(self.playerName)
+        end
     end)
     entry:SetScript("OnEnter", function(self)
         if ns.activeConversation ~= self.playerName then
@@ -319,9 +413,20 @@ function ns.CreateRightPanel(parent)
     local headerName = header:CreateFontString(nil, "OVERLAY")
     headerName:SetFont("Fonts\\FRIZQT__.TTF", 12, "")
     headerName:SetTextColor(unpack(C.TEXT_WHITE))
-    headerName:SetPoint("LEFT", 10, 0)
+    headerName:SetPoint("LEFT", 10, 2)
     headerName:SetText("")
     ns.headerName = headerName
+
+    -- Contact note (below name in header)
+    local headerNote = header:CreateFontString(nil, "OVERLAY")
+    headerNote:SetFont("Fonts\\FRIZQT__.TTF", 8, "")
+    headerNote:SetTextColor(0.45, 0.45, 0.45)
+    headerNote:SetPoint("TOPLEFT", headerName, "BOTTOMLEFT", 0, -1)
+    headerNote:SetPoint("RIGHT", -120, 0)
+    headerNote:SetJustifyH("LEFT")
+    headerNote:SetWordWrap(false)
+    headerNote:SetText("")
+    ns.headerNote = headerNote
 
     -- Block button (rightmost)
     local blockBtn = CreateFrame("Button", nil, header)
@@ -519,12 +624,34 @@ end
 -- Conversation List Management
 ---------------------------------------------------------------------------
 function ns.RefreshConversationList()
-    -- Sort by lastActivity descending
+    -- Build list with search filter
     local sorted = {}
+    local filter = ns.searchFilter
     for name, convo in pairs(ns.db.conversations) do
-        table.insert(sorted, { name = name, convo = convo })
+        local include = true
+        if filter then
+            -- Match name or message content
+            include = name:lower():find(filter, 1, true) ~= nil
+            if not include and convo.messages then
+                for _, msg in ipairs(convo.messages) do
+                    if msg.text and msg.text:lower():find(filter, 1, true) then
+                        include = true
+                        break
+                    end
+                end
+            end
+        end
+        if include then
+            table.insert(sorted, { name = name, convo = convo })
+        end
     end
+
+    -- Sort: pinned first, then by lastActivity descending
+    local pinned = ns.db.pinnedConversations or {}
     table.sort(sorted, function(a, b)
+        local aPinned = pinned[a.name] and true or false
+        local bPinned = pinned[b.name] and true or false
+        if aPinned ~= bPinned then return aPinned end
         return (a.convo.lastActivity or 0) > (b.convo.lastActivity or 0)
     end)
 
@@ -539,6 +666,52 @@ function ns.RefreshConversationList()
         local entry = ns.convoEntries[i]
         entry.playerName = data.name
         entry.nameText:SetText(data.name)
+
+        -- Class-colored names
+        if ns.db.settings.classColoredNames and ns.classCache then
+            local classToken = ns.classCache[data.name:lower()]
+            if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+                local cc = RAID_CLASS_COLORS[classToken]
+                entry.nameText:SetTextColor(cc.r, cc.g, cc.b)
+            else
+                entry.nameText:SetTextColor(unpack(C.TEXT_WHITE))
+            end
+        else
+            entry.nameText:SetTextColor(unpack(C.TEXT_WHITE))
+        end
+
+        -- Online status dot
+        if ns.db.settings.showOnlineStatus and entry.statusDot then
+            local online = ns.onlineCache and ns.onlineCache[data.name:lower()]
+            if ns.IsFriend(data.name) then
+                entry.statusDot:Show()
+                if online then
+                    entry.statusDot:SetVertexColor(0.2, 0.8, 0.2) -- green
+                else
+                    entry.statusDot:SetVertexColor(0.4, 0.4, 0.4) -- gray
+                end
+            else
+                entry.statusDot:Hide()
+            end
+        elseif entry.statusDot then
+            entry.statusDot:Hide()
+        end
+
+        -- Pin icon
+        if pinned[data.name] and entry.pinIcon then
+            entry.pinIcon:SetText("|TInterface\\AddOns\\iChat\\media\\textures\\pill:8|t")
+            entry.pinIcon:Show()
+        elseif entry.pinIcon then
+            entry.pinIcon:Hide()
+        end
+
+        -- Muted icon
+        if ns.db.mutedContacts and ns.db.mutedContacts[data.name] and entry.mutedIcon then
+            entry.mutedIcon:SetText("(muted)")
+            entry.mutedIcon:Show()
+        elseif entry.mutedIcon then
+            entry.mutedIcon:Hide()
+        end
 
         -- Last message preview
         local msgs = data.convo.messages
@@ -589,6 +762,9 @@ function ns.RefreshConversationList()
 
     -- Update scroll child height
     ns.convoScrollChild:SetHeight(math.max(#sorted * ENTRY_HEIGHT, 1))
+
+    -- Store sorted list for keyboard navigation
+    ns._sortedConvos = sorted
 end
 
 ---------------------------------------------------------------------------
@@ -643,12 +819,21 @@ function ns.SelectConversation(playerName)
     ns.activeConversation = playerName
     ns.headerName:SetText(playerName)
 
+    -- Show contact note in header
+    if ns.headerNote then
+        local note = ns.db.contactNotes and ns.db.contactNotes[playerName]
+        ns.headerNote:SetText(note or "")
+    end
+
     -- Hide empty state
     if ns.emptyText then ns.emptyText:Hide() end
 
-    -- Clear unread
+    -- Clear unread and unread separator
     local convo = ns.db.conversations[playerName]
-    if convo then convo.unread = 0 end
+    if convo then
+        convo.unread = 0
+        convo.unreadSepIndex = nil
+    end
 
     -- Cancel fade — user is interacting
     ns.CancelFade()
@@ -867,4 +1052,302 @@ function ns.ToggleCompose()
     ns.composeBar:Show()
     ns.composeInput:SetText("")
     ns.composeInput:SetFocus()
+end
+
+---------------------------------------------------------------------------
+-- Right-Click Context Menu
+---------------------------------------------------------------------------
+function ns.ShowContextMenu(playerName)
+    if not playerName then return end
+
+    -- Create the dropdown frame once
+    if not ns.contextMenuFrame then
+        ns.contextMenuFrame = CreateFrame("Frame", "iChatContextMenu", UIParent, "UIDropDownMenuTemplate")
+    end
+
+    local isPinned = ns.db.pinnedConversations and ns.db.pinnedConversations[playerName]
+    local isMuted = ns.db.mutedContacts and ns.db.mutedContacts[playerName]
+    local hasNote = ns.db.contactNotes and ns.db.contactNotes[playerName]
+
+    local menuList = {
+        {
+            text = isPinned and "Unpin" or "Pin to Top",
+            notCheckable = true,
+            func = function()
+                if not ns.db.pinnedConversations then ns.db.pinnedConversations = {} end
+                if isPinned then
+                    ns.db.pinnedConversations[playerName] = nil
+                else
+                    ns.db.pinnedConversations[playerName] = true
+                end
+                ns.RefreshConversationList()
+            end,
+        },
+        {
+            text = isMuted and "Unmute" or "Mute Notifications",
+            notCheckable = true,
+            func = function()
+                if not ns.db.mutedContacts then ns.db.mutedContacts = {} end
+                if isMuted then
+                    ns.db.mutedContacts[playerName] = nil
+                else
+                    ns.db.mutedContacts[playerName] = true
+                end
+                ns.RefreshConversationList()
+            end,
+        },
+        {
+            text = hasNote and "Edit Note" or "Add Note",
+            notCheckable = true,
+            func = function()
+                ns.ShowNoteEditor(playerName)
+            end,
+        },
+        {
+            text = "Copy Name",
+            notCheckable = true,
+            func = function()
+                ns.ShowCopyPopup(playerName, "Copy Name")
+            end,
+        },
+        {
+            text = "Delete Conversation",
+            notCheckable = true,
+            colorCode = "|cffcc4444",
+            func = function()
+                if ns.activeConversation == playerName then
+                    ns.activeConversation = nil
+                    ns.headerName:SetText("")
+                    if ns.headerNote then ns.headerNote:SetText("") end
+                    if ns.emptyText then ns.emptyText:Show() end
+                    for _, bubble in ipairs(ns.activeBubbles) do bubble:Hide() end
+                    wipe(ns.activeBubbles)
+                    if ns.activeSeparators then
+                        for _, sep in ipairs(ns.activeSeparators) do sep:Hide() end
+                        wipe(ns.activeSeparators)
+                    end
+                    ns.UpdateHeaderButtons()
+                end
+                ns.db.conversations[playerName] = nil
+                if ns.db.pinnedConversations then ns.db.pinnedConversations[playerName] = nil end
+                if ns.db.contactNotes then ns.db.contactNotes[playerName] = nil end
+                if ns.db.mutedContacts then ns.db.mutedContacts[playerName] = nil end
+                ns.RefreshConversationList()
+            end,
+        },
+    }
+
+    EasyMenu(menuList, ns.contextMenuFrame, "cursor", 0, 0, "MENU")
+end
+
+---------------------------------------------------------------------------
+-- Contact Note Editor
+---------------------------------------------------------------------------
+function ns.ShowNoteEditor(playerName)
+    if not ns.noteEditorFrame then
+        local f = CreateFrame("Frame", "iChatNoteEditor", UIParent, "BackdropTemplate")
+        f:SetSize(260, 100)
+        f:SetPoint("CENTER")
+        f:SetFrameStrata("FULLSCREEN_DIALOG")
+        f:SetMovable(true)
+        f:EnableMouse(true)
+        f:RegisterForDrag("LeftButton")
+        f:SetScript("OnDragStart", f.StartMoving)
+        f:SetScript("OnDragStop", f.StopMovingOrSizing)
+
+        f:SetBackdrop({
+            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+            edgeFile = "Interface\\Buttons\\WHITE8x8",
+            edgeSize = 1,
+        })
+        f:SetBackdropColor(0.06, 0.06, 0.06, 0.98)
+        f:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+
+        local title = f:CreateFontString(nil, "OVERLAY")
+        title:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
+        title:SetTextColor(1, 1, 1)
+        title:SetPoint("TOP", 0, -8)
+        f._title = title
+
+        local box = CreateFrame("EditBox", nil, f)
+        box:SetPoint("TOPLEFT", 10, -28)
+        box:SetPoint("RIGHT", -10, 0)
+        box:SetHeight(24)
+        box:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+        box:SetTextColor(0.9, 0.9, 0.9)
+        box:SetAutoFocus(true)
+        box:SetMaxLetters(100)
+
+        local boxBg = box:CreateTexture(nil, "BACKGROUND")
+        boxBg:SetAllPoints()
+        boxBg:SetColorTexture(0.1, 0.1, 0.1, 1)
+
+        box:SetScript("OnEnterPressed", function(self)
+            local text = self:GetText():match("^%s*(.-)%s*$")
+            if not ns.db.contactNotes then ns.db.contactNotes = {} end
+            if text and text ~= "" then
+                ns.db.contactNotes[f._playerName] = text
+            else
+                ns.db.contactNotes[f._playerName] = nil
+            end
+            -- Update header note if viewing this conversation
+            if ns.activeConversation == f._playerName and ns.headerNote then
+                ns.headerNote:SetText(text or "")
+            end
+            f:Hide()
+        end)
+        box:SetScript("OnEscapePressed", function() f:Hide() end)
+        f._editBox = box
+
+        -- Save / Cancel buttons
+        local saveBtn = CreateFrame("Button", nil, f)
+        saveBtn:SetSize(60, 22)
+        saveBtn:SetPoint("BOTTOMLEFT", 10, 8)
+        local saveBg = saveBtn:CreateTexture(nil, "BACKGROUND")
+        saveBg:SetAllPoints()
+        saveBg:SetColorTexture(0.0, 0.48, 1.0, 0.3)
+        local saveText = saveBtn:CreateFontString(nil, "OVERLAY")
+        saveText:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
+        saveText:SetPoint("CENTER")
+        saveText:SetText("Save")
+        saveText:SetTextColor(1, 1, 1)
+        saveBtn:SetScript("OnClick", function()
+            box:GetScript("OnEnterPressed")(box)
+        end)
+
+        local cancelBtn = CreateFrame("Button", nil, f)
+        cancelBtn:SetSize(60, 22)
+        cancelBtn:SetPoint("BOTTOMRIGHT", -10, 8)
+        local cancelBg = cancelBtn:CreateTexture(nil, "BACKGROUND")
+        cancelBg:SetAllPoints()
+        cancelBg:SetColorTexture(0.15, 0.15, 0.15, 1)
+        local cancelText = cancelBtn:CreateFontString(nil, "OVERLAY")
+        cancelText:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
+        cancelText:SetPoint("CENTER")
+        cancelText:SetText("Cancel")
+        cancelText:SetTextColor(0.7, 0.7, 0.7)
+        cancelBtn:SetScript("OnClick", function() f:Hide() end)
+
+        tinsert(UISpecialFrames, "iChatNoteEditor")
+        ns.noteEditorFrame = f
+    end
+
+    ns.noteEditorFrame._playerName = playerName
+    ns.noteEditorFrame._title:SetText("Note for " .. playerName)
+    ns.noteEditorFrame._editBox:SetText(ns.db.contactNotes and ns.db.contactNotes[playerName] or "")
+    ns.noteEditorFrame:Show()
+    ns.noteEditorFrame._editBox:SetFocus()
+    ns.noteEditorFrame._editBox:HighlightText()
+end
+
+---------------------------------------------------------------------------
+-- Copy Text Popup — small EditBox with text pre-selected for Ctrl+C
+---------------------------------------------------------------------------
+function ns.ShowCopyPopup(text, title)
+    if not ns.copyFrame then
+        local f = CreateFrame("Frame", "iChatCopyPopup", UIParent, "BackdropTemplate")
+        f:SetSize(320, 80)
+        f:SetPoint("CENTER")
+        f:SetFrameStrata("FULLSCREEN_DIALOG")
+        f:SetMovable(true)
+        f:EnableMouse(true)
+        f:RegisterForDrag("LeftButton")
+        f:SetScript("OnDragStart", f.StartMoving)
+        f:SetScript("OnDragStop", f.StopMovingOrSizing)
+
+        f:SetBackdrop({
+            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+            edgeFile = "Interface\\Buttons\\WHITE8x8",
+            edgeSize = 1,
+        })
+        f:SetBackdropColor(0.06, 0.06, 0.06, 0.98)
+        f:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+
+        local ftitle = f:CreateFontString(nil, "OVERLAY")
+        ftitle:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+        ftitle:SetTextColor(0.6, 0.6, 0.6)
+        ftitle:SetPoint("TOP", 0, -8)
+        f._title = ftitle
+
+        local hint = f:CreateFontString(nil, "OVERLAY")
+        hint:SetFont("Fonts\\FRIZQT__.TTF", 8, "")
+        hint:SetTextColor(0.4, 0.4, 0.4)
+        hint:SetPoint("BOTTOM", 0, 6)
+        hint:SetText("Ctrl+C to copy, Escape to close")
+
+        local box = CreateFrame("EditBox", nil, f)
+        box:SetPoint("TOPLEFT", 10, -24)
+        box:SetPoint("RIGHT", -10, 0)
+        box:SetHeight(24)
+        box:SetFont("Fonts\\FRIZQT__.TTF", 10, "")
+        box:SetTextColor(1, 1, 1)
+        box:SetAutoFocus(true)
+        box:SetMaxLetters(500)
+
+        local boxBg = box:CreateTexture(nil, "BACKGROUND")
+        boxBg:SetAllPoints()
+        boxBg:SetColorTexture(0.1, 0.1, 0.1, 1)
+
+        box:SetScript("OnEscapePressed", function() f:Hide() end)
+        box:SetScript("OnEnterPressed", function() f:Hide() end)
+        -- Prevent editing — reselect on any text change
+        box:SetScript("OnTextChanged", function(self, userInput)
+            if userInput and self._origText then
+                self:SetText(self._origText)
+                self:HighlightText()
+            end
+        end)
+        f._editBox = box
+
+        tinsert(UISpecialFrames, "iChatCopyPopup")
+        ns.copyFrame = f
+    end
+
+    ns.copyFrame._title:SetText(title or "Copy Text")
+    ns.copyFrame._editBox._origText = text
+    ns.copyFrame._editBox:SetText(text)
+    ns.copyFrame:Show()
+    ns.copyFrame._editBox:SetFocus()
+    ns.copyFrame._editBox:HighlightText()
+end
+
+---------------------------------------------------------------------------
+-- Keyboard Shortcuts (Tab/Shift+Tab to cycle conversations)
+---------------------------------------------------------------------------
+function ns.SetupKeyboardShortcuts()
+    if not ns.mainWindow then return end
+
+    ns.mainWindow:EnableKeyboard(true)
+    ns.mainWindow:SetPropagateKeyboardInput(true)
+
+    ns.mainWindow:HookScript("OnKeyDown", function(self, key)
+        if not ns.db.settings.enableKeyboardShortcuts then
+            self:SetPropagateKeyboardInput(true)
+            return
+        end
+
+        if key == "TAB" and not ns.inputBox:HasFocus() then
+            self:SetPropagateKeyboardInput(false)
+            local sorted = ns._sortedConvos
+            if not sorted or #sorted == 0 then return end
+
+            local currentIdx = 0
+            for i, data in ipairs(sorted) do
+                if data.name == ns.activeConversation then
+                    currentIdx = i
+                    break
+                end
+            end
+
+            local nextIdx
+            if IsShiftKeyDown() then
+                nextIdx = currentIdx > 1 and (currentIdx - 1) or #sorted
+            else
+                nextIdx = currentIdx < #sorted and (currentIdx + 1) or 1
+            end
+            ns.SelectConversation(sorted[nextIdx].name)
+        else
+            self:SetPropagateKeyboardInput(true)
+        end
+    end)
 end

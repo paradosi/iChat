@@ -2,18 +2,38 @@ local _, ns = ...
 
 -- Friend cache
 ns.friendCache = {}
+ns.classCache = {}
+ns.onlineCache = {}
+ns.autoRepliedTo = {}
 
 function ns:FRIENDLIST_UPDATE()
     wipe(ns.friendCache)
+    wipe(ns.classCache)
+    wipe(ns.onlineCache)
     local numFriends = C_FriendList.GetNumFriends()
     for i = 1, numFriends do
         local info = C_FriendList.GetFriendInfoByIndex(i)
         if info and info.name then
-            ns.friendCache[info.name:lower()] = true
+            local lower = info.name:lower()
+            ns.friendCache[lower] = true
+            if info.className then
+                -- Store English class token for RAID_CLASS_COLORS lookup
+                local classFile = info.className
+                -- In TBC, className may be the localized name; try to get the file name
+                if info.classID then
+                    local _, token = GetClassInfo(info.classID)
+                    if token then classFile = token end
+                end
+                ns.classCache[lower] = classFile
+            end
+            ns.onlineCache[lower] = info.connected or false
         end
     end
     if ns.UpdateHeaderButtons then
         ns.UpdateHeaderButtons()
+    end
+    if ns.RefreshConversationList then
+        ns.RefreshConversationList()
     end
 end
 
@@ -83,15 +103,22 @@ function ns:CHAT_MSG_WHISPER(text, sender, ...)
     if ns.activeConversation ~= sender then
         local convo = ns.db.conversations[sender]
         convo.unread = (convo.unread or 0) + 1
+        -- Track unread separator position (first unread message)
+        if not convo.unreadSepIndex then
+            convo.unreadSepIndex = #convo.messages
+        end
     end
 
-    -- Flash taskbar icon if player is AFK
-    if UnitIsAFK("player") and FlashClientIcon then
+    -- Check if this contact is muted
+    local isMuted = ns.db.mutedContacts and ns.db.mutedContacts[sender]
+
+    -- Flash taskbar icon if player is AFK (skip if muted)
+    if not isMuted and UnitIsAFK("player") and FlashClientIcon then
         FlashClientIcon()
     end
 
-    -- Play notification sound
-    if ns.PlayNotifySound then
+    -- Play notification sound (skip if muted)
+    if not isMuted and ns.PlayNotifySound then
         ns.PlayNotifySound()
     end
 
@@ -111,6 +138,17 @@ function ns:CHAT_MSG_WHISPER(text, sender, ...)
     elseif ns.mainWindow and ns.mainWindow:IsShown() and ns.FlashWindow then
         -- Flash to full opacity briefly on new whisper
         ns.FlashWindow()
+    end
+
+    -- Auto-reply (once per contact per session)
+    if ns.db.settings.autoReplyEnabled and not ns.autoRepliedTo[sender] then
+        local msg = ns.db.settings.autoReplyMessage
+        if msg and msg ~= "" then
+            ns.autoRepliedTo[sender] = true
+            C_Timer.After(0.5, function()
+                ns.SendWhisper(sender, msg)
+            end)
+        end
     end
 end
 

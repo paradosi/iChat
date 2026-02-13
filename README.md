@@ -4,16 +4,19 @@ An iMessage-style whisper client for World of Warcraft — TBC Classic Anniversa
 
 Replace the default whisper system with a modern messaging UI featuring chat bubbles, conversation threads, emoji, notification sounds, and more.
 
-![Interface: 20505](https://img.shields.io/badge/Interface-20505-blue) ![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-green)
+![Interface: 20505](https://img.shields.io/badge/Interface-20505-blue) ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-green)
 
 ## Features
 
 ### Conversation UI
-- **iMessage-style chat bubbles** with rounded corners (9-slice pill textures)
+- **iMessage-style chat bubbles** with rounded corners (9-slice pill textures) and optional bubble tails
 - **Conversation list** on the left panel, sorted by most recent activity
+- **Pinned conversations** — pin favorites to the top of the list
 - **Unread badges** on conversations with new messages
+- **"New Messages" separator** — visual divider when scrolling to unread messages
+- **Date separators** — "Today", "Yesterday", "Jan 5" between messages on different days
 - **Message previews** in the conversation list
-- **Relative timestamps** (now, 5m, 2h, etc.)
+- **Relative timestamps** (now, 5m, 2h, etc.) — hover any bubble for exact time
 - **Resizable window** (350x400 to 700x800) with drag-to-move
 - **Minimize to title bar** with the `-` button
 - **ESC to close** — registered with the UI special frames system
@@ -23,10 +26,33 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Blue (left-aligned, lighter)** — incoming from friends
 - **Green (left-aligned)** — incoming from non-friends
 
+### Item Links
+- **Clickable item/spell links** in chat bubbles — hover for tooltip, shift-click to link
+
+### Search & Navigation
+- **Search bar** — filter conversations by name or message content
+- **Keyboard shortcuts** — Tab/Shift+Tab to cycle between conversations
+- **Right-click context menu** — pin, mute, add note, or delete conversations
+
+### Online Status & Class Colors
+- **Online status indicator** — green dot for online friends, gray for offline
+- **Class-colored names** — friend names colored by their WoW class
+
+### Contact Management
+- **Add Friend / Block buttons** in the conversation header
+- **Contact notes** — add a personal note for any contact (shown in header)
+- **Per-contact mute** — suppress notification sounds for specific contacts
+- **Pin conversations** — keep important contacts at the top of the list
+
 ### Compose & Quick Reply
 - **Compose button** — start a new conversation with any player
 - **5 configurable quick reply buttons** — set your own canned responses (afk, brb, etc.)
 - **Send via Enter key** or the send button
+
+### Auto-Reply
+- **Configurable auto-reply** — automatically responds to incoming whispers with a custom message
+- **One reply per contact per session** — prevents spam
+- **Quick toggle** — `/ichat autoreply` to enable/disable
 
 ### Emoji
 - **75+ bundled emoji** from Google's Noto Emoji — type `:shortcode:` to use (e.g. `:thumbsup:`, `:fire:`, `:heart:`)
@@ -39,20 +65,23 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **LibSharedMedia support** — any sounds registered by other addons (ElvUI, SharedMedia packs, etc.) appear as additional options
 - **Taskbar flash** — the Windows taskbar icon flashes on incoming whisper when you're AFK
 
+### Minimap Button
+- **Draggable minimap button** — left-click to toggle window, right-click for settings
+- **Repositionable** — drag around the minimap edge
+
 ### Settings Panel
 - **Font selection dropdown** — 6 built-in WoW fonts, plus all LibSharedMedia fonts if available
 - **Font size slider** (8–16)
 - **Background opacity slider** (30%–100%)
 - **Message history slider** (50–500 messages per conversation)
 - **Open on incoming whisper** toggle
-- **Suppress default chat whispers** toggle — hides whispers from the default chat frame while iChat is open
+- **Suppress default chat whispers** toggle
+- **Display toggles** — date separators, hover timestamps, bubble tails, item links, class colors, online status
+- **Behavior toggles** — keyboard shortcuts, minimap button
+- **Auto-reply section** — enable/disable with custom message editor
 - **Quick reply editor** — configure up to 5 quick reply messages
 - **Export conversation** — copy conversation history as plain text
 - **Clear history** — per-conversation or all conversations (with confirmation)
-
-### Friend & Block Management
-- **Add Friend / Block buttons** in the conversation header
-- Button states update automatically based on your friend and ignore lists
 
 ### Auto-Fade
 - Window fades to 25% opacity after 1.5 seconds when the mouse leaves
@@ -80,6 +109,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
    ├── ui.lua
    ├── bubbles.lua
    ├── settings.lua
+   ├── minimap.lua
    └── media/
        ├── emoji/       (75 .png files)
        ├── sounds/      (glass.ogg, tritone.ogg, chime.ogg)
@@ -95,12 +125,26 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 | `/ichat clear` | Clear the active conversation's history |
 | `/ichat scale <n>` | Set window scale (0.5–2.0) |
 | `/ichat emoji` | Print all available emoji shortcodes to chat |
+| `/ichat autoreply` | Toggle auto-reply on/off |
+| `/ichat search <text>` | Search conversations |
 
 ### Sending Messages
 - Click a conversation on the left, or use the compose button (chat bubble icon) to start a new one
 - Type in the input box and press **Enter** to send
 - Click the smiley button to open the emoji picker
 - Use quick reply buttons for canned responses
+
+### Keyboard Shortcuts
+- **Tab** — cycle to next conversation
+- **Shift+Tab** — cycle to previous conversation
+- **Escape** — close the window
+
+### Context Menu
+Right-click any conversation in the list for:
+- **Pin / Unpin** — keep at top of list
+- **Mute / Unmute** — suppress notification sounds
+- **Add / Edit Note** — personal note for the contact
+- **Delete Conversation** — remove conversation and history
 
 ### Emoji Shortcodes
 Type `:name:` in your message — it renders as an inline icon in the chat bubble.
@@ -117,7 +161,10 @@ Type `:name:` in your message — it renders as an inline icon in the chat bubbl
 
 iChat stores data per-character in `ICHAT_DATA`:
 - **Conversation history** — messages, timestamps, read state
-- **Settings** — font, font size, opacity, sound, quick replies, toggles
+- **Settings** — font, font size, opacity, sound, quick replies, display/behavior toggles, auto-reply
+- **Pinned conversations** — which contacts are pinned to the top
+- **Contact notes** — personal notes per contact
+- **Muted contacts** — contacts with suppressed notifications
 
 Data persists across sessions. Use `/ichat clear` or the settings panel to manage history.
 
