@@ -1,57 +1,46 @@
 local _, ns = ...
 
 ---------------------------------------------------------------------------
--- Minimap Button — draggable button around the minimap edge
+-- Floating Button — freely draggable anywhere on screen
 ---------------------------------------------------------------------------
 
-local BUTTON_SIZE = 32
+local BUTTON_SIZE = 48
+local ICON_SIZE = 44
 local ICON_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\minimap_icon"
-
-local function UpdatePosition(btn, angle)
-    local rad = math.rad(angle)
-    local x = math.cos(rad) * 80
-    local y = math.sin(rad) * 80
-    btn:SetPoint("CENTER", Minimap, "CENTER", x, y)
-end
 
 function ns.CreateMinimapButton()
     if ns.minimapButton then return end
 
-    local btn = CreateFrame("Button", "iChatMinimapButton", Minimap)
+    local btn = CreateFrame("Button", "iChatFloatingButton", UIParent)
     btn:SetSize(BUTTON_SIZE, BUTTON_SIZE)
     btn:SetFrameStrata("MEDIUM")
     btn:SetFrameLevel(8)
     btn:SetMovable(true)
+    btn:SetClampedToScreen(true)
     btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     btn:RegisterForDrag("LeftButton")
 
-    -- Background circle
-    local bg = btn:CreateTexture(nil, "BACKGROUND")
-    bg:SetSize(BUTTON_SIZE, BUTTON_SIZE)
-    bg:SetPoint("CENTER")
-    bg:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
-
-    local overlay = btn:CreateTexture(nil, "OVERLAY")
-    overlay:SetSize(BUTTON_SIZE, BUTTON_SIZE)
-    overlay:SetPoint("CENTER")
-    overlay:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
-
-    -- Icon
+    -- Icon (fills the button)
     local icon = btn:CreateTexture(nil, "ARTWORK")
-    icon:SetSize(20, 20)
-    icon:SetPoint("CENTER", 0, 1)
+    icon:SetSize(ICON_SIZE, ICON_SIZE)
+    icon:SetPoint("CENTER")
     icon:SetTexture(ICON_TEXTURE)
+    btn.icon = icon
 
-    -- Highlight
+    -- Highlight glow
     local hl = btn:CreateTexture(nil, "HIGHLIGHT")
-    hl:SetSize(20, 20)
-    hl:SetPoint("CENTER", 0, 1)
+    hl:SetSize(ICON_SIZE, ICON_SIZE)
+    hl:SetPoint("CENTER")
     hl:SetTexture(ICON_TEXTURE)
     hl:SetVertexColor(1, 1, 1, 0.3)
 
-    -- Position from saved angle
-    local angle = ns.db.settings.minimapButtonAngle or 220
-    UpdatePosition(btn, angle)
+    -- Restore saved position
+    local pos = ns.db.settings.buttonPos
+    if pos then
+        btn:SetPoint(pos.point or "CENTER", UIParent, pos.relPoint or "BOTTOMLEFT", pos.x or 0, pos.y or 0)
+    else
+        btn:SetPoint("CENTER", UIParent, "CENTER", -300, -200)
+    end
 
     -- Click handlers
     btn:SetScript("OnClick", function(self, button)
@@ -62,22 +51,22 @@ function ns.CreateMinimapButton()
         end
     end)
 
-    -- Drag to reposition
+    -- Free drag
     btn:SetScript("OnDragStart", function(self)
-        self.isDragging = true
+        if not InCombatLockdown() then
+            self:StartMoving()
+        end
     end)
     btn:SetScript("OnDragStop", function(self)
-        self.isDragging = false
-    end)
-    btn:SetScript("OnUpdate", function(self)
-        if not self.isDragging then return end
-        local mx, my = Minimap:GetCenter()
-        local cx, cy = GetCursorPosition()
-        local scale = Minimap:GetEffectiveScale()
-        cx, cy = cx / scale, cy / scale
-        local newAngle = math.deg(math.atan2(cy - my, cx - mx))
-        ns.db.settings.minimapButtonAngle = newAngle
-        UpdatePosition(self, newAngle)
+        self:StopMovingOrSizing()
+        -- Save position
+        local point, _, relPoint, x, y = self:GetPoint()
+        ns.db.settings.buttonPos = {
+            point = point,
+            relPoint = relPoint,
+            x = x,
+            y = y,
+        }
     end)
 
     -- Tooltip
@@ -101,7 +90,7 @@ function ns.CreateMinimapButton()
     end
 end
 
--- Toggle minimap button visibility
+-- Toggle button visibility
 function ns.SetMinimapButtonVisible(show)
     if not ns.minimapButton then return end
     if show then
