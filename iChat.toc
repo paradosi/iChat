@@ -1,0 +1,16 @@
+## Interface: 20505
+## Title: |cff007AFFiChat|r
+## Notes: iMessage-style whisper client.
+## Author: paradosi-Dreamscythe
+## Version: 1.0.0
+## Category-enUS: Chat
+## SavedVariablesPerCharacter: ICHAT_DATA
+## OptionalDeps: Emoji-Core, LibSharedMedia-3.0
+
+core.lua
+config.lua
+messages.lua
+emoji.lua
+ui.lua
+bubbles.lua
+settings.lua

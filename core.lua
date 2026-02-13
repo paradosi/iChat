@@ -1,0 +1,104 @@
+local addonName, ns = ...
+
+ns.version = "1.0.0"
+ns.playerName = nil
+ns.activeConversation = nil
+
+-- Event frame
+local frame = CreateFrame("Frame", "iChatEventFrame", UIParent)
+frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_LOGIN")
+
+frame:SetScript("OnEvent", function(self, event, ...)
+    if ns[event] then
+        ns[event](ns, ...)
+    end
+end)
+
+function ns:ADDON_LOADED(loadedName)
+    if loadedName ~= addonName then return end
+    frame:UnregisterEvent("ADDON_LOADED")
+
+    ns.InitDB()
+    ns.playerName = UnitName("player")
+
+    -- Register whisper events
+    frame:RegisterEvent("CHAT_MSG_WHISPER")
+    frame:RegisterEvent("CHAT_MSG_WHISPER_INFORM")
+    frame:RegisterEvent("CHAT_MSG_AFK")
+    frame:RegisterEvent("CHAT_MSG_DND")
+    frame:RegisterEvent("FRIENDLIST_UPDATE")
+    frame:RegisterEvent("IGNORELIST_UPDATE")
+
+    -- Build the UI (hidden by default)
+    ns.CreateMainWindow()
+
+    -- Suppress whispers from default chat if enabled
+    if ns.db.settings.suppressDefault then
+        ns.RegisterChatFilters()
+    end
+
+    -- Slash commands
+    SLASH_ICHAT1 = "/ichat"
+    SlashCmdList["ICHAT"] = function(msg)
+        ns.SlashHandler(msg)
+    end
+end
+
+function ns:PLAYER_LOGIN()
+    ns.playerName = UnitName("player")
+    C_FriendList.ShowFriends()
+    frame:UnregisterEvent("PLAYER_LOGIN")
+end
+
+function ns.SlashHandler(msg)
+    msg = (msg or ""):lower():match("^%s*(.-)%s*$") or ""
+
+    if msg == "" then
+        ns.ToggleWindow()
+    elseif msg == "clear" then
+        if ns.activeConversation and ns.db.conversations[ns.activeConversation] then
+            wipe(ns.db.conversations[ns.activeConversation].messages)
+            ns.db.conversations[ns.activeConversation].unread = 0
+            ns.RebuildBubbles(ns.activeConversation)
+            ns.RefreshConversationList()
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Cleared conversation with " .. ns.activeConversation)
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r No active conversation to clear.")
+        end
+    elseif msg == "emoji" then
+        if ns.PrintEmojiList then
+            ns.PrintEmojiList()
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Emoji module not loaded.")
+        end
+    elseif msg:match("^scale%s+") then
+        local s = tonumber(msg:match("^scale%s+(.+)"))
+        if s and s >= 0.5 and s <= 2.0 then
+            ns.db.settings.scale = s
+            if ns.mainWindow then
+                ns.mainWindow:SetScale(s)
+            end
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Scale set to " .. s)
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Scale must be between 0.5 and 2.0")
+        end
+    else
+        DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat|r commands:")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat - Toggle window")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat clear - Clear current conversation")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat scale <n> - Set scale (0.5-2.0)")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat emoji - Show available emoji shortcodes")
+    end
+end
+
+function ns.ToggleWindow()
+    if ns.mainWindow then
+        if ns.mainWindow:IsShown() then
+            ns.mainWindow:Hide()
+        else
+            ns.mainWindow:Show()
+            ns.RefreshConversationList()
+        end
+    end
+end
