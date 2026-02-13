@@ -4,7 +4,9 @@ An iMessage-style whisper client for World of Warcraft — TBC Classic Anniversa
 
 Replace the default whisper system with a modern messaging UI featuring chat bubbles, conversation threads, emoji, notification sounds, and more.
 
-![Interface: 20505](https://img.shields.io/badge/Interface-20505-blue) ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-green)
+![Promo](media/art/promo.png)
+
+![Interface: 20505](https://img.shields.io/badge/Interface-20505-blue) ![Interface: 110005](https://img.shields.io/badge/Interface-110005-blue) ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-green)
 
 ## Features
 
