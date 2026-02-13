@@ -4,9 +4,7 @@ local _, ns = ...
 -- Floating Button — freely draggable anywhere on screen
 ---------------------------------------------------------------------------
 
-local BUTTON_SIZE = 48
-local ICON_SIZE = 44
-local ICON_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\minimap_icon"
+local BUTTON_SIZE = 40
 
 function ns.CreateMinimapButton()
     if ns.minimapButton then return end
@@ -20,19 +18,19 @@ function ns.CreateMinimapButton()
     btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     btn:RegisterForDrag("LeftButton")
 
-    -- Icon (fills the button)
-    local icon = btn:CreateTexture(nil, "ARTWORK")
-    icon:SetSize(ICON_SIZE, ICON_SIZE)
-    icon:SetPoint("CENTER")
-    icon:SetTexture(ICON_TEXTURE)
-    btn.icon = icon
+    -- Blue circle background
+    local bg = btn:CreateTexture(nil, "BACKGROUND")
+    bg:SetAllPoints()
+    bg:SetColorTexture(0.0, 0.48, 1.0, 0.9)
+    btn.bg = bg
 
-    -- Highlight glow
-    local hl = btn:CreateTexture(nil, "HIGHLIGHT")
-    hl:SetSize(ICON_SIZE, ICON_SIZE)
-    hl:SetPoint("CENTER")
-    hl:SetTexture(ICON_TEXTURE)
-    hl:SetVertexColor(1, 1, 1, 0.3)
+    -- "i" label
+    local label = btn:CreateFontString(nil, "OVERLAY")
+    label:SetFont("Fonts\\FRIZQT__.TTF", 22, "OUTLINE")
+    label:SetPoint("CENTER", 0, 0)
+    label:SetText("i")
+    label:SetTextColor(1, 1, 1)
+    btn.label = label
 
     -- Restore saved position
     local pos = ns.db.settings.buttonPos
@@ -59,7 +57,6 @@ function ns.CreateMinimapButton()
     end)
     btn:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
-        -- Save position
         local point, _, relPoint, x, y = self:GetPoint()
         ns.db.settings.buttonPos = {
             point = point,
@@ -69,8 +66,9 @@ function ns.CreateMinimapButton()
         }
     end)
 
-    -- Tooltip
+    -- Hover effect
     btn:SetScript("OnEnter", function(self)
+        self.bg:SetColorTexture(0.2, 0.6, 1.0, 1.0)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:AddLine("|cff007AFFiChat|r")
         GameTooltip:AddLine("Left-click: Toggle window", 0.7, 0.7, 0.7)
@@ -78,19 +76,18 @@ function ns.CreateMinimapButton()
         GameTooltip:AddLine("Drag: Reposition", 0.7, 0.7, 0.7)
         GameTooltip:Show()
     end)
-    btn:SetScript("OnLeave", function()
+    btn:SetScript("OnLeave", function(self)
+        self.bg:SetColorTexture(0.0, 0.48, 1.0, 0.9)
         GameTooltip:Hide()
     end)
 
     ns.minimapButton = btn
 
-    -- Respect visibility setting
     if not ns.db.settings.showMinimapButton then
         btn:Hide()
     end
 end
 
--- Toggle button visibility
 function ns.SetMinimapButtonVisible(show)
     if not ns.minimapButton then return end
     if show then

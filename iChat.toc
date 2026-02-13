@@ -3,6 +3,7 @@
 ## Notes: iMessage-style whisper client.
 ## Author: paradosi-Dreamscythe
 ## Version: 1.1.0
+## IconTexture: Interface\CHATFRAME\UI-ChatIcon-Chat-Up
 ## Category-enUS: Chat
 ## SavedVariablesPerCharacter: ICHAT_DATA
 ## OptionalDeps: Emoji-Core, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1
