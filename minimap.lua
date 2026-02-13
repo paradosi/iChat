@@ -5,7 +5,7 @@ local _, ns = ...
 ---------------------------------------------------------------------------
 
 local BUTTON_SIZE = 32
-local ICON_TEXTURE = "Interface\\CHATFRAME\\UI-ChatIcon-Chat-Up"
+local ICON_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\minimap_icon"
 
 local function UpdatePosition(btn, angle)
     local rad = math.rad(angle)
@@ -41,7 +41,6 @@ function ns.CreateMinimapButton()
     icon:SetSize(20, 20)
     icon:SetPoint("CENTER", 0, 1)
     icon:SetTexture(ICON_TEXTURE)
-    icon:SetVertexColor(0.0, 0.48, 1.0)
 
     -- Highlight
     local hl = btn:CreateTexture(nil, "HIGHLIGHT")
