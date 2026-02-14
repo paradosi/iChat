@@ -35,6 +35,7 @@ function ns.CreateMinimapButton()
 
     -- Click handlers
     btn:SetScript("OnClick", function(self, button)
+        ns.StopFlashButton()
         if button == "RightButton" then
             ns.ToggleSettings()
         else
@@ -113,15 +114,35 @@ function ns.UpdateButtonBadge()
     end
 end
 
--- Flash the button on incoming whisper (visual pulse regardless of unread state)
+-- Repeating flash on incoming whisper — pulses until user opens iChat
 function ns.FlashButton()
     if not ns.minimapButton then return end
+    -- Already flashing, just let it continue
+    if ns.buttonFlashTicker then return end
     local btn = ns.minimapButton
-    btn.icon:SetVertexColor(1.0, 0.4, 0.4) -- red tint flash
-    C_Timer.After(0.3, function()
-        if not btn.icon then return end
-        btn.icon:SetVertexColor(1, 1, 1) -- back to normal
+    local on = false
+    ns.buttonFlashTicker = C_Timer.NewTicker(0.5, function()
+        if not btn.icon then
+            ns.StopFlashButton()
+            return
+        end
+        on = not on
+        if on then
+            btn.icon:SetVertexColor(1.0, 0.4, 0.4)
+        else
+            btn.icon:SetVertexColor(1, 1, 1)
+        end
     end)
+end
+
+function ns.StopFlashButton()
+    if ns.buttonFlashTicker then
+        ns.buttonFlashTicker:Cancel()
+        ns.buttonFlashTicker = nil
+    end
+    if ns.minimapButton and ns.minimapButton.icon then
+        ns.minimapButton.icon:SetVertexColor(1, 1, 1)
+    end
 end
 
 function ns.SetMinimapButtonVisible(show)

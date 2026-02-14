@@ -835,9 +835,12 @@ function ns.SelectConversation(playerName)
         convo.unreadSepIndex = nil
     end
 
-    -- Update floating button badge
+    -- Update floating button badge and stop flashing
     if ns.UpdateButtonBadge then
         ns.UpdateButtonBadge()
+    end
+    if ns.StopFlashButton then
+        ns.StopFlashButton()
     end
 
     -- Cancel fade — user is interacting
