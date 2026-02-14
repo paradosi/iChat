@@ -4,17 +4,17 @@ An iMessage-style whisper client for World of Warcraft.
 
 Replace the default whisper system with a modern messaging UI featuring chat bubbles, conversation threads, emoji, notification sounds, and more.
 
-![Promo](media/art/promo.png)
+![Promo](https://raw.githubusercontent.com/paradosi/iChat/master/media/art/promo.png)
 
 ![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-lightgrey)
 
 ### Screenshots
 
 <p>
-<img src="media/art/screenshots/main.png" width="180" alt="Conversations">
-<img src="media/art/screenshots/emoji.png" width="180" alt="Emoji Picker">
-<img src="media/art/screenshots/settings1.png" width="180" alt="Settings">
-<img src="media/art/screenshots/settings2.png" width="180" alt="Quick Replies">
+<img src="https://raw.githubusercontent.com/paradosi/iChat/master/media/art/screenshots/main.png" width="180" alt="Conversations">
+<img src="https://raw.githubusercontent.com/paradosi/iChat/master/media/art/screenshots/emoji.png" width="180" alt="Emoji Picker">
+<img src="https://raw.githubusercontent.com/paradosi/iChat/master/media/art/screenshots/settings1.png" width="180" alt="Settings">
+<img src="https://raw.githubusercontent.com/paradosi/iChat/master/media/art/screenshots/settings2.png" width="180" alt="Quick Replies">
 </p>
 
 ## Features
