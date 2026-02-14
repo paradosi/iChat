@@ -29,6 +29,8 @@ function ns:ADDON_LOADED(loadedName)
     frame:RegisterEvent("CHAT_MSG_DND")
     frame:RegisterEvent("FRIENDLIST_UPDATE")
     frame:RegisterEvent("IGNORELIST_UPDATE")
+    frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
     -- Build the UI (hidden by default)
     ns.CreateMainWindow()
@@ -59,6 +61,25 @@ function ns:PLAYER_LOGIN()
     C_Timer.NewTicker(30, function()
         C_FriendList.ShowFriends()
     end)
+end
+
+-- Hide window on combat start, restore on combat end
+ns.wasShownBeforeCombat = false
+
+function ns:PLAYER_REGEN_DISABLED()
+    if not ns.db.settings.hideInCombat then return end
+    if ns.mainWindow and ns.mainWindow:IsShown() then
+        ns.wasShownBeforeCombat = true
+        ns.mainWindow:Hide()
+    end
+end
+
+function ns:PLAYER_REGEN_ENABLED()
+    if not ns.db.settings.hideInCombat then return end
+    if ns.wasShownBeforeCombat and ns.mainWindow then
+        ns.mainWindow:Show()
+        ns.wasShownBeforeCombat = false
+    end
 end
 
 function ns.SlashHandler(msg)

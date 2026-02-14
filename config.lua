@@ -24,6 +24,7 @@ local defaults = {
         autoReplyMessage = "I'm currently away. I'll respond when I return!",
         enableKeyboardShortcuts = true,
         showMinimapButton = true,
+        hideInCombat = true,
     },
 }
 

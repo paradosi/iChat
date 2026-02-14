@@ -658,6 +658,14 @@ function ns.CreateSettingsPanel()
     )
     minimapBtnCB:SetPoint("TOPLEFT", 0, -yPos)
     minimapBtnCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local hideCombatCB = CreateSettingsCheckbox(child, "Hide in combat",
+        function() return ns.db.settings.hideInCombat end,
+        function(v) ns.db.settings.hideInCombat = v end
+    )
+    hideCombatCB:SetPoint("TOPLEFT", 0, -yPos)
+    hideCombatCB:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 30
 
     -----------------------------------------------------------------------
