@@ -1,0 +1,10 @@
+package-as: iChat
+
+ignore:
+  - README.md
+  - LICENSE
+  - .github
+  - .gitignore
+  - media/art
+  - media/textures/icon.png
+  - media/textures/minimap_icon.png
