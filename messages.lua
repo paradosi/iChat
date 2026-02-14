@@ -6,6 +6,15 @@ ns.classCache = {}
 ns.onlineCache = {}
 ns.autoRepliedTo = {}
 
+-- Build reverse lookup: localized class name -> token (e.g. "Warrior" -> "WARRIOR")
+local classNameToToken = {}
+for i = 1, GetNumClasses() do
+    local name, token = GetClassInfo(i)
+    if name and token then
+        classNameToToken[name] = token
+    end
+end
+
 function ns:FRIENDLIST_UPDATE()
     wipe(ns.friendCache)
     wipe(ns.classCache)
@@ -17,14 +26,9 @@ function ns:FRIENDLIST_UPDATE()
             local lower = info.name:lower()
             ns.friendCache[lower] = true
             if info.className then
-                -- Store English class token for RAID_CLASS_COLORS lookup
-                local classFile = info.className
-                -- In TBC, className may be the localized name; try to get the file name
-                if info.classID then
-                    local _, token = GetClassInfo(info.classID)
-                    if token then classFile = token end
-                end
-                ns.classCache[lower] = classFile
+                -- Convert localized class name to token for RAID_CLASS_COLORS
+                local token = classNameToToken[info.className] or info.className:upper()
+                ns.classCache[lower] = token
             end
             ns.onlineCache[lower] = info.connected or false
         end
