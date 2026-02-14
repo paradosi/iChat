@@ -25,6 +25,7 @@ local defaults = {
         enableKeyboardShortcuts = true,
         showMinimapButton = true,
         hideInCombat = true,
+        buttonSize = 40,
     },
 }
 

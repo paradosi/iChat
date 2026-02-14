@@ -668,6 +668,18 @@ function ns.CreateSettingsPanel()
     hideCombatCB:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 30
 
+    local buttonSizeSlider = CreateSettingsSlider(child, "Button Size", 24, 64, 2,
+        function() return ns.db.settings.buttonSize or 40 end,
+        function(v)
+            ns.db.settings.buttonSize = v
+            if ns.ResizeButton then ns.ResizeButton(v) end
+        end,
+        "px"
+    )
+    buttonSizeSlider:SetPoint("TOPLEFT", 0, -yPos)
+    buttonSizeSlider:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 44
+
     -----------------------------------------------------------------------
     -- Auto-Reply Section
     -----------------------------------------------------------------------
@@ -880,6 +892,7 @@ function ns.CreateSettingsPanel()
         onlineStatusCB.Refresh()
         kbShortcutsCB.Refresh()
         minimapBtnCB.Refresh()
+        buttonSizeSlider.Refresh()
         autoReplyCB.Refresh()
         arMsgBox:SetText(ns.db.settings.autoReplyMessage or "")
         clearAllConfirm = false

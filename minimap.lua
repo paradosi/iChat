@@ -4,17 +4,17 @@ local _, ns = ...
 -- Floating Button — freely draggable anywhere on screen
 ---------------------------------------------------------------------------
 
-local BUTTON_SIZE = 40
 local ICON_PATH = "Interface\\AddOns\\iChat\\media\\textures\\"
 
 function ns.CreateMinimapButton()
     if ns.minimapButton then return end
 
+    local size = ns.db.settings.buttonSize or 40
     local faction = UnitFactionGroup("player")
     local iconFile = ICON_PATH .. (faction == "Horde" and "icon_horde" or "icon_alliance")
 
     local btn = CreateFrame("Button", "iChatFloatingButton", UIParent)
-    btn:SetSize(BUTTON_SIZE, BUTTON_SIZE)
+    btn:SetSize(size, size)
     btn:SetFrameStrata("MEDIUM")
     btn:SetFrameLevel(8)
     btn:SetMovable(true)
@@ -154,5 +154,19 @@ function ns.SetMinimapButtonVisible(show)
         ns.minimapButton:Show()
     else
         ns.minimapButton:Hide()
+    end
+end
+
+function ns.ResizeButton(size)
+    if not ns.minimapButton then return end
+    ns.minimapButton:SetSize(size, size)
+    -- Scale badge relative to button size
+    local badgeSize = math.max(14, math.floor(size * 0.45))
+    local fontSize = math.max(7, math.floor(size * 0.22))
+    if ns.minimapButton.unreadBadge then
+        ns.minimapButton.unreadBadge:SetSize(badgeSize, badgeSize)
+    end
+    if ns.minimapButton.unreadCount then
+        ns.minimapButton.unreadCount:SetFont("Fonts\\FRIZQT__.TTF", fontSize, "OUTLINE")
     end
 end
