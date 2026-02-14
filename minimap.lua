@@ -5,10 +5,13 @@ local _, ns = ...
 ---------------------------------------------------------------------------
 
 local BUTTON_SIZE = 40
-local ICON_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\icon"
+local ICON_PATH = "Interface\\AddOns\\iChat\\media\\textures\\"
 
 function ns.CreateMinimapButton()
     if ns.minimapButton then return end
+
+    local faction = UnitFactionGroup("player")
+    local iconFile = ICON_PATH .. (faction == "Horde" and "icon_horde" or "icon_alliance")
 
     local btn = CreateFrame("Button", "iChatFloatingButton", UIParent)
     btn:SetSize(BUTTON_SIZE, BUTTON_SIZE)
@@ -19,10 +22,10 @@ function ns.CreateMinimapButton()
     btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     btn:RegisterForDrag("LeftButton")
 
-    -- Shield icon
+    -- Shield icon (blue for Alliance, red for Horde)
     local icon = btn:CreateTexture(nil, "ARTWORK")
     icon:SetAllPoints()
-    icon:SetTexture(ICON_TEXTURE)
+    icon:SetTexture(iconFile)
     btn.icon = icon
 
     -- Restore saved position
