@@ -5,6 +5,7 @@ local _, ns = ...
 ---------------------------------------------------------------------------
 
 local BUTTON_SIZE = 40
+local ICON_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\icon"
 
 function ns.CreateMinimapButton()
     if ns.minimapButton then return end
@@ -18,19 +19,11 @@ function ns.CreateMinimapButton()
     btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     btn:RegisterForDrag("LeftButton")
 
-    -- Blue circle background
-    local bg = btn:CreateTexture(nil, "BACKGROUND")
-    bg:SetAllPoints()
-    bg:SetColorTexture(0.0, 0.48, 1.0, 0.9)
-    btn.bg = bg
-
-    -- "i" label
-    local label = btn:CreateFontString(nil, "OVERLAY")
-    label:SetFont("Fonts\\FRIZQT__.TTF", 22, "OUTLINE")
-    label:SetPoint("CENTER", 0, 0)
-    label:SetText("i")
-    label:SetTextColor(1, 1, 1)
-    btn.label = label
+    -- Shield icon
+    local icon = btn:CreateTexture(nil, "ARTWORK")
+    icon:SetAllPoints()
+    icon:SetTexture(ICON_TEXTURE)
+    btn.icon = icon
 
     -- Restore saved position
     local pos = ns.db.settings.buttonPos
@@ -66,9 +59,9 @@ function ns.CreateMinimapButton()
         }
     end)
 
-    -- Hover effect
+    -- Hover effect (brighten icon)
     btn:SetScript("OnEnter", function(self)
-        self.bg:SetColorTexture(0.2, 0.6, 1.0, 1.0)
+        self.icon:SetVertexColor(1.3, 1.3, 1.3)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:AddLine("|cff007AFFiChat|r")
         GameTooltip:AddLine("Left-click: Toggle window", 0.7, 0.7, 0.7)
@@ -77,7 +70,7 @@ function ns.CreateMinimapButton()
         GameTooltip:Show()
     end)
     btn:SetScript("OnLeave", function(self)
-        self.bg:SetColorTexture(0.0, 0.48, 1.0, 0.9)
+        self.icon:SetVertexColor(1, 1, 1)
         GameTooltip:Hide()
     end)
 
@@ -124,11 +117,10 @@ end
 function ns.FlashButton()
     if not ns.minimapButton then return end
     local btn = ns.minimapButton
-    btn.bg:SetColorTexture(1.0, 0.22, 0.17, 1.0) -- red flash
-    btn.label:SetTextColor(1, 1, 1)
+    btn.icon:SetVertexColor(1.0, 0.4, 0.4) -- red tint flash
     C_Timer.After(0.3, function()
-        if not btn.bg then return end
-        btn.bg:SetColorTexture(0.0, 0.48, 1.0, 0.9) -- back to blue
+        if not btn.icon then return end
+        btn.icon:SetVertexColor(1, 1, 1) -- back to normal
     end)
 end
 
