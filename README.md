@@ -1,12 +1,12 @@
 # iChat
 
-An iMessage-style whisper client for World of Warcraft — TBC Classic Anniversary (Interface 20505).
+An iMessage-style whisper client for World of Warcraft.
 
 Replace the default whisper system with a modern messaging UI featuring chat bubbles, conversation threads, emoji, notification sounds, and more.
 
 ![Promo](media/art/promo.png)
 
-![Interface: 20505](https://img.shields.io/badge/Interface-20505-blue) ![Interface: 110005](https://img.shields.io/badge/Interface-110005-blue) ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-green)
+![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-lightgrey)
 
 ## Features
 
@@ -65,11 +65,14 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 ### Notification Sounds
 - **3 built-in notification sounds** — Glass, Tritone, Chime
 - **LibSharedMedia support** — any sounds registered by other addons (ElvUI, SharedMedia packs, etc.) appear as additional options
-- **Taskbar flash** — the Windows taskbar icon flashes on incoming whisper when you're AFK
+- **Taskbar flash** — the Windows taskbar icon flashes on incoming whisper
 
-### Minimap Button
-- **Draggable minimap button** — left-click to toggle window, right-click for settings
-- **Repositionable** — drag around the minimap edge
+### Floating Button
+- **Draggable floating button** — left-click to toggle window, right-click for settings
+- **Faction-themed icon** — blue shield for Alliance, red shield for Horde
+- **Unread badge** — red dot with count for unread messages
+- **Whisper flash** — pulses on incoming whispers until you open iChat
+- **Freely positionable** — drag anywhere on screen, position saved between sessions
 
 ### Settings Panel
 - **Font selection dropdown** — 6 built-in WoW fonts, plus all LibSharedMedia fonts if available
@@ -78,7 +81,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Message history slider** (50–500 messages per conversation)
 - **Open on incoming whisper** toggle
 - **Suppress default chat whispers** toggle
-- **Display toggles** — date separators, hover timestamps, bubble tails, item links, class colors, online status
+- **Display toggles** — date separators, hover timestamps, item links, class colors, online status
 - **Behavior toggles** — keyboard shortcuts, minimap button
 - **Auto-reply section** — enable/disable with custom message editor
 - **Quick reply editor** — configure up to 5 quick reply messages
@@ -96,28 +99,15 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ## Installation
 
-1. Download and extract to your AddOns folder:
-   ```
-   World of Warcraft/_anniversary_/Interface/AddOns/iChat/
-   ```
-2. Ensure the folder structure looks like:
-   ```
-   iChat/
-   ├── iChat.toc
-   ├── core.lua
-   ├── config.lua
-   ├── messages.lua
-   ├── emoji.lua
-   ├── ui.lua
-   ├── bubbles.lua
-   ├── settings.lua
-   ├── minimap.lua
-   └── media/
-       ├── emoji/       (75 .png files)
-       ├── sounds/      (glass.ogg, tritone.ogg, chime.ogg)
-       └── textures/    (pill.tga, etc.)
-   ```
-3. Restart WoW or `/reload` if already in-game.
+1. Download and extract to your AddOns folder. The same folder works for all WoW versions — the client automatically loads the correct TOC file:
+
+   | Version | AddOns Path | TOC File |
+   |---------|-------------|----------|
+   | Classic Era | `_classic_era_/Interface/AddOns/iChat/` | `iChat_Vanilla.toc` |
+   | TBC Anniversary | `_anniversary_/Interface/AddOns/iChat/` | `iChat.toc` |
+   | Retail | `_retail_/Interface/AddOns/iChat/` | `iChat-Mainline.toc` |
+
+2. Restart WoW or `/reload` if already in-game.
 
 ## Usage
 
@@ -179,8 +169,9 @@ Data persists across sessions. Use `/ichat clear` or the settings panel to manag
 
 ## Compatibility
 
-- **WoW Version:** TBC Classic Anniversary (Interface 20505)
-- **Client Engine:** Modern (uses `C_FriendList`, `C_Timer`, `C_ChatInfo`, `BackdropTemplate`)
+- **Classic Era** (1.15.x) — Interface 11508
+- **TBC Classic Anniversary** (2.5.x) — Interface 20505
+- **Retail** (12.x Midnight) — Interface 120001
 - **Conflicts:** If using WIM (WoW Instant Messenger), consider disabling iChat's "Suppress default chat whispers" to avoid double-suppression
 
 ## Credits
