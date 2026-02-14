@@ -1,6 +1,6 @@
 local addonName, ns = ...
 
-ns.version = "1.1.0"
+ns.version = "1.1.1"
 ns.playerName = nil
 ns.activeConversation = nil
 
