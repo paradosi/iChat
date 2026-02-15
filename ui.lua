@@ -110,7 +110,7 @@ function ns.CreateTitleBar(parent)
     title:SetFont("Fonts\\FRIZQT__.TTF", 13, "")
     title:SetTextColor(unpack(C.BLUE))
     title:SetPoint("CENTER")
-    title:SetText("iChat")
+    title:SetText("iChat v" .. (ns.version or "?"))
 
     -- Close button
     local closeBtn = CreateFrame("Button", nil, bar)
