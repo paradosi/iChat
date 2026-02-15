@@ -27,6 +27,7 @@ local defaults = {
         hideInCombat = true,
         buttonSize = 40,
         sharedAccount = false,
+        settingsFontSize = 10,
     },
 }
 
