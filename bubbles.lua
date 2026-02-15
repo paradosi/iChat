@@ -300,9 +300,9 @@ local function LayoutBubble(bubble, entry, chatWidth, yOffset)
     local relativeTime = ns.FormatTimestamp(entry.time)
     local statusSuffix = ""
     if entry.sender == "me" and entry.status == "failed" then
-        statusSuffix = "  |cffff4444✗ Failed|r"
+        statusSuffix = "  |cffff4444Failed|r"
     elseif entry.sender == "me" and entry.status == "delivered" then
-        statusSuffix = "  |cff666666✓|r"
+        statusSuffix = "  |cff666666Sent|r"
     end
     bubble.timeText:SetText(relativeTime .. statusSuffix)
 
