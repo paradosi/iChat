@@ -6,7 +6,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ![Promo](https://raw.githubusercontent.com/paradosi/iChat/master/media/art/promo.png)
 
-![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-lightgrey)
+![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-lightgrey)
 
 ### Screenshots
 
@@ -31,11 +31,22 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Resizable window** (350x400 to 700x800) with drag-to-move
 - **Minimize to title bar** with the `-` button
 - **ESC to close** — registered with the UI special frames system
+- **Version displayed in title bar**
 
 ### Bubble Colors
 - **Blue (right-aligned)** — your sent messages
 - **Blue (left-aligned, lighter)** — incoming from friends
 - **Green (left-aligned)** — incoming from non-friends
+
+### Delivery Status
+- **"Sent"** — gray indicator below your messages when delivery is confirmed by the server
+- **"Failed"** — red indicator when the recipient is offline or not found
+
+### Typing Indicator
+- **Animated "typing..."** in the conversation header when you're typing in the input box
+- Cycles through "typing." → "typing.." → "typing..." animation
+- Auto-clears after 2 seconds of inactivity
+- Toggle in Settings → Behavior
 
 ### Item Links
 - **Clickable item/spell links** in chat bubbles — hover for tooltip, shift-click to link
@@ -45,9 +56,22 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Keyboard shortcuts** — Tab/Shift+Tab to cycle between conversations
 - **Right-click context menu** — pin, mute, add note, or delete conversations
 
-### Online Status & Class Colors
+### Online Status & Notifications
 - **Online status indicator** — green dot for online friends, gray for offline
 - **Class-colored names** — friend names colored by their WoW class
+- **Online/offline toast notifications** — popup at top of screen when a friend you've chatted with comes online or goes offline. Click the toast to open their conversation. Toggle in Settings → Behavior.
+
+### Guild & Party Awareness
+- **Guild rank** shown in conversation header (green)
+- **Party role** with tank/healer/DPS icon (blue)
+- **Raid membership** indicator (orange)
+- Updates automatically on roster changes
+
+### Account-Wide Conversations
+- **Share conversations across characters** — optional toggle in Settings → Behavior
+- When enabled, all characters on the account share one conversation history
+- Intelligently migrates existing per-character data when toggling on
+- Off by default — each character has separate history
 
 ### Contact Management
 - **Add Friend / Block buttons** in the conversation header
@@ -81,21 +105,35 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Faction-themed icon** — blue shield for Alliance, red shield for Horde
 - **Unread badge** — red dot with count for unread messages
 - **Whisper flash** — pulses on incoming whispers until you open iChat
+- **Configurable button size** (24–64px) — slider in Settings → Behavior
 - **Freely positionable** — drag anywhere on screen, position saved between sessions
 
 ### Settings Panel
+- **Settings panel font size slider** (8–14) — adjust the settings UI text size with smooth live preview
 - **Font selection dropdown** — 6 built-in WoW fonts, plus all LibSharedMedia fonts if available
-- **Font size slider** (8–16)
+- **Font size slider** (8–16) for chat bubbles
 - **Background opacity slider** (30%–100%)
 - **Message history slider** (50–500 messages per conversation)
 - **Open on incoming whisper** toggle
 - **Suppress default chat whispers** toggle
 - **Display toggles** — date separators, hover timestamps, item links, class colors, online status
-- **Behavior toggles** — keyboard shortcuts, minimap button
+- **Behavior toggles** — keyboard shortcuts, minimap button, hide in combat, typing indicator, online/offline notifications, ElvUI theme, shared account
 - **Auto-reply section** — enable/disable with custom message editor
 - **Quick reply editor** — configure up to 5 quick reply messages
 - **Export conversation** — copy conversation history as plain text
 - **Clear history** — per-conversation or all conversations (with confirmation)
+
+### ElvUI Integration
+- **Auto-detect ElvUI** and match backdrop, border, and accent colors
+- Only overrides font if you haven't explicitly chosen one
+- Toggle in Settings → Behavior
+
+### WeakAuras Integration
+Custom events for WeakAuras triggers:
+- `ICHAT_WHISPER_RECEIVED` (sender, text)
+- `ICHAT_WHISPER_SENT` (target, text)
+- `ICHAT_FRIEND_ONLINE` / `ICHAT_FRIEND_OFFLINE` (name)
+- `ICHAT_UNREAD_CHANGED` (total)
 
 ### Auto-Fade
 - Window fades to 25% opacity after 1.5 seconds when the mouse leaves
@@ -124,10 +162,12 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 |---------|--------|
 | `/ichat` | Toggle the iChat window |
 | `/ichat clear` | Clear the active conversation's history |
+| `/ichat export` | Export current conversation to copyable text |
 | `/ichat scale <n>` | Set window scale (0.5–2.0) |
 | `/ichat emoji` | Print all available emoji shortcodes to chat |
 | `/ichat autoreply` | Toggle auto-reply on/off |
 | `/ichat search <text>` | Search conversations |
+| `/ichat version` | Show version and storage mode |
 
 ### Sending Messages
 - Click a conversation on the left, or use the compose button (chat bubble icon) to start a new one
@@ -160,8 +200,12 @@ Type `:name:` in your message — it renders as an inline icon in the chat bubbl
 
 ## Saved Variables
 
-iChat stores data per-character in `ICHAT_DATA`:
-- **Conversation history** — messages, timestamps, read state
+iChat uses two storage modes:
+- **`ICHAT_DATA`** (per-character) — default, each character has separate history
+- **`ICHAT_ACCOUNT`** (account-wide) — optional, toggle "Share conversations across characters" in settings
+
+Stored data includes:
+- **Conversation history** — messages, timestamps, read state, delivery status
 - **Settings** — font, font size, opacity, sound, quick replies, display/behavior toggles, auto-reply
 - **Pinned conversations** — which contacts are pinned to the top
 - **Contact notes** — personal notes per contact
@@ -175,13 +219,15 @@ Data persists across sessions. Use `/ichat clear` or the settings panel to manag
 |-------|-------------|
 | [Emoji-Core](https://github.com/KittenBall/Emoji-Core) | Unicode emoji autocomplete in the input box, additional emoji rendering |
 | [LibSharedMedia-3.0](https://www.curseforge.com/wow/addons/libsharedmedia-3-0) | Extra fonts and sounds from other addons appear in settings |
+| [ElvUI](https://www.tukui.org/elvui) | Auto-applies ElvUI's color theme to iChat |
+| [WeakAuras](https://www.curseforge.com/wow/addons/weakauras-2) | Expose iChat events for custom triggers |
 
 ## Compatibility
 
 - **Classic Era** (1.15.x) — Interface 11508
 - **TBC Classic Anniversary** (2.5.x) — Interface 20505
 - **Retail** (12.x Midnight) — Interface 120001
-- **Conflicts:** If using WIM (WoW Instant Messenger), consider disabling iChat's "Suppress default chat whispers" to avoid double-suppression
+- **Conflicts:** If using WIM (WoW Instant Messenger), iChat automatically disables "Suppress default chat whispers" to avoid double-suppression
 
 ## Credits
 
