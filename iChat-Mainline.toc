@@ -2,9 +2,10 @@
 ## Title: |cff007AFFiChat|r
 ## Notes: iMessage-style whisper client.
 ## Author: paradosi-Dreamscythe
-## Version: 1.1.4
+## Version: 1.2.0
 ## IconTexture: Interface\AddOns\iChat\media\textures\icon
 ## Category-enUS: Chat
+## SavedVariables: ICHAT_ACCOUNT
 ## SavedVariablesPerCharacter: ICHAT_DATA
 ## X-Wago-ID: YK9b8zGL
 ## X-Curse-Project-ID: 1461921

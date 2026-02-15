@@ -639,6 +639,14 @@ function ns.CreateSettingsPanel()
     behaviorLabel:SetText("Behavior")
     yPos = yPos + 18
 
+    local sharedAcctCB = CreateSettingsCheckbox(child, "Share conversations across characters",
+        function() return ns.IsSharedAccount() end,
+        function(v) ns.SetSharedAccount(v) end
+    )
+    sharedAcctCB:SetPoint("TOPLEFT", 0, -yPos)
+    sharedAcctCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
     local kbShortcutsCB = CreateSettingsCheckbox(child, "Enable keyboard shortcuts",
         function() return ns.db.settings.enableKeyboardShortcuts end,
         function(v) ns.db.settings.enableKeyboardShortcuts = v end
@@ -890,6 +898,7 @@ function ns.CreateSettingsPanel()
         itemLinksCB.Refresh()
         classColorCB.Refresh()
         onlineStatusCB.Refresh()
+        sharedAcctCB.Refresh()
         kbShortcutsCB.Refresh()
         minimapBtnCB.Refresh()
         buttonSizeSlider.Refresh()
