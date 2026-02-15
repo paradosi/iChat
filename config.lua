@@ -29,6 +29,16 @@ local defaults = {
     },
 }
 
+-- Deep copy a table (handles nested tables safely)
+local function DeepCopy(src)
+    if type(src) ~= "table" then return src end
+    local copy = {}
+    for k, v in pairs(src) do
+        copy[k] = DeepCopy(v)
+    end
+    return copy
+end
+
 function ns.InitDB()
     if not ICHAT_DATA then
         ICHAT_DATA = {}
@@ -37,14 +47,7 @@ function ns.InitDB()
     -- Merge top-level keys
     for k, v in pairs(defaults) do
         if ICHAT_DATA[k] == nil then
-            if type(v) == "table" then
-                ICHAT_DATA[k] = {}
-                for k2, v2 in pairs(v) do
-                    ICHAT_DATA[k][k2] = v2
-                end
-            else
-                ICHAT_DATA[k] = v
-            end
+            ICHAT_DATA[k] = DeepCopy(v)
         end
     end
 

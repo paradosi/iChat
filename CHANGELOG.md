@@ -1,5 +1,12 @@
 # iChat
 
+## [1.1.3](https://github.com/paradosi/iChat/tree/1.1.3) (2026-02-15)
+[Full Changelog](https://github.com/paradosi/iChat/compare/1.1.2...1.1.3)
+
+- Fix version string mismatch (core.lua now matches TOC)
+- Reduce friend list polling from 30s to 60s (less overhead)
+- Future-proof InitDB with deep copy for nested table defaults
+
 ## [1.1.2](https://github.com/paradosi/iChat/tree/1.1.2) (2026-02-14)
 [Full Changelog](https://github.com/paradosi/iChat/compare/1.1.1...1.1.2) [Previous Releases](https://github.com/paradosi/iChat/releases)
 

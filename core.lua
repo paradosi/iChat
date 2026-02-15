@@ -1,6 +1,6 @@
 local addonName, ns = ...
 
-ns.version = "1.1.1"
+ns.version = "1.1.3"
 ns.playerName = nil
 ns.activeConversation = nil
 
@@ -57,8 +57,8 @@ function ns:PLAYER_LOGIN()
     C_FriendList.ShowFriends()
     frame:UnregisterEvent("PLAYER_LOGIN")
 
-    -- Poll friend list every 30s to keep online status current
-    C_Timer.NewTicker(30, function()
+    -- Poll friend list every 60s to keep online status current
+    C_Timer.NewTicker(60, function()
         C_FriendList.ShowFriends()
     end)
 end
