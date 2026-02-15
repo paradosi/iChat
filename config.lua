@@ -28,6 +28,9 @@ local defaults = {
         buttonSize = 40,
         sharedAccount = false,
         settingsFontSize = 10,
+        showTypingIndicator = true,
+        showOnlineNotifications = true,
+        elvuiSkin = true,
     },
 }
 

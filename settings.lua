@@ -721,6 +721,35 @@ function ns.CreateSettingsPanel()
     minimapBtnCB:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 26
 
+    local typingCB = CreateSettingsCheckbox(child, "Show typing indicator",
+        function() return ns.db.settings.showTypingIndicator end,
+        function(v) ns.db.settings.showTypingIndicator = v end
+    )
+    typingCB:SetPoint("TOPLEFT", 0, -yPos)
+    typingCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local onlineNotifyCB = CreateSettingsCheckbox(child, "Online/offline notifications",
+        function() return ns.db.settings.showOnlineNotifications end,
+        function(v) ns.db.settings.showOnlineNotifications = v end
+    )
+    onlineNotifyCB:SetPoint("TOPLEFT", 0, -yPos)
+    onlineNotifyCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local elvuiCB = CreateSettingsCheckbox(child, "ElvUI theme integration",
+        function() return ns.db.settings.elvuiSkin end,
+        function(v)
+            ns.db.settings.elvuiSkin = v
+            if v and ns.ApplyElvUISkin then
+                ns.ApplyElvUISkin()
+            end
+        end
+    )
+    elvuiCB:SetPoint("TOPLEFT", 0, -yPos)
+    elvuiCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
     local hideCombatCB = CreateSettingsCheckbox(child, "Hide in combat",
         function() return ns.db.settings.hideInCombat end,
         function(v) ns.db.settings.hideInCombat = v end
@@ -957,6 +986,9 @@ function ns.CreateSettingsPanel()
         sharedAcctCB.Refresh()
         kbShortcutsCB.Refresh()
         minimapBtnCB.Refresh()
+        typingCB.Refresh()
+        onlineNotifyCB.Refresh()
+        elvuiCB.Refresh()
         buttonSizeSlider.Refresh()
         autoReplyCB.Refresh()
         arMsgBox:SetText(ns.db.settings.autoReplyMessage or "")

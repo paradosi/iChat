@@ -115,6 +115,11 @@ function ns.UpdateButtonBadge()
     else
         ns.minimapButton.unreadBadge:Hide()
     end
+
+    -- Fire WeakAuras event
+    if ns.FireUnreadChanged then
+        ns.FireUnreadChanged(total)
+    end
 end
 
 -- Repeating flash on incoming whisper — pulses until user opens iChat

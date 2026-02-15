@@ -48,6 +48,27 @@ function ns:ADDON_LOADED(loadedName)
         ns.CreateMinimapButton()
     end
 
+    -- Hook typing indicator
+    if ns.HookTypingIndicator then
+        -- Delayed: input box is created in CreateMainWindow
+        C_Timer.After(0.1, function()
+            ns.HookTypingIndicator()
+        end)
+    end
+
+    -- Register guild roster event
+    frame:RegisterEvent("GUILD_ROSTER_UPDATE")
+    if IsInGuild() then
+        C_GuildInfo.GuildRoster()
+    end
+
+    -- Apply ElvUI skin if available
+    if ns.db.settings.elvuiSkin and ns.ApplyElvUISkin then
+        C_Timer.After(1, function()
+            ns.ApplyElvUISkin()
+        end)
+    end
+
     -- Slash commands
     SLASH_ICHAT1 = "/ichat"
     SlashCmdList["ICHAT"] = function(msg)

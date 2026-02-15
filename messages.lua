@@ -16,6 +16,11 @@ for i = 1, GetNumClasses() do
 end
 
 function ns:FRIENDLIST_UPDATE()
+    -- Check for online/offline changes before wiping cache
+    if ns.CheckFriendStatusChanges then
+        ns.CheckFriendStatusChanges()
+    end
+
     wipe(ns.friendCache)
     wipe(ns.classCache)
     wipe(ns.onlineCache)
@@ -152,6 +157,11 @@ function ns:CHAT_MSG_WHISPER(text, sender, ...)
         ns.FlashWindow()
     end
 
+    -- Fire WeakAuras event
+    if ns.FireWhisperReceived then
+        ns.FireWhisperReceived(sender, text)
+    end
+
     -- Auto-reply (once per contact per session)
     if ns.db.settings.autoReplyEnabled and not ns.autoRepliedTo[sender] then
         local msg = ns.db.settings.autoReplyMessage
@@ -173,6 +183,11 @@ function ns:CHAT_MSG_WHISPER_INFORM(text, sender, ...)
 
     -- Clear pending tracker
     ns.pendingWhispers[sender:lower()] = nil
+
+    -- Fire WeakAuras event
+    if ns.FireWhisperSent then
+        ns.FireWhisperSent(sender, text)
+    end
 
     if ns.RefreshConversationList then
         ns.RefreshConversationList()

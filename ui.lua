@@ -819,10 +819,17 @@ function ns.SelectConversation(playerName)
     ns.activeConversation = playerName
     ns.headerName:SetText(playerName)
 
-    -- Show contact note in header
+    -- Show contact note + relationship tags in header
     if ns.headerNote then
-        local note = ns.db.contactNotes and ns.db.contactNotes[playerName]
-        ns.headerNote:SetText(note or "")
+        local note = ns.db.contactNotes and ns.db.contactNotes[playerName] or ""
+        local tags = ns.FormatRelationshipTags and ns.FormatRelationshipTags(playerName) or ""
+        if note ~= "" and tags ~= "" then
+            ns.headerNote:SetText(note .. "  " .. tags)
+        elseif tags ~= "" then
+            ns.headerNote:SetText(tags)
+        else
+            ns.headerNote:SetText(note)
+        end
     end
 
     -- Hide empty state
