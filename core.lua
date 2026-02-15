@@ -1,6 +1,7 @@
 local addonName, ns = ...
 
-ns.version = "1.1.3"
+-- Version read from TOC at load time (set in ADDON_LOADED)
+ns.version = "?"
 ns.playerName = nil
 ns.activeConversation = nil
 
@@ -20,6 +21,7 @@ function ns:ADDON_LOADED(loadedName)
     frame:UnregisterEvent("ADDON_LOADED")
 
     ns.InitDB()
+    ns.version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
     ns.playerName = UnitName("player")
 
     -- Register whisper events
@@ -29,6 +31,7 @@ function ns:ADDON_LOADED(loadedName)
     frame:RegisterEvent("CHAT_MSG_DND")
     frame:RegisterEvent("FRIENDLIST_UPDATE")
     frame:RegisterEvent("IGNORELIST_UPDATE")
+    frame:RegisterEvent("CHAT_MSG_SYSTEM")
     frame:RegisterEvent("PLAYER_REGEN_DISABLED")
     frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
@@ -123,6 +126,14 @@ function ns.SlashHandler(msg)
         else
             DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Auto-reply |cffff4444disabled|r")
         end
+    elseif msg == "export" then
+        if ns.ExportConversation then
+            ns.ExportConversation()
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Export not available.")
+        end
+    elseif msg == "version" or msg == "ver" then
+        DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat|r v" .. ns.version .. (ns.IsSharedAccount() and " (account-wide)" or " (per-character)"))
     elseif msg:match("^search%s+") then
         local query = msg:match("^search%s+(.+)")
         if query and ns.searchBox then
@@ -133,13 +144,15 @@ function ns.SlashHandler(msg)
             ns.searchBox:SetFocus()
         end
     else
-        DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat|r commands:")
+        DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat|r v" .. ns.version .. " — commands:")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat - Toggle window")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat clear - Clear current conversation")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat export - Export current conversation to text")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat scale <n> - Set scale (0.5-2.0)")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat emoji - Show available emoji shortcodes")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat autoreply - Toggle auto-reply")
         DEFAULT_CHAT_FRAME:AddMessage("  /ichat search <text> - Search conversations")
+        DEFAULT_CHAT_FRAME:AddMessage("  /ichat version - Show version info")
     end
 end
 

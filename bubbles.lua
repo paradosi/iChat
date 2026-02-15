@@ -296,9 +296,15 @@ local function LayoutBubble(bubble, entry, chatWidth, yOffset)
         bubble.timeText:SetJustifyH("LEFT")
     end
 
-    -- Timestamp
+    -- Timestamp + delivery status
     local relativeTime = ns.FormatTimestamp(entry.time)
-    bubble.timeText:SetText(relativeTime)
+    local statusSuffix = ""
+    if entry.sender == "me" and entry.status == "failed" then
+        statusSuffix = "  |cffff4444✗ Failed|r"
+    elseif entry.sender == "me" and entry.status == "delivered" then
+        statusSuffix = "  |cff666666✓|r"
+    end
+    bubble.timeText:SetText(relativeTime .. statusSuffix)
 
     -- Store raw text for copy
     bubble._rawText = entry.text
@@ -313,10 +319,11 @@ local function LayoutBubble(bubble, entry, chatWidth, yOffset)
     -- Hover to show exact timestamp
     if ns.db.settings.showTimestampOnHover then
         bubble._entryTime = entry.time
-        bubble._relativeTime = relativeTime
+        bubble._relativeTime = relativeTime .. statusSuffix
+        bubble._statusSuffix = statusSuffix
         bubble:SetScript("OnEnter", function(self)
             if self._entryTime then
-                self.timeText:SetText(date("%I:%M:%S %p", self._entryTime))
+                self.timeText:SetText(date("%I:%M:%S %p", self._entryTime) .. (self._statusSuffix or ""))
                 self.timeText:SetTextColor(0.6, 0.6, 0.6)
             end
         end)

@@ -164,17 +164,52 @@ function ns:CHAT_MSG_WHISPER(text, sender, ...)
     end
 end
 
--- Outgoing whisper
+-- Outgoing whisper (confirmed delivered by server)
 function ns:CHAT_MSG_WHISPER_INFORM(text, sender, ...)
     sender = Ambiguate(sender, "none")
     local isFriend = ns.IsFriend(sender)
     local entry = ns.StoreMessage(sender, text, "me", isFriend)
+    entry.status = "delivered"
+
+    -- Clear pending tracker
+    ns.pendingWhispers[sender:lower()] = nil
 
     if ns.RefreshConversationList then
         ns.RefreshConversationList()
     end
     if ns.activeConversation == sender and ns.AddBubble then
         ns.AddBubble(entry, sender)
+        ns.ScrollToBottom()
+    end
+end
+
+-- System message handler — detect whisper failures ("No player named X is currently playing")
+function ns:CHAT_MSG_SYSTEM(text)
+    local failedName = text:match("No player named '(.-)' is currently playing")
+        or text:match("No player named (.+) is currently playing")
+    if not failedName then return end
+
+    local lower = failedName:lower()
+    local pending = ns.pendingWhispers[lower]
+    if not pending then return end
+
+    ns.pendingWhispers[lower] = nil
+
+    -- Find the last outgoing message to this player and mark as failed
+    local convo = ns.db.conversations[failedName]
+    if convo and convo.messages then
+        for i = #convo.messages, 1, -1 do
+            local msg = convo.messages[i]
+            if msg.sender == "me" and not msg.status then
+                msg.status = "failed"
+                break
+            end
+        end
+    end
+
+    -- Rebuild if viewing this conversation
+    if ns.activeConversation == failedName and ns.RebuildBubbles then
+        ns.RebuildBubbles(failedName)
         ns.ScrollToBottom()
     end
 end
@@ -209,6 +244,9 @@ function ns:CHAT_MSG_DND(text, sender, ...)
     end
 end
 
+-- Pending outbound messages (for delivery tracking)
+ns.pendingWhispers = {}
+
 -- Send a whisper
 function ns.SendWhisper(target, text)
     -- Retail 12.0+: check for chat lockdown
@@ -216,6 +254,13 @@ function ns.SendWhisper(target, text)
         DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Cannot send — chat is locked down.")
         return
     end
+
+    -- Track pending message for delivery confirmation
+    ns.pendingWhispers[target:lower()] = {
+        text = text,
+        time = time(),
+    }
+
     if C_ChatInfo and C_ChatInfo.SendChatMessage then
         C_ChatInfo.SendChatMessage(text, "WHISPER", nil, target)
     else
