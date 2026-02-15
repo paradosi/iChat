@@ -61,19 +61,37 @@ local function GetSF()
     return (ns.db and ns.db.settings and ns.db.settings.settingsFontSize) or 10
 end
 
+-- Tracking tables for smooth font resizing
+local function TrackSF(fs)
+    if not ns._settingsFontStrings then ns._settingsFontStrings = {} end
+    table.insert(ns._settingsFontStrings, fs)
+    return fs
+end
+local function TrackSmallSF(fs)
+    if not ns._settingsSmallFontStrings then ns._settingsSmallFontStrings = {} end
+    table.insert(ns._settingsSmallFontStrings, fs)
+    return fs
+end
+-- EditBoxes also have SetFont but aren't FontStrings
+local function TrackEditBoxSF(eb)
+    if not ns._settingsEditBoxes then ns._settingsEditBoxes = {} end
+    table.insert(ns._settingsEditBoxes, eb)
+    return eb
+end
+
 local function CreateSettingsSlider(parent, label, min, max, step, getValue, onChange, suffix)
     suffix = suffix or ""
     local sf = GetSF()
     local container = CreateFrame("Frame", nil, parent)
     container:SetHeight(38)
 
-    local labelText = container:CreateFontString(nil, "OVERLAY")
+    local labelText = TrackSF(container:CreateFontString(nil, "OVERLAY"))
     labelText:SetFont("Fonts\\FRIZQT__.TTF", sf, "")
     labelText:SetTextColor(0.65, 0.65, 0.65)
     labelText:SetPoint("TOPLEFT")
     labelText:SetText(label)
 
-    local valueText = container:CreateFontString(nil, "OVERLAY")
+    local valueText = TrackSF(container:CreateFontString(nil, "OVERLAY"))
     valueText:SetFont("Fonts\\FRIZQT__.TTF", sf, "")
     valueText:SetTextColor(1, 1, 1)
     valueText:SetPoint("TOPRIGHT")
@@ -139,7 +157,7 @@ local function CreateSettingsCheckbox(parent, label, getValue, onChange)
     check:SetPoint("CENTER", box)
     check:SetColorTexture(0.0, 0.48, 1.0, 1)
 
-    local text = btn:CreateFontString(nil, "OVERLAY")
+    local text = TrackSF(btn:CreateFontString(nil, "OVERLAY"))
     text:SetFont("Fonts\\FRIZQT__.TTF", sf, "")
     text:SetTextColor(0.8, 0.8, 0.8)
     text:SetPoint("LEFT", box, "RIGHT", 6, 0)
@@ -173,7 +191,7 @@ local function CreateActionButton(parent, label, color, onClick)
     bg:SetAllPoints()
     bg:SetColorTexture(0.12, 0.12, 0.12, 1)
 
-    local text = btn:CreateFontString(nil, "OVERLAY")
+    local text = TrackSF(btn:CreateFontString(nil, "OVERLAY"))
     text:SetFont("Fonts\\FRIZQT__.TTF", sf, "")
     text:SetPoint("CENTER")
     text:SetText(label)
@@ -196,7 +214,7 @@ local function CreateSettingsDropdown(parent, label, getItems, getValue, onChang
     local container = CreateFrame("Frame", nil, parent)
     container:SetHeight(46)
 
-    local labelFS = container:CreateFontString(nil, "OVERLAY")
+    local labelFS = TrackSF(container:CreateFontString(nil, "OVERLAY"))
     labelFS:SetFont("Fonts\\FRIZQT__.TTF", sf, "")
     labelFS:SetTextColor(0.65, 0.65, 0.65)
     labelFS:SetPoint("TOPLEFT")
@@ -212,7 +230,7 @@ local function CreateSettingsDropdown(parent, label, getItems, getValue, onChang
     btnBg:SetAllPoints()
     btnBg:SetColorTexture(0.12, 0.12, 0.12, 1)
 
-    local btnText = btn:CreateFontString(nil, "OVERLAY")
+    local btnText = TrackSF(btn:CreateFontString(nil, "OVERLAY"))
     btnText:SetFont("Fonts\\FRIZQT__.TTF", sf, "")
     btnText:SetTextColor(1, 1, 1)
     btnText:SetPoint("LEFT", 8, 0)
@@ -220,7 +238,7 @@ local function CreateSettingsDropdown(parent, label, getItems, getValue, onChang
     btnText:SetJustifyH("LEFT")
     btnText:SetWordWrap(false)
 
-    local arrow = btn:CreateFontString(nil, "OVERLAY")
+    local arrow = TrackSmallSF(btn:CreateFontString(nil, "OVERLAY"))
     arrow:SetFont("Fonts\\FRIZQT__.TTF", math.max(sf - 2, 7), "")
     arrow:SetTextColor(0.5, 0.5, 0.5)
     arrow:SetPoint("RIGHT", -6, 0)
@@ -397,6 +415,11 @@ end
 ---------------------------------------------------------------------------
 function ns.CreateSettingsPanel()
     local SF = ns.db.settings.settingsFontSize or 10
+    -- Reset tracking tables
+    ns._settingsFontStrings = {}
+    ns._settingsSmallFontStrings = {}
+    ns._settingsEditBoxes = {}
+
     local panel = CreateFrame("Frame", nil, ns.mainWindow)
     panel:SetPoint("TOPLEFT", ns.rightPanel, "TOPLEFT")
     panel:SetPoint("BOTTOMRIGHT", ns.rightPanel, "BOTTOMRIGHT")
@@ -593,7 +616,7 @@ function ns.CreateSettingsPanel()
     displayDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
     yPos = yPos + 12
 
-    local displayLabel = child:CreateFontString(nil, "OVERLAY")
+    local displayLabel = TrackSF(child:CreateFontString(nil, "OVERLAY"))
     displayLabel:SetFont("Fonts\\FRIZQT__.TTF", SF, "")
     displayLabel:SetTextColor(0.65, 0.65, 0.65)
     displayLabel:SetPoint("TOPLEFT", 0, -yPos)
@@ -662,7 +685,7 @@ function ns.CreateSettingsPanel()
     behaviorDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
     yPos = yPos + 12
 
-    local behaviorLabel = child:CreateFontString(nil, "OVERLAY")
+    local behaviorLabel = TrackSF(child:CreateFontString(nil, "OVERLAY"))
     behaviorLabel:SetFont("Fonts\\FRIZQT__.TTF", SF, "")
     behaviorLabel:SetTextColor(0.65, 0.65, 0.65)
     behaviorLabel:SetPoint("TOPLEFT", 0, -yPos)
@@ -728,7 +751,7 @@ function ns.CreateSettingsPanel()
     autoReplyDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
     yPos = yPos + 12
 
-    local autoReplyLabel = child:CreateFontString(nil, "OVERLAY")
+    local autoReplyLabel = TrackSF(child:CreateFontString(nil, "OVERLAY"))
     autoReplyLabel:SetFont("Fonts\\FRIZQT__.TTF", SF, "")
     autoReplyLabel:SetTextColor(0.65, 0.65, 0.65)
     autoReplyLabel:SetPoint("TOPLEFT", 0, -yPos)
@@ -749,7 +772,7 @@ function ns.CreateSettingsPanel()
     yPos = yPos + 26
 
     -- Auto-reply message EditBox
-    local arMsgLabel = child:CreateFontString(nil, "OVERLAY")
+    local arMsgLabel = TrackSmallSF(child:CreateFontString(nil, "OVERLAY"))
     arMsgLabel:SetFont("Fonts\\FRIZQT__.TTF", math.max(SF-1, 7), "")
     arMsgLabel:SetTextColor(0.5, 0.5, 0.5)
     arMsgLabel:SetPoint("TOPLEFT", 0, -yPos)
@@ -765,6 +788,7 @@ function ns.CreateSettingsPanel()
     arMsgBox:SetPoint("LEFT", 0, 0)
     arMsgBox:SetPoint("RIGHT")
     arMsgBox:SetHeight(20)
+    TrackEditBoxSF(arMsgBox)
     arMsgBox:SetFont("Fonts\\FRIZQT__.TTF", SF, "")
     arMsgBox:SetTextColor(0.9, 0.9, 0.9)
     arMsgBox:SetAutoFocus(false)
@@ -792,7 +816,7 @@ function ns.CreateSettingsPanel()
     qrDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
     yPos = yPos + 12
 
-    local qrLabel = child:CreateFontString(nil, "OVERLAY")
+    local qrLabel = TrackSF(child:CreateFontString(nil, "OVERLAY"))
     qrLabel:SetFont("Fonts\\FRIZQT__.TTF", SF, "")
     qrLabel:SetTextColor(0.65, 0.65, 0.65)
     qrLabel:SetPoint("TOPLEFT", 0, -yPos)
@@ -806,7 +830,7 @@ function ns.CreateSettingsPanel()
         row:SetPoint("TOPLEFT", 0, -yPos)
         row:SetPoint("RIGHT", child, "RIGHT")
 
-        local num = row:CreateFontString(nil, "OVERLAY")
+        local num = TrackSmallSF(row:CreateFontString(nil, "OVERLAY"))
         num:SetFont("Fonts\\FRIZQT__.TTF", math.max(SF-1, 7), "")
         num:SetTextColor(0.5, 0.5, 0.5)
         num:SetPoint("LEFT", 0, 0)
@@ -816,6 +840,7 @@ function ns.CreateSettingsPanel()
         box:SetPoint("LEFT", num, "RIGHT", 4, 0)
         box:SetPoint("RIGHT")
         box:SetHeight(20)
+        TrackEditBoxSF(box)
         box:SetFont("Fonts\\FRIZQT__.TTF", SF, "")
         box:SetTextColor(0.9, 0.9, 0.9)
         box:SetAutoFocus(false)
@@ -965,21 +990,27 @@ function ns.ToggleSettings()
 end
 
 ---------------------------------------------------------------------------
--- Apply Settings Panel Font Size (rebuild panel to pick up new size)
+-- Apply Settings Panel Font Size (smooth in-place update)
 ---------------------------------------------------------------------------
 function ns.ApplySettingsFont()
-    if ns.settingsPanel then
-        -- Close dropdowns
-        if ns._settingsDropdowns then
-            for _, df in ipairs(ns._settingsDropdowns) do df:Hide() end
+    local sf = GetSF()
+    if ns._settingsFontStrings then
+        for _, fs in ipairs(ns._settingsFontStrings) do
+            local _, _, flags = fs:GetFont()
+            fs:SetFont("Fonts\\FRIZQT__.TTF", sf, flags or "")
         end
-        ns._settingsDropdowns = nil
-        ns.settingsPanel:Hide()
-        ns.settingsPanel:SetParent(nil)
-        ns.settingsPanel = nil
-        -- Reopen with new font size
-        ns.CreateSettingsPanel()
-        ns.settingsPanel:Show()
+    end
+    if ns._settingsSmallFontStrings then
+        for _, fs in ipairs(ns._settingsSmallFontStrings) do
+            local _, _, flags = fs:GetFont()
+            fs:SetFont("Fonts\\FRIZQT__.TTF", math.max(sf - 1, 7), flags or "")
+        end
+    end
+    if ns._settingsEditBoxes then
+        for _, eb in ipairs(ns._settingsEditBoxes) do
+            local _, _, flags = eb:GetFont()
+            eb:SetFont("Fonts\\FRIZQT__.TTF", sf, flags or "")
+        end
     end
 end
 
