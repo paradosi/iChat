@@ -381,7 +381,10 @@ function ns.RebuildBubbles(playerName)
     wipe(ns.activeSeparators)
 
     local convo = ns.db.conversations[playerName]
-    if not convo or not convo.messages then return end
+    if not convo or not convo.messages then
+        ns.currentYOffset = 8
+        return
+    end
 
     local chatWidth = ns.chatScrollChild:GetWidth()
     if chatWidth <= 0 then chatWidth = 300 end
@@ -415,6 +418,7 @@ function ns.RebuildBubbles(playerName)
         prevTime = entry.time
     end
 
+    ns.currentYOffset = yOffset
     local scrollHeight = ns.chatScrollFrame:GetHeight()
     ns.chatScrollChild:SetHeight(math.max(yOffset + 8, scrollHeight))
 end
@@ -428,15 +432,7 @@ function ns.AddBubble(entry, playerName)
     local chatWidth = ns.chatScrollChild:GetWidth()
     if chatWidth <= 0 then chatWidth = 300 end
 
-    -- Calculate current yOffset from existing elements
-    local yOffset = 8
-    for _, b in ipairs(ns.activeBubbles) do
-        local bh = b:GetHeight()
-        yOffset = yOffset + bh + TIMESTAMP_HEIGHT + BUBBLE_MARGIN
-    end
-    for _, s in ipairs(ns.activeSeparators) do
-        yOffset = yOffset + SEPARATOR_HEIGHT
-    end
+    local yOffset = ns.currentYOffset or 8
 
     -- Check if we need a date separator
     local showDateSep = ns.db.settings.showDateSeparators
@@ -456,8 +452,9 @@ function ns.AddBubble(entry, playerName)
     local height = LayoutBubble(bubble, entry, chatWidth, yOffset)
     table.insert(ns.activeBubbles, bubble)
 
+    ns.currentYOffset = yOffset + height
     local scrollHeight = ns.chatScrollFrame:GetHeight()
-    ns.chatScrollChild:SetHeight(math.max(yOffset + height + 8, scrollHeight))
+    ns.chatScrollChild:SetHeight(math.max(ns.currentYOffset + 8, scrollHeight))
 end
 
 ---------------------------------------------------------------------------
