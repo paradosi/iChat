@@ -1,5 +1,13 @@
 local addonName, ns = ...
 
+---------------------------------------------------------------------------
+-- Core — Entry point, event dispatch, slash commands, and combat hiding
+--
+-- Sets up the main event frame that routes WoW events to handler functions
+-- on the addon namespace (ns). Initializes saved variables, registers
+-- whisper events, builds the UI, and defines all /ichat slash commands.
+---------------------------------------------------------------------------
+
 -- Version read from TOC at load time (set in ADDON_LOADED)
 ns.version = "?"
 ns.playerName = nil

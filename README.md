@@ -227,7 +227,12 @@ Data persists across sessions. Use `/ichat clear` or the settings panel to manag
 - **Classic Era** (1.15.x) — Interface 11508
 - **TBC Classic Anniversary** (2.5.x) — Interface 20505
 - **Retail** (12.x Midnight) — Interface 120001
-- **Conflicts:** If using WIM (WoW Instant Messenger), iChat automatically disables "Suppress default chat whispers" to avoid double-suppression
+
+## Known Issues
+
+- **WIM conflict:** If WoW Instant Messenger (WIM) is installed, iChat automatically disables "Suppress default chat whispers" to avoid double-suppression.
+- **Typing indicator is local-only** — only shows when *you* are typing. Cross-addon typing detection would require addon-to-addon messaging (both parties need iChat).
+- **ElvUI skin** may not apply if ElvUI loads after iChat — a 1-second delay is used, but edge cases are possible. Toggle the setting off/on in that case.
 
 ## Credits
 

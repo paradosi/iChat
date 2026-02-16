@@ -1,5 +1,19 @@
 local _, ns = ...
 
+---------------------------------------------------------------------------
+-- UI — Main window, panels, conversation list, compose, context menus,
+--       keyboard shortcuts, auto-fade, and copy/note editor popups
+--
+-- Builds the entire iChat interface:
+--   - Title bar with compose, settings, minimize, close buttons
+--   - Left panel: searchable, scrollable conversation list with badges
+--   - Right panel: chat area (bubbles rendered by bubbles.lua), input bar,
+--     emoji button, send button, quick reply bar
+--   - Auto-fade system: window fades to 25% opacity when idle
+--   - Context menus: pin, mute, note, copy, delete (Retail MenuUtil or
+--     Classic EasyMenu depending on client version)
+---------------------------------------------------------------------------
+
 -- Color palette
 local C = {
     BLUE        = { 0.00, 0.48, 1.00, 1.0 },
@@ -1134,7 +1148,7 @@ function ns.ShowContextMenu(playerName)
     local noteText = hasNote and "Edit Note" or "Add Note"
 
     if MenuUtil and MenuUtil.CreateContextMenu then
-        -- Retail 11.0+
+        -- Retail 11.0+: new context menu API (EasyMenu was removed)
         MenuUtil.CreateContextMenu(UIParent, function(owner, rootDescription)
             rootDescription:CreateButton(pinText, pinFunc)
             rootDescription:CreateButton(muteText, muteFunc)
@@ -1143,7 +1157,7 @@ function ns.ShowContextMenu(playerName)
             rootDescription:CreateButton("|cffcc4444Delete Conversation|r", deleteFunc)
         end)
     else
-        -- Classic (EasyMenu)
+        -- Classic / TBC / Wrath: use legacy EasyMenu + UIDropDownMenuTemplate
         if not ns.contextMenuFrame then
             ns.contextMenuFrame = CreateFrame("Frame", "iChatContextMenu", UIParent, "UIDropDownMenuTemplate")
         end

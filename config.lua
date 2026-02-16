@@ -1,5 +1,18 @@
 local _, ns = ...
 
+---------------------------------------------------------------------------
+-- Config — Saved variable initialization, defaults, and storage switching
+--
+-- Manages two SavedVariables tables:
+--   ICHAT_DATA    (per-character) — default storage mode
+--   ICHAT_ACCOUNT (account-wide)  — optional shared mode
+--
+-- ns.db always points to whichever is active. SetSharedAccount() handles
+-- live switching with data migration (merges conversations, notes, pins).
+-- DeepMerge ensures new settings keys are added on updates without
+-- overwriting existing user preferences.
+---------------------------------------------------------------------------
+
 local defaults = {
     conversations = {},
     pinnedConversations = {},

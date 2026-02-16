@@ -1,5 +1,16 @@
 local _, ns = ...
 
+---------------------------------------------------------------------------
+-- Messages — Whisper handling, message storage, delivery tracking, and
+--            chat filter suppression
+--
+-- Handles all incoming/outgoing whisper events (CHAT_MSG_WHISPER,
+-- CHAT_MSG_WHISPER_INFORM, CHAT_MSG_SYSTEM for failures, AFK/DND).
+-- Maintains friend/class/online caches from FRIENDLIST_UPDATE.
+-- Tracks pending outbound whispers for delivery status (Sent/Failed).
+-- Provides chat filters to optionally suppress whispers from default UI.
+---------------------------------------------------------------------------
+
 -- Friend cache
 ns.friendCache = {}
 ns.classCache = {}
@@ -7,6 +18,8 @@ ns.onlineCache = {}
 ns.autoRepliedTo = {}
 
 -- Build reverse lookup: localized class name -> token (e.g. "Warrior" -> "WARRIOR")
+-- Needed because C_FriendList returns localized class names but
+-- RAID_CLASS_COLORS is keyed by uppercase tokens
 local classNameToToken = {}
 for i = 1, GetNumClasses() do
     local name, token = GetClassInfo(i)
@@ -264,7 +277,7 @@ ns.pendingWhispers = {}
 
 -- Send a whisper
 function ns.SendWhisper(target, text)
-    -- Retail 12.0+: check for chat lockdown
+    -- Retail 12.0+: Blizzard can lock chat during maintenance or restricted periods
     if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
         DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Cannot send — chat is locked down.")
         return
@@ -276,6 +289,7 @@ function ns.SendWhisper(target, text)
         time = time(),
     }
 
+    -- Retail moved SendChatMessage behind C_ChatInfo; Classic still uses the global
     if C_ChatInfo and C_ChatInfo.SendChatMessage then
         C_ChatInfo.SendChatMessage(text, "WHISPER", nil, target)
     else

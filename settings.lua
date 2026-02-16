@@ -1,5 +1,21 @@
 local _, ns = ...
 
+---------------------------------------------------------------------------
+-- Settings — Settings panel UI, notification sounds, quick replies,
+--            font/opacity controls, export, and history management
+--
+-- Builds the scrollable settings panel with custom flat UI widgets:
+--   - CreateSettingsSlider: track + thumb slider with live value display
+--   - CreateSettingsCheckbox: flat toggle with blue check indicator
+--   - CreateSettingsDropdown: scrollable popup with click-off dismiss
+--   - CreateActionButton: flat button with hover highlight
+--
+-- All settings widgets support dynamic font resizing via the "Settings
+-- Font Size" slider (tracked FontStrings are updated in-place without
+-- rebuilding the panel). LibSharedMedia fonts/sounds are detected and
+-- merged with built-in options when available.
+---------------------------------------------------------------------------
+
 local C = ns.C
 
 -- LibSharedMedia integration (optional)

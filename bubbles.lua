@@ -1,5 +1,18 @@
 local _, ns = ...
 
+---------------------------------------------------------------------------
+-- Bubbles — Chat bubble rendering with 9-slice pill textures, date
+--           separators, unread separators, and delivery status indicators
+--
+-- Each bubble is a frame with 7 texture regions (4 rounded corners +
+-- 3 fills) sampled from a single circle texture (pill.png) to create
+-- smooth rounded rectangles. Bubbles are pooled and recycled.
+--
+-- Layout: Right-aligned blue bubbles (sent), left-aligned blue/green
+-- bubbles (received from friend/non-friend). Supports hover timestamps,
+-- emoji rendering, item link tooltips, and right-click to copy.
+---------------------------------------------------------------------------
+
 local C = ns.C
 
 -- Bubble settings
