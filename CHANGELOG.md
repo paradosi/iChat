@@ -1,5 +1,12 @@
 # iChat Changelog
 
+## [1.3.3](https://github.com/paradosi/iChat/tree/1.3.3) (2026-02-22)
+
+### Added
+- **Invite to Group** button in conversation header (next to Add Friend / Block)
+- **Invite to Group** option in right-click context menu
+- Both call `InviteUnit()` on the active/selected conversation target
+
 ## [1.3.2](https://github.com/paradosi/iChat/tree/1.3.2) (2026-02-15)
 [Full Changelog](https://github.com/paradosi/iChat/compare/1.3.1...1.3.2)
 

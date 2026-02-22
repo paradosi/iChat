@@ -472,6 +472,24 @@ function ns.CreateRightPanel(parent)
     ns.blockBtn = blockBtn
     ns.blockText = blockText
 
+    -- Invite button (left of Add Friend)
+    local inviteBtn = CreateFrame("Button", nil, header)
+    inviteBtn:SetSize(48, 22)
+    local inviteText = inviteBtn:CreateFontString(nil, "OVERLAY")
+    inviteText:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
+    inviteText:SetPoint("CENTER")
+    inviteText:SetText("Invite")
+    inviteText:SetTextColor(0.2, 0.78, 0.35)
+    inviteBtn:SetScript("OnEnter", function() inviteText:SetTextColor(0.5, 1, 0.6) end)
+    inviteBtn:SetScript("OnLeave", function() inviteText:SetTextColor(0.2, 0.78, 0.35) end)
+    inviteBtn:SetScript("OnClick", function()
+        if not ns.activeConversation then return end
+        InviteUnit(ns.activeConversation)
+    end)
+    inviteBtn:Hide()
+    ns.inviteBtn = inviteBtn
+    ns.inviteText = inviteText
+
     -- Add Friend button (left of block)
     local friendBtn = CreateFrame("Button", nil, header)
     friendBtn:SetSize(64, 22)
@@ -494,6 +512,9 @@ function ns.CreateRightPanel(parent)
     friendBtn:Hide()
     ns.friendBtn = friendBtn
     ns.friendText = friendText
+
+    -- Position inviteBtn now that friendBtn exists
+    inviteBtn:SetPoint("RIGHT", friendBtn, "LEFT", -4, 0)
 
     -- Empty state text (shown when no conversation selected)
     local emptyText = panel:CreateFontString(nil, "OVERLAY")
@@ -787,6 +808,7 @@ end
 function ns.UpdateHeaderButtons()
     local name = ns.activeConversation
     if not name then
+        if ns.inviteBtn then ns.inviteBtn:Hide() end
         if ns.friendBtn then ns.friendBtn:Hide() end
         if ns.blockBtn then ns.blockBtn:Hide() end
         return
@@ -824,6 +846,9 @@ function ns.UpdateHeaderButtons()
         ns.blockText:SetTextColor(0.8, 0.25, 0.2)
     end
     ns.blockBtn:Show()
+
+    -- Invite button: always show when a conversation is open
+    if ns.inviteBtn then ns.inviteBtn:Show() end
 end
 
 ---------------------------------------------------------------------------
@@ -1118,6 +1143,10 @@ function ns.ShowContextMenu(playerName)
         ns.ShowNoteEditor(playerName)
     end
 
+    local function inviteFunc()
+        InviteUnit(playerName)
+    end
+
     local function copyFunc()
         ns.ShowCopyPopup(playerName, "Copy Name")
     end
@@ -1154,6 +1183,7 @@ function ns.ShowContextMenu(playerName)
             rootDescription:CreateButton(muteText, muteFunc)
             rootDescription:CreateButton(noteText, noteFunc)
             rootDescription:CreateButton("Copy Name", copyFunc)
+            rootDescription:CreateButton("Invite to Group", inviteFunc)
             rootDescription:CreateButton("|cffcc4444Delete Conversation|r", deleteFunc)
         end)
     else
@@ -1167,6 +1197,7 @@ function ns.ShowContextMenu(playerName)
             { text = muteText, notCheckable = true, func = muteFunc },
             { text = noteText, notCheckable = true, func = noteFunc },
             { text = "Copy Name", notCheckable = true, func = copyFunc },
+            { text = "Invite to Group", notCheckable = true, func = inviteFunc },
             { text = "Delete Conversation", notCheckable = true, colorCode = "|cffcc4444", func = deleteFunc },
         }
 
