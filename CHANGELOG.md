@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.3.9](https://github.com/paradosi/iChat/tree/1.3.9) (2026-02-23)
+
+### Fixed
+- **Portrait missing on self-whisper** — `FindUnitByName` now checks `"player"` first, so whispering yourself correctly shows your own 3D portrait.
+
 ## [1.3.8](https://github.com/paradosi/iChat/tree/1.3.8) (2026-02-23)
 
 ### Added

@@ -43,19 +43,26 @@ local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
 local function FindUnitByName(name)
     if not name then return nil end
     local bare = name:match("^([^%-]+)") or name  -- strip -Realm suffix
-    if UnitExists("target") and (UnitName("target") == bare or UnitName("target") == name) then
-        return "target"
+
+    local function matches(unit)
+        local n = UnitName(unit)
+        return n == bare or n == name
     end
-    if UnitExists("focus") and (UnitName("focus") == bare or UnitName("focus") == name) then
-        return "focus"
-    end
+
+    -- Self-whisper: check the player unit first
+    if UnitExists("player") and matches("player") then return "player" end
+    -- Target / focus
+    if UnitExists("target") and matches("target") then return "target" end
+    if UnitExists("focus") and matches("focus") then return "focus" end
+    -- Party
     for i = 1, 4 do
         local u = "party" .. i
-        if UnitExists(u) and (UnitName(u) == bare or UnitName(u) == name) then return u end
+        if UnitExists(u) and matches(u) then return u end
     end
+    -- Raid
     for i = 1, 40 do
         local u = "raid" .. i
-        if UnitExists(u) and (UnitName(u) == bare or UnitName(u) == name) then return u end
+        if UnitExists(u) and matches(u) then return u end
     end
     return nil
 end
