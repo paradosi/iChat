@@ -1,5 +1,17 @@
 # iChat Changelog
 
+## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-23)
+
+### Added
+- **2D class icon fallback** — when the conversation partner is out of range, a class icon is shown instead of the 3D portrait. Falls back to a question mark if class is unknown.
+- **Class color on player name** — the conversation header name is now colored by the player's WoW class. Uses friends list cache, local portrait cache, or live `UnitClass` lookup.
+- **Portrait class caching** — class token is cached locally the first time a 3D portrait renders, so the class icon fallback works in future sessions even without the friends list.
+- **Opportunistic class cache on whisper** — when an incoming whisper arrives from a nearby player, their class is immediately cached for instant name coloring.
+
+### Fixed
+- **Stale portrait on conversation switch** — `ClearModel()` is now called before `SetUnit()` so switching conversations always loads the correct character model.
+- **Auto-focus on WoW window activation** — the input box no longer steals focus when clicking back into WoW. Focus only happens when explicitly clicking a conversation, picking from the compose bar, or cycling with Tab.
+
 ## [1.4.1](https://github.com/paradosi/iChat/tree/1.4.1) (2026-02-23)
 
 ### Changed

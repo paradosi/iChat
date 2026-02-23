@@ -118,6 +118,16 @@ end
 -- Incoming whisper
 function ns:CHAT_MSG_WHISPER(text, sender, ...)
     sender = Ambiguate(sender, "none")
+    -- Opportunistically cache sender's class if they're in range right now
+    if ns.FindUnitByName and not (ns.classCache[sender:lower()]) then
+        local unit = ns.FindUnitByName(sender)
+        if unit then
+            local _, classToken = UnitClass(unit)
+            if classToken then
+                ns.classCache[sender:lower()] = classToken
+            end
+        end
+    end
     local isFriend = ns.IsFriend(sender)
     local entry = ns.StoreMessage(sender, text, "them", isFriend)
 

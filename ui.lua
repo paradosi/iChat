@@ -378,7 +378,7 @@ function ns.CreateConvoEntry(index)
         if button == "RightButton" then
             ns.ShowContextMenu(self.playerName)
         else
-            ns.SelectConversation(self.playerName)
+            ns.SelectConversation(self.playerName, true)
         end
     end)
     entry:SetScript("OnEnter", function(self)
@@ -859,7 +859,7 @@ end
 ---------------------------------------------------------------------------
 -- Select Conversation
 ---------------------------------------------------------------------------
-function ns.SelectConversation(playerName)
+function ns.SelectConversation(playerName, focusInput)
     ns.activeConversation = playerName
     ns.headerName:SetText(playerName)
 
@@ -908,8 +908,8 @@ function ns.SelectConversation(playerName)
     ns.ScrollToBottom()
     ns.RefreshConversationList()
 
-    -- Focus input (skip if in combat — avoids interrupting rotation keybinds)
-    if not InCombatLockdown() then
+    -- Focus input only when explicitly requested (e.g. user clicked a conversation)
+    if focusInput and not InCombatLockdown() then
         ns.inputBox:SetFocus()
     end
 end
@@ -1098,7 +1098,7 @@ function ns.ToggleCompose()
                         lastActivity = time(),
                     }
                 end
-                ns.SelectConversation(name)
+                ns.SelectConversation(name, true)
                 ns.RefreshConversationList()
                 self:SetText("")
                 bar:Hide()
@@ -1420,7 +1420,7 @@ function ns.SetupKeyboardShortcuts()
             else
                 nextIdx = currentIdx < #sorted and (currentIdx + 1) or 1
             end
-            ns.SelectConversation(sorted[nextIdx].name)
+            ns.SelectConversation(sorted[nextIdx].name, true)
         else
             self:SetPropagateKeyboardInput(true)
         end
