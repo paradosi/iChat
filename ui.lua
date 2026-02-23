@@ -900,8 +900,10 @@ function ns.SelectConversation(playerName)
     ns.ScrollToBottom()
     ns.RefreshConversationList()
 
-    -- Focus input
-    ns.inputBox:SetFocus()
+    -- Focus input (skip if in combat — avoids interrupting rotation keybinds)
+    if not InCombatLockdown() then
+        ns.inputBox:SetFocus()
+    end
 end
 
 ---------------------------------------------------------------------------

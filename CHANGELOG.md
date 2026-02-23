@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.3.4](https://github.com/paradosi/iChat/tree/1.3.4) (2026-02-23)
+
+### Fixed
+- **Combat focus steal** — input box no longer auto-focuses when a DM arrives while the player is in combat (dungeon/raid). Uses `InCombatLockdown()` to detect combat state. Rotation keybinds will no longer accidentally type into the chat input.
+
 ## [1.3.3](https://github.com/paradosi/iChat/tree/1.3.3) (2026-02-22)
 
 ### Added
