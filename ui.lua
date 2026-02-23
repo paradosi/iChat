@@ -35,56 +35,7 @@ local LEFT_WIDTH = 140
 local ENTRY_HEIGHT = 52
 local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
 
----------------------------------------------------------------------------
--- Portrait helpers
----------------------------------------------------------------------------
-
--- Scan all visible units to find one matching playerName (name without realm)
-local function FindUnitByName(name)
-    if not name then return nil end
-    local bare = name:match("^([^%-]+)") or name  -- strip -Realm suffix
-
-    local function matches(unit)
-        local n = UnitName(unit)
-        return n == bare or n == name
-    end
-
-    -- Self-whisper: check the player unit first
-    if UnitExists("player") and matches("player") then return "player" end
-    -- Target / focus
-    if UnitExists("target") and matches("target") then return "target" end
-    if UnitExists("focus") and matches("focus") then return "focus" end
-    -- Party
-    for i = 1, 4 do
-        local u = "party" .. i
-        if UnitExists(u) and matches(u) then return u end
-    end
-    -- Raid
-    for i = 1, 40 do
-        local u = "raid" .. i
-        if UnitExists(u) and matches(u) then return u end
-    end
-    return nil
-end
-
--- Refresh the header portrait based on current conversation + setting.
--- Called from SelectConversation and the settings toggle.
-function ns.UpdatePortrait()
-    if not ns.headerPortrait then return end
-    local enabled = ns.db.settings.showPortrait
-    local unit = enabled and ns.activeConversation and FindUnitByName(ns.activeConversation)
-
-    if unit then
-        ns.headerPortrait:SetUnit(unit)
-        ns.headerPortrait:Show()
-        ns.headerName:ClearAllPoints()
-        ns.headerName:SetPoint("LEFT", ns.headerPortrait, "RIGHT", 6, 2)
-    else
-        ns.headerPortrait:Hide()
-        ns.headerName:ClearAllPoints()
-        ns.headerName:SetPoint("LEFT", 10, 2)
-    end
-end
+-- Portrait logic lives in portraits.lua (ns.CreatePortraitFrame / ns.UpdatePortrait)
 
 ---------------------------------------------------------------------------
 -- Main Window
@@ -493,12 +444,8 @@ function ns.CreateRightPanel(parent)
     headerNote:SetText("")
     ns.headerNote = headerNote
 
-    -- Player portrait (3D model) — shown in header when unit is found nearby
-    local portrait = CreateFrame("PlayerModel", nil, header)
-    portrait:SetSize(36, 36)
-    portrait:SetPoint("LEFT", 0, 0)
-    portrait:Hide()
-    ns.headerPortrait = portrait
+    -- Player portrait (3D model) — logic in portraits.lua
+    ns.CreatePortraitFrame(header)
 
     -- Block button (rightmost)
     local blockBtn = CreateFrame("Button", nil, header)

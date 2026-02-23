@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.4.0](https://github.com/paradosi/iChat/tree/1.4.0) (2026-02-23)
+
+### Changed
+- **Portrait logic extracted to `portraits.lua`** — `FindUnitByName`, `ns.CreatePortraitFrame`, and `ns.UpdatePortrait` now live in a dedicated module. `ui.lua` calls the library; no behavior change.
+
 ## [1.3.9](https://github.com/paradosi/iChat/tree/1.3.9) (2026-02-23)
 
 ### Fixed
