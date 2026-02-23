@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.3.6](https://github.com/paradosi/iChat/tree/1.3.6) (2026-02-23)
+
+### Fixed
+- **Addon list icon white background** — replaced sips-converted TGA (which lost alpha) with a properly hand-crafted uncompressed BGRA TGA. Icon now shows correctly with transparency.
+
 ## [1.3.5](https://github.com/paradosi/iChat/tree/1.3.5) (2026-02-23)
 
 ### Fixed
