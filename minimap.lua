@@ -65,7 +65,7 @@ function ns.CreateMinimapButton()
 
     -- Hover effect (brighten icon)
     btn:SetScript("OnEnter", function(self)
-        self.icon:SetVertexColor(1.3, 1.3, 1.3)
+        self.icon:SetVertexColor(2.0, 2.0, 2.0)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:AddLine("|cff007AFFiChat|r")
         GameTooltip:AddLine("Left-click: Toggle window", 0.7, 0.7, 0.7)
@@ -74,7 +74,7 @@ function ns.CreateMinimapButton()
         GameTooltip:Show()
     end)
     btn:SetScript("OnLeave", function(self)
-        self.icon:SetVertexColor(1, 1, 1)
+        self.icon:SetVertexColor(1.5, 1.5, 1.5)
         GameTooltip:Hide()
     end)
 
@@ -149,7 +149,7 @@ function ns.StopFlashButton()
         ns.buttonFlashTicker = nil
     end
     if ns.minimapButton and ns.minimapButton.icon then
-        ns.minimapButton.icon:SetVertexColor(1, 1, 1)
+        ns.minimapButton.icon:SetVertexColor(1.5, 1.5, 1.5)
     end
 end
 

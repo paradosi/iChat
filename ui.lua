@@ -36,6 +36,50 @@ local ENTRY_HEIGHT = 52
 local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
 
 ---------------------------------------------------------------------------
+-- Portrait helpers
+---------------------------------------------------------------------------
+
+-- Scan all visible units to find one matching playerName (name without realm)
+local function FindUnitByName(name)
+    if not name then return nil end
+    local bare = name:match("^([^%-]+)") or name  -- strip -Realm suffix
+    if UnitExists("target") and (UnitName("target") == bare or UnitName("target") == name) then
+        return "target"
+    end
+    if UnitExists("focus") and (UnitName("focus") == bare or UnitName("focus") == name) then
+        return "focus"
+    end
+    for i = 1, 4 do
+        local u = "party" .. i
+        if UnitExists(u) and (UnitName(u) == bare or UnitName(u) == name) then return u end
+    end
+    for i = 1, 40 do
+        local u = "raid" .. i
+        if UnitExists(u) and (UnitName(u) == bare or UnitName(u) == name) then return u end
+    end
+    return nil
+end
+
+-- Refresh the header portrait based on current conversation + setting.
+-- Called from SelectConversation and the settings toggle.
+function ns.UpdatePortrait()
+    if not ns.headerPortrait then return end
+    local enabled = ns.db.settings.showPortrait
+    local unit = enabled and ns.activeConversation and FindUnitByName(ns.activeConversation)
+
+    if unit then
+        ns.headerPortrait:SetUnit(unit)
+        ns.headerPortrait:Show()
+        ns.headerName:ClearAllPoints()
+        ns.headerName:SetPoint("LEFT", ns.headerPortrait, "RIGHT", 6, 2)
+    else
+        ns.headerPortrait:Hide()
+        ns.headerName:ClearAllPoints()
+        ns.headerName:SetPoint("LEFT", 10, 2)
+    end
+end
+
+---------------------------------------------------------------------------
 -- Main Window
 ---------------------------------------------------------------------------
 function ns.CreateMainWindow()
@@ -441,6 +485,13 @@ function ns.CreateRightPanel(parent)
     headerNote:SetWordWrap(false)
     headerNote:SetText("")
     ns.headerNote = headerNote
+
+    -- Player portrait (3D model) — shown in header when unit is found nearby
+    local portrait = CreateFrame("PlayerModel", nil, header)
+    portrait:SetSize(36, 36)
+    portrait:SetPoint("LEFT", 0, 0)
+    portrait:Hide()
+    ns.headerPortrait = portrait
 
     -- Block button (rightmost)
     local blockBtn = CreateFrame("Button", nil, header)
@@ -894,6 +945,9 @@ function ns.SelectConversation(playerName)
 
     -- Update header buttons (friend/block state)
     ns.UpdateHeaderButtons()
+
+    -- Refresh portrait (show 3D model if unit is in range/party)
+    ns.UpdatePortrait()
 
     -- Rebuild
     ns.RebuildBubbles(playerName)

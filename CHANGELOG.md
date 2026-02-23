@@ -1,5 +1,14 @@
 # iChat Changelog
 
+## [1.3.8](https://github.com/paradosi/iChat/tree/1.3.8) (2026-02-23)
+
+### Added
+- **3D portrait in conversation header** — when the selected conversation partner is your current target, focus, or party/raid member, their 3D character model appears in the header next to their name. Updates automatically when you switch conversations.
+- **Portrait on/off toggle** — Settings → Display → "Show 3D portrait in conversation header" checkbox.
+
+### Changed
+- **Brighter floating button icon** — resting brightness raised from 100% → 150% (hover 130% → 200%). The button is now clearly visible without hovering.
+
 ## [1.3.7](https://github.com/paradosi/iChat/tree/1.3.7) (2026-02-23)
 
 ### Fixed

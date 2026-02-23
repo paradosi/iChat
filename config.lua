@@ -44,6 +44,7 @@ local defaults = {
         showTypingIndicator = true,
         showOnlineNotifications = true,
         elvuiSkin = true,
+        showPortrait = true,
     },
 }
 
