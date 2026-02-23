@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.4.1](https://github.com/paradosi/iChat/tree/1.4.1) (2026-02-23)
+
+### Changed
+- **True head-and-shoulders portrait** — `SetCamera(1)` now applied after `SetUnit()` (deferred one frame via `C_Timer.After` so the model geometry is ready). This is the same portrait zoom WoW uses for character frames. Portrait frame is 46×50px with a slight vertical offset to crop cleanly within the 36px header.
+
 ## [1.4.0](https://github.com/paradosi/iChat/tree/1.4.0) (2026-02-23)
 
 ### Changed

@@ -41,14 +41,28 @@ local function FindUnitByName(name)
     return nil
 end
 
+-- Width of the portrait frame (used to offset headerName).
+local PORTRAIT_W = 46
+
 -- Create the PlayerModel frame and attach it to `parent` (the header frame).
 -- Stores the frame as ns.headerPortrait. Call once during UI construction.
 function ns.CreatePortraitFrame(parent)
+    -- Slightly taller than the 36px header so the head/shoulders crop fills nicely.
     local portrait = CreateFrame("PlayerModel", nil, parent)
-    portrait:SetSize(36, 36)
-    portrait:SetPoint("LEFT", 0, 0)
+    portrait:SetSize(PORTRAIT_W, 50)
+    portrait:SetPoint("LEFT", 0, -7)   -- shift down so it centres on the header
     portrait:Hide()
     ns.headerPortrait = portrait
+end
+
+-- Apply the head-and-shoulders camera to the already-loaded unit model.
+-- Must be deferred one frame so the geometry is ready before SetCamera fires.
+local function ApplyPortraitCamera(portrait)
+    C_Timer.After(0, function()
+        if portrait and portrait:IsShown() then
+            portrait:SetCamera(1)   -- WoW portrait zoom (head + shoulders)
+        end
+    end)
 end
 
 -- Refresh the portrait for the current conversation.
@@ -63,6 +77,7 @@ function ns.UpdatePortrait()
     if unit then
         ns.headerPortrait:SetUnit(unit)
         ns.headerPortrait:Show()
+        ApplyPortraitCamera(ns.headerPortrait)
         ns.headerName:ClearAllPoints()
         ns.headerName:SetPoint("LEFT", ns.headerPortrait, "RIGHT", 6, 2)
     else
