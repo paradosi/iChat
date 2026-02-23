@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.3.7](https://github.com/paradosi/iChat/tree/1.3.7) (2026-02-23)
+
+### Fixed
+- **Addon list icon still white** — v1.3.6 used `minimap_icon.png` as source, which has a white opaque background baked in. Switched to `app_logo.png` (the actual addon icon) as source, scaled to 64×64 via ffmpeg. Icon now renders correctly in the addon list.
+
 ## [1.3.6](https://github.com/paradosi/iChat/tree/1.3.6) (2026-02-23)
 
 ### Fixed
