@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.3.5](https://github.com/paradosi/iChat/tree/1.3.5) (2026-02-23)
+
+### Fixed
+- **Addon list icon missing** — added `icon.tga` (64×64 RGBA). WoW requires TGA/BLP for `## IconTexture`; the existing `icon.png` was silently ignored.
+
 ## [1.3.4](https://github.com/paradosi/iChat/tree/1.3.4) (2026-02-23)
 
 ### Fixed
