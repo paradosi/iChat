@@ -1,5 +1,20 @@
 # iChat Changelog
 
+## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-24)
+
+### Added
+- **Titan Panel integration** — iChat now registers a `LibDataBroker-1.1` data object (type: `launcher`). Titan Panel, FuBar, ChocolateBar, Bazooka, and any other LDB display addon will automatically discover iChat and show it as a plugin in the info bar.
+  - Left-click the bar icon to toggle the iChat window
+  - Right-click the bar icon to open Settings
+  - Unread message count appears as bar text (e.g. `3`, `99+`)
+  - Tooltip shows current unread count and click hints
+- `titanpanel.lua` — new module; added to all three TOC files (`iChat.toc`, `iChat-Mainline.toc`, `iChat_Vanilla.toc`)
+- `ns.UpdateLDBText()` — public helper; called from `UpdateButtonBadge` so the floating button badge and Titan Panel bar text stay in sync
+
+### Notes
+- The existing custom floating button (`minimap.lua`) is unaffected; both can coexist. Users who prefer the Titan Panel icon exclusively can hide the floating button via Settings → "Show minimap button".
+- `LibDataBroker-1.1` was already listed in `OptionalDeps` but had no corresponding implementation; this PR fulfills that declaration.
+
 ## [1.4.1](https://github.com/paradosi/iChat/tree/1.4.1) (2026-02-23)
 
 ### Changed

@@ -120,6 +120,11 @@ function ns.UpdateButtonBadge()
     if ns.FireUnreadChanged then
         ns.FireUnreadChanged(total)
     end
+
+    -- Sync Titan Panel / LDB bar text
+    if ns.UpdateLDBText then
+        ns.UpdateLDBText()
+    end
 end
 
 -- Repeating flash on incoming whisper — pulses until user opens iChat
