@@ -21,15 +21,15 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ### Battle.net Integration
 - **BNet whispers** — send and receive whispers to/from Battle.net (RealID) friends
-- **Smart display format** — `BattleTag (CharacterName)` with BattleTag in cyan-blue and character name in class color
+- **Smart display format** — `AccountName` in header, `AccountName (CharacterName)` in list
 - **Cross-game messaging** — message friends playing Diablo 3, Hearthstone, Overwatch, StarCraft, Call of Duty, etc.
 - **Game info display** — header shows what game they're currently playing (e.g., "WoW: CharName (L60 Warrior)" or "Diablo 3")
 - **Mixed conversation list** — BNet and regular whispers appear together, sorted by recent activity
 - **BNet blue coloring** — conversations, names, and chat bubbles use Blizzard's signature cyan-blue for instant recognition
 - **Suppress BNet chat** — optionally hide BNet whispers from the default chat frame (respects "Suppress whispers" setting)
 
-### Titan Panel Integration
-- **Native Titan Panel plugin** — proper layout integration, no icon overlap
+### Native Titan Panel Integration
+- **Native plugin** — proper layout integration, no icon overlap
 - **Left-click** to toggle iChat window
 - **Right-click** for Titan Panel context menu with custom iChat options
 - **Unread counter** — shows unread message count in the bar (e.g., `3`, `99+`)
