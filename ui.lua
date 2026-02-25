@@ -262,6 +262,7 @@ function ns.CreateLeftPanel(parent)
     scroll:SetPoint("TOPLEFT", searchBar, "BOTTOMLEFT", -4, -2)
     scroll:SetPoint("BOTTOMRIGHT")
     scroll:EnableMouseWheel(true)
+    scroll:EnableMouse(true)
 
     local child = CreateFrame("Frame", "iChatConvoScrollChild", scroll)
     child:SetWidth(LEFT_WIDTH)
@@ -273,6 +274,13 @@ function ns.CreateLeftPanel(parent)
         local maxScroll = math.max(0, child:GetHeight() - self:GetHeight())
         local newVal = math.max(0, math.min(maxScroll, current - (delta * 30)))
         self:SetVerticalScroll(newVal)
+    end)
+
+    -- Click on conversation list area clears input focus
+    scroll:SetScript("OnMouseDown", function(self, button)
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
     end)
 
     ns.leftPanel = panel
@@ -419,12 +427,20 @@ function ns.CreateRightPanel(parent)
     header:SetHeight(36)
     header:SetPoint("TOPLEFT")
     header:SetPoint("TOPRIGHT")
+    header:EnableMouse(true)
 
     local headerBorder = header:CreateTexture(nil, "OVERLAY")
     headerBorder:SetHeight(1)
     headerBorder:SetPoint("BOTTOMLEFT")
     headerBorder:SetPoint("BOTTOMRIGHT")
     headerBorder:SetColorTexture(unpack(C.DIVIDER))
+
+    -- Click on header clears input focus
+    header:SetScript("OnMouseDown", function(self, button)
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
+    end)
 
     local headerName = header:CreateFontString(nil, "OVERLAY")
     headerName:SetFont("Fonts\\FRIZQT__.TTF", 12, "")
@@ -539,6 +555,7 @@ function ns.CreateRightPanel(parent)
     chatScroll:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, 0)
     chatScroll:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, qrOffset)
     chatScroll:EnableMouseWheel(true)
+    chatScroll:EnableMouse(true)
 
     local chatChild = CreateFrame("Frame", "iChatBubbleScrollChild", chatScroll)
     chatChild:SetWidth(1) -- updated in OnSizeChanged
@@ -550,6 +567,13 @@ function ns.CreateRightPanel(parent)
         local maxScroll = math.max(0, chatChild:GetHeight() - self:GetHeight())
         local newVal = math.max(0, math.min(maxScroll, current - (delta * 40)))
         self:SetVerticalScroll(newVal)
+    end)
+
+    -- Click on chat area clears input focus
+    chatScroll:SetScript("OnMouseDown", function(self, button)
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
     end)
 
     chatScroll:SetScript("OnSizeChanged", function(self, w, h)
