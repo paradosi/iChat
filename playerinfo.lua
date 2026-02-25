@@ -46,7 +46,7 @@ function ns.GetPlayerInfo(name)
 	-- Try visible unit (target, focus, party, raid)
 	local unit = ns.FindUnitByName(bare)
 	if unit then
-		local classFile, class = UnitClass(unit)
+		local class, classFile = UnitClass(unit)
 		local _, raceFile = UnitRace(unit)
 		if classFile then
 			local playerInfo = {
