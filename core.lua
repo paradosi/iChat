@@ -88,14 +88,23 @@ function ns:ADDON_LOADED(loadedName)
     end
 end
 
+-- Compatibility wrapper: C_FriendList is unavailable in Classic Era (11508)
+local function RequestFriendList()
+    if C_FriendList and C_FriendList.ShowFriends then
+        C_FriendList.ShowFriends()
+    else
+        ShowFriends()
+    end
+end
+
 function ns:PLAYER_LOGIN()
     ns.playerName = UnitName("player")
-    C_FriendList.ShowFriends()
+    RequestFriendList()
     frame:UnregisterEvent("PLAYER_LOGIN")
 
     -- Poll friend list every 60s to keep online status current
     C_Timer.NewTicker(60, function()
-        C_FriendList.ShowFriends()
+        RequestFriendList()
     end)
     
     -- Initial player info scans
