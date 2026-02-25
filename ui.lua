@@ -178,10 +178,10 @@ function ns.CreateTitleBar(parent)
     composeIcon:SetSize(36, 36)
     composeIcon:SetPoint("CENTER")
     composeIcon:SetTexture("Interface\\CHATFRAME\\UI-ChatIcon-Chat-Up")
-    composeIcon:SetVertexColor(0.3, 0.9, 1.5) -- Brighter cyan
+    composeIcon:SetVertexColor(0.2, 0.8, 1.0) -- Bright cyan
     composeBtn:SetScript("OnClick", function() ns.ToggleCompose() end)
-    composeBtn:SetScript("OnEnter", function() composeIcon:SetVertexColor(0.5, 1.2, 2.0) end)
-    composeBtn:SetScript("OnLeave", function() composeIcon:SetVertexColor(0.3, 0.9, 1.5) end)
+    composeBtn:SetScript("OnEnter", function() composeIcon:SetVertexColor(0.4, 0.9, 1.0) end)
+    composeBtn:SetScript("OnLeave", function() composeIcon:SetVertexColor(0.2, 0.8, 1.0) end)
 
     ns.titleBar = bar
 end
@@ -657,16 +657,16 @@ function ns.CreateRightPanel(parent)
     emojiIcon:SetSize(28, 28)
     emojiIcon:SetPoint("CENTER")
     emojiIcon:SetTexture("Interface\\AddOns\\iChat\\media\\emoji\\smile.png")
-    emojiIcon:SetVertexColor(1.5, 1.5, 1.2) -- Brighter default
+    emojiIcon:SetVertexColor(1.0, 1.0, 0.9) -- Bright default
     emojiBtn:SetScript("OnClick", function() ns.ToggleEmojiPicker() end)
     emojiBtn:SetScript("OnEnter", function()
-        emojiIcon:SetVertexColor(2.0, 2.0, 1.5) -- Even brighter on hover
+        emojiIcon:SetVertexColor(1.0, 1.0, 1.0) -- Pure white on hover
         GameTooltip:SetOwner(emojiBtn, "ANCHOR_TOP")
         GameTooltip:SetText("Emoji")
         GameTooltip:Show()
     end)
     emojiBtn:SetScript("OnLeave", function()
-        emojiIcon:SetVertexColor(1.5, 1.5, 1.2) -- Back to bright default
+        emojiIcon:SetVertexColor(1.0, 1.0, 0.9) -- Back to bright default
         GameTooltip:Hide()
     end)
 

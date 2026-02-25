@@ -70,7 +70,6 @@ function ns:ADDON_LOADED(loadedName)
     end
 
     -- Register guild roster event
-    frame:RegisterEvent("GUILD_ROSTER_UPDATE")
     if IsInGuild() then
         C_GuildInfo.GuildRoster()
     end

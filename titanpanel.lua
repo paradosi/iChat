@@ -178,7 +178,8 @@ local function CreateFrames()
 	end
 	
 	-- Guard: check if Titan Panel is loaded
-	if not _G.TitanPanelComboTemplate then
+	-- TitanPanelComboTemplate is a virtual XML template, not a global table, so we check for the API instead.
+	if not TitanPanelButton_UpdateButton then
 		return
 	end
 	
