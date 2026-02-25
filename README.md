@@ -6,7 +6,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ![Promo](https://raw.githubusercontent.com/paradosi/iChat/master/media/art/promo.png)
 
-![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-lightgrey)
+![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.3](https://img.shields.io/badge/Version-1.4.3-lightgrey)
 
 ### Screenshots
 
@@ -60,6 +60,24 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Online status indicator** — green dot for online friends, gray for offline
 - **Class-colored names** — friend names colored by their WoW class
 - **Online/offline toast notifications** — popup at top of screen when a friend you've chatted with comes online or goes offline. Click the toast to open their conversation. Toggle in Settings → Behavior.
+
+### Battle.net Integration
+- **Full BNet (RealID) whisper support** — send and receive whispers to Battle.net friends
+- **Smart display format** — shows real name in the header, "Name (CharacterName)" in the conversation list
+- **BNet cyan-blue coloring** — Battle.net names use Blizzard's signature cyan-blue throughout
+- **Character class colors** — BNet character names shown in their WoW class color
+- **Cross-game messaging** — message friends playing Diablo 3, Hearthstone, Overwatch, StarCraft, and more
+- **Game info display** — header shows what game they're playing (e.g., "WoW: CharName (L60 Warrior)" or "Diablo 3")
+- **Mixed conversation list** — BNet and regular whispers appear together, sorted by activity
+- **Chat filter** — suppresses BNet whispers from the default chat frame (respects "Suppress whispers" setting)
+
+### Titan Panel Integration
+- **Native Titan Panel plugin** — appears in your Titan bar alongside other plugins
+- **Left-click** to toggle the iChat window
+- **Right-click** for Titan Panel context menu with quick options
+- **Unread count display** — shows unread message count (e.g., `3`, `99+`) or empty when caught up
+- **Tooltip** — hover for unread count and usage hints
+- **Optional** — no errors if Titan Panel is not installed
 
 ### Guild & Party Awareness
 - **Guild rank** shown in conversation header (green)
@@ -221,6 +239,7 @@ Data persists across sessions. Use `/ichat clear` or the settings panel to manag
 | [LibSharedMedia-3.0](https://www.curseforge.com/wow/addons/libsharedmedia-3-0) | Extra fonts and sounds from other addons appear in settings |
 | [ElvUI](https://www.tukui.org/elvui) | Auto-applies ElvUI's color theme to iChat |
 | [WeakAuras](https://www.curseforge.com/wow/addons/weakauras-2) | Expose iChat events for custom triggers |
+| [Titan Panel](https://www.curseforge.com/wow/addons/titan-panel) | Native iChat plugin in the Titan bar with unread count |
 
 ## Compatibility
 
