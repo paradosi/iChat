@@ -47,13 +47,14 @@ function ns.GetBNetPresenceID(bnetIDAccount)
 	return info and info.bnetAccountID
 end
 
--- Get BattleTag for BNet friend
+-- Get BattleTag/account name for BNet friend (prefers accountName like "Jim Fano")
 function ns.GetBNetBattleTag(bnetIDAccount)
 	local info = ns.GetBNetFriendInfo(bnetIDAccount)
 	if not info then
 		return "BNet Friend #" .. (bnetIDAccount or "?")
 	end
-	return info.battleTag or info.accountName or ("BNet #" .. bnetIDAccount)
+	-- Prefer accountName ("Jim Fano") over battleTag ("FANO#11843")
+	return info.accountName or info.battleTag or ("BNet #" .. bnetIDAccount)
 end
 
 -- Get character name for BNet friend (if playing WoW)

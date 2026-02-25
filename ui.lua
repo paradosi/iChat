@@ -930,7 +930,7 @@ end
 function ns.SelectConversation(playerName)
     ns.activeConversation = playerName
     
-    -- Display name with colors for BNet: "BattleTag (CharName)"
+    -- Display name for BNet: just the account name (e.g., "Jim Fano") in cyan-blue
     local displayName = playerName
     local gameInfo = ""
     local useBNetColors = false
@@ -941,27 +941,10 @@ function ns.SelectConversation(playerName)
             gameInfo = ns.GetBNetGameInfo and ns.GetBNetGameInfo(bnetIDAccount) or ""
             
             local battleTag = ns.GetBNetBattleTag and ns.GetBNetBattleTag(bnetIDAccount) or "BNet Friend"
-            local charName = ns.GetBNetCharacterName and ns.GetBNetCharacterName(bnetIDAccount)
             
-            if charName then
-                -- Get class color for character name
-                local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(playerName)
-                local classColorHex = "ffffffff" -- white default
-                
-                if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
-                    local cc = RAID_CLASS_COLORS[playerInfo.classFile]
-                    if cc then
-                        classColorHex = string.format("ff%02x%02x%02x", cc.r * 255, cc.g * 255, cc.b * 255)
-                    end
-                end
-                
-                -- Format: BattleTag (CharName) with BNet blue + class color
-                displayName = string.format("|cff00b8ff%s|r |c%s(%s)|r", battleTag, classColorHex, charName)
-                useBNetColors = true
-            else
-                displayName = battleTag
-                useBNetColors = true
-            end
+            -- Simple format: just the account name in BNet blue
+            displayName = string.format("|cff00b8ff%s|r", battleTag)
+            useBNetColors = true
         end
     end
     
