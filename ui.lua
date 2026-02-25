@@ -992,6 +992,11 @@ local function ScheduleFadeOut()
         if ns.mainWindow and ns.mainWindow:IsShown() then
             UIFrameFadeOut(ns.mainWindow, FADE_OUT_SPEED, ns.mainWindow:GetAlpha(), FADE_ALPHA)
             ns.isFaded = true
+            
+            -- Clear input focus when window fades
+            if ns.inputBox then
+                ns.inputBox:ClearFocus()
+            end
         end
     end)
 end
@@ -1034,6 +1039,11 @@ function ns.SetupFadeHooks()
         end
         ns.isFaded = false
         ns.mainWindow:SetAlpha(1.0)
+        
+        -- Clear input focus when window is hidden
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
     end)
 
     ns.fadeHooked = true
