@@ -19,6 +19,15 @@ local _, ns = ...
 function ns.GetPlayerInfo(name)
 	if not name then return nil end
 	
+	-- Check if this is a BNet conversation
+	if ns.IsBNetConversation and ns.IsBNetConversation(name) then
+		local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(name)
+		if bnetIDAccount and ns.GetBNetPlayerInfo then
+			return ns.GetBNetPlayerInfo(bnetIDAccount)
+		end
+		return nil
+	end
+	
 	-- Strip realm suffix for lookup
 	local bare = name:match("^([^%-]+)") or name
 	

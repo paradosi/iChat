@@ -730,14 +730,28 @@ function ns.RefreshConversationList()
     for i, data in ipairs(sorted) do
         local entry = ns.convoEntries[i]
         entry.playerName = data.name
-        entry.nameText:SetText(data.name)
+        
+        -- Display name (BNet friends show character name or BattleTag)
+        local displayName = data.name
+        if ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
+            local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(data.name)
+            if bnetIDAccount and ns.GetBNetDisplayName then
+                displayName = ns.GetBNetDisplayName(bnetIDAccount)
+            end
+        end
+        
+        entry.nameText:SetText(displayName)
 
         -- Class-colored names
-        if ns.db.settings.classColoredNames and ns.classCache then
-            local classToken = ns.classCache[data.name:lower()]
-            if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-                local cc = RAID_CLASS_COLORS[classToken]
-                entry.nameText:SetTextColor(cc.r, cc.g, cc.b)
+        if ns.db.settings.classColoredNames then
+            local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(data.name)
+            if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
+                local cc = RAID_CLASS_COLORS[playerInfo.classFile]
+                if cc then
+                    entry.nameText:SetTextColor(cc.r, cc.g, cc.b)
+                else
+                    entry.nameText:SetTextColor(unpack(C.TEXT_WHITE))
+                end
             else
                 entry.nameText:SetTextColor(unpack(C.TEXT_WHITE))
             end
@@ -886,19 +900,31 @@ end
 ---------------------------------------------------------------------------
 function ns.SelectConversation(playerName)
     ns.activeConversation = playerName
-    ns.headerName:SetText(playerName)
+    
+    -- Display name (BNet friends show character name or BattleTag)
+    local displayName = playerName
+    local gameInfo = ""
+    if ns.IsBNetConversation and ns.IsBNetConversation(playerName) then
+        local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(playerName)
+        if bnetIDAccount then
+            displayName = ns.GetBNetDisplayName and ns.GetBNetDisplayName(bnetIDAccount) or playerName
+            gameInfo = ns.GetBNetGameInfo and ns.GetBNetGameInfo(bnetIDAccount) or ""
+        end
+    end
+    
+    ns.headerName:SetText(displayName)
 
-    -- Show contact note + relationship tags in header
+    -- Show contact note + relationship tags + game info in header
     if ns.headerNote then
         local note = ns.db.contactNotes and ns.db.contactNotes[playerName] or ""
         local tags = ns.FormatRelationshipTags and ns.FormatRelationshipTags(playerName) or ""
-        if note ~= "" and tags ~= "" then
-            ns.headerNote:SetText(note .. "  " .. tags)
-        elseif tags ~= "" then
-            ns.headerNote:SetText(tags)
-        else
-            ns.headerNote:SetText(note)
-        end
+        
+        local parts = {}
+        if note ~= "" then table.insert(parts, note) end
+        if gameInfo ~= "" then table.insert(parts, gameInfo) end
+        if tags ~= "" then table.insert(parts, tags) end
+        
+        ns.headerNote:SetText(table.concat(parts, "  "))
     end
 
     -- Hide empty state

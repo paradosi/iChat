@@ -211,6 +211,92 @@ function ns:CHAT_MSG_WHISPER_INFORM(text, sender, ...)
     end
 end
 
+-- Incoming BNet whisper
+function ns:CHAT_MSG_BN_WHISPER(text, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount, ...)
+    if not bnetIDAccount then return end
+    
+    local convoName = "BNet:" .. bnetIDAccount
+    local displayName = ns.GetBNetDisplayName and ns.GetBNetDisplayName(bnetIDAccount) or sender
+    
+    local isFriend = true -- BNet friends are always friends
+    local entry = ns.StoreMessage(convoName, text, "them", isFriend)
+    
+    -- Update unread if not viewing this conversation
+    if ns.activeConversation ~= convoName then
+        local convo = ns.db.conversations[convoName]
+        convo.unread = (convo.unread or 0) + 1
+        if not convo.unreadSepIndex then
+            convo.unreadSepIndex = #convo.messages
+        end
+    end
+    
+    -- Check if this contact is muted
+    local isMuted = ns.db.mutedContacts and ns.db.mutedContacts[convoName]
+    
+    -- Flash taskbar icon (skip if muted)
+    if not isMuted and FlashClientIcon then
+        FlashClientIcon()
+    end
+    
+    -- Flash the floating button (skip if muted)
+    if not isMuted and ns.FlashButton then
+        ns.FlashButton()
+    end
+    
+    -- Play notification sound (skip if muted)
+    if not isMuted and ns.PlayNotifySound then
+        ns.PlayNotifySound()
+    end
+    
+    -- Update UI
+    if ns.UpdateButtonBadge then
+        ns.UpdateButtonBadge()
+    end
+    if ns.RefreshConversationList then
+        ns.RefreshConversationList()
+    end
+    if ns.activeConversation == convoName and ns.AddBubble then
+        ns.AddBubble(entry, convoName)
+        ns.ScrollToBottom()
+    end
+    
+    -- Auto-open window on incoming whisper
+    if ns.mainWindow and not ns.mainWindow:IsShown() and ns.db.settings.openOnWhisper then
+        ns.mainWindow:Show()
+        ns.SelectConversation(convoName)
+    elseif ns.mainWindow and ns.mainWindow:IsShown() and ns.FlashWindow then
+        ns.FlashWindow()
+    end
+    
+    -- Fire WeakAuras event
+    if ns.FireWhisperReceived then
+        ns.FireWhisperReceived(convoName, text)
+    end
+end
+
+-- Outgoing BNet whisper (confirmed delivered by server)
+function ns:CHAT_MSG_BN_WHISPER_INFORM(text, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount, ...)
+    if not bnetIDAccount then return end
+    
+    local convoName = "BNet:" .. bnetIDAccount
+    local isFriend = true
+    local entry = ns.StoreMessage(convoName, text, "me", isFriend)
+    entry.status = "delivered"
+    
+    -- Fire WeakAuras event
+    if ns.FireWhisperSent then
+        ns.FireWhisperSent(convoName, text)
+    end
+    
+    if ns.RefreshConversationList then
+        ns.RefreshConversationList()
+    end
+    if ns.activeConversation == convoName and ns.AddBubble then
+        ns.AddBubble(entry, convoName)
+        ns.ScrollToBottom()
+    end
+end
+
 -- System message handler — detect whisper failures ("No player named X is currently playing")
 function ns:CHAT_MSG_SYSTEM(text)
     local failedName = text:match("No player named '(.-)' is currently playing")
@@ -277,6 +363,18 @@ ns.pendingWhispers = {}
 
 -- Send a whisper
 function ns.SendWhisper(target, text)
+    -- Check if this is a BNet conversation
+    if ns.IsBNetConversation and ns.IsBNetConversation(target) then
+        local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(target)
+        if bnetIDAccount then
+            BNSendWhisper(bnetIDAccount, text)
+        else
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Cannot send — BNet friend not found.")
+        end
+        return
+    end
+    
+    -- Regular whisper
     -- Retail 12.0+: Blizzard can lock chat during maintenance or restricted periods
     if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
         DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Cannot send — chat is locked down.")
@@ -308,9 +406,13 @@ end
 function ns.RegisterChatFilters()
     ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", ns.WhisperFilter)
     ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", ns.WhisperFilter)
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_WHISPER", ns.WhisperFilter)
+    ChatFrame_AddMessageEventFilter("CHAT_MSG_BN_WHISPER_INFORM", ns.WhisperFilter)
 end
 
 function ns.UnregisterChatFilters()
     ChatFrame_RemoveMessageEventFilter("CHAT_MSG_WHISPER", ns.WhisperFilter)
     ChatFrame_RemoveMessageEventFilter("CHAT_MSG_WHISPER_INFORM", ns.WhisperFilter)
+    ChatFrame_RemoveMessageEventFilter("CHAT_MSG_BN_WHISPER", ns.WhisperFilter)
+    ChatFrame_RemoveMessageEventFilter("CHAT_MSG_BN_WHISPER_INFORM", ns.WhisperFilter)
 end
