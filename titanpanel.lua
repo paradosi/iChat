@@ -112,7 +112,7 @@ local function OnLoad(self)
 	self.registry = {
 		id = TITAN_ICHAT_ID,
 		category = "Interface",
-		version = "1.4.2",
+		version = ns.version,
 		menuText = "iChat",
 		menuContextFunction = GeneratorFunction,
 		buttonTextFunction = GetButtonText,
@@ -172,6 +172,11 @@ end
 local function CreateFrames()
 	if _G[TITAN_BUTTON] then
 		return -- already created
+	end
+	
+	-- Guard: check if Titan Panel is loaded
+	if not _G.TitanPanelComboTemplate then
+		return
 	end
 	
 	-- Create Titan Panel button using the combo template (icon + text)

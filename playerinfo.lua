@@ -11,13 +11,16 @@ local _, ns = ...
 --   ns.GetPlayerInfo(name)     → returns { class, race, classFile, raceFile } or nil
 --   ns.ScanFriendList()        → scan friends and cache their info
 --   ns.ScanGuildRoster()       → scan guild and cache their info
---   ns.CacheUnitInfo(name, unit) → cache info from a visible unit
+--   ns.CachePlayerInfo(name, info) → cache an info table for a player
 ---------------------------------------------------------------------------
 
 -- Get player info from cache, friend list, guild roster, or visible unit
 -- Returns { class, race, classFile, raceFile } or nil
 function ns.GetPlayerInfo(name)
 	if not name then return nil end
+	
+	-- Guard: ns.db might not be initialized yet
+	if not ns.db or not ns.db.playerInfoCache then return nil end
 	
 	-- Check if this is a BNet conversation
 	if ns.IsBNetConversation and ns.IsBNetConversation(name) then
@@ -32,53 +35,13 @@ function ns.GetPlayerInfo(name)
 	local bare = name:match("^([^%-]+)") or name
 	
 	-- Check cache first
-	if ns.db.playerInfoCache and ns.db.playerInfoCache[bare] then
+	if ns.db.playerInfoCache[bare] then
 		return ns.db.playerInfoCache[bare]
 	end
 	
-	-- Try friend list
-	local numFriends = C_FriendList.GetNumFriends()
-	for i = 1, numFriends do
-		local info = C_FriendList.GetFriendInfoByIndex(i)
-		if info and info.name == bare then
-			local classFile, class = UnitClass(info.name)
-			if classFile then
-				local _, raceFile = UnitRace(info.name)
-				local playerInfo = {
-					class = class,
-					classFile = classFile,
-					race = info.name and select(2, UnitRace(info.name)),
-					raceFile = raceFile,
-				}
-				ns.CachePlayerInfo(bare, playerInfo)
-				return playerInfo
-			end
-		end
-	end
-	
-	-- Try guild roster
-	if IsInGuild() then
-		local numTotal = GetNumGuildMembers()
-		for i = 1, numTotal do
-			local gName, _, _, _, _, _, _, _, _, _, classFile = GetGuildRosterInfo(i)
-			if gName and gName == bare then
-				local class = classFile and LOCALIZED_CLASS_NAMES_MALE[classFile]
-				if class then
-					-- Guild roster doesn't provide race, but we can try to get it from unit
-					local unit = ns.FindUnitByName(bare)
-					local _, raceFile = unit and UnitRace(unit) or nil, nil
-					local playerInfo = {
-						class = class,
-						classFile = classFile,
-						race = nil, -- guild roster doesn't have race
-						raceFile = raceFile,
-					}
-					ns.CachePlayerInfo(bare, playerInfo)
-					return playerInfo
-				end
-			end
-		end
-	end
+	-- Note: Friend/Guild scanning is now proactive (pushed into cache), 
+	-- so we don't need to re-scan on every GetPlayerInfo call.
+	-- Just check visible units as a fallback.
 	
 	-- Try visible unit (target, focus, party, raid)
 	local unit = ns.FindUnitByName(bare)
@@ -103,6 +66,8 @@ end
 -- Cache player info to database
 function ns.CachePlayerInfo(name, info)
 	if not name or not info then return end
+	if not ns.db then return end -- Guard
+	
 	local bare = name:match("^([^%-]+)") or name
 	
 	if not ns.db.playerInfoCache then
@@ -112,16 +77,43 @@ function ns.CachePlayerInfo(name, info)
 	ns.db.playerInfoCache[bare] = info
 end
 
--- Scan friend list and cache all info
+-- Scan friend list and cache all info (Single pass)
 function ns.ScanFriendList()
 	local numFriends = C_FriendList.GetNumFriends()
 	for i = 1, numFriends do
 		local info = C_FriendList.GetFriendInfoByIndex(i)
-		if info and info.name then
-			-- Try to get class/race if they're online
-			if info.connected then
-				local playerInfo = ns.GetPlayerInfo(info.name)
-				-- GetPlayerInfo will cache it if found
+		if info and info.name and info.connected then
+			-- Friend info provides localized class name; need to map to token
+			local className = info.className
+			local classFile = nil
+			
+			if className and LOCALIZED_CLASS_NAMES_MALE then
+				-- Try to find class token from localized name
+				for token, localizedName in pairs(LOCALIZED_CLASS_NAMES_MALE) do
+					if localizedName == className then
+						classFile = token
+						break
+					end
+				end
+				-- Fallback for female names if needed (usually MALE table covers generic)
+				if not classFile and LOCALIZED_CLASS_NAMES_FEMALE then
+					for token, localizedName in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do
+						if localizedName == className then
+							classFile = token
+							break
+						end
+					end
+				end
+			end
+			
+			if classFile then
+				local playerInfo = {
+					class = className,
+					classFile = classFile,
+					race = nil, -- Friend list API doesn't provide race
+					raceFile = nil,
+				}
+				ns.CachePlayerInfo(info.name, playerInfo)
 			end
 		end
 	end
@@ -134,7 +126,7 @@ function ns.ScanGuildRoster()
 	local numTotal = GetNumGuildMembers()
 	for i = 1, numTotal do
 		local name, _, _, _, _, _, _, online, _, _, classFile = GetGuildRosterInfo(i)
-		if name and online and classFile then
+		if name and classFile then -- Cache even if offline, why not
 			local class = LOCALIZED_CLASS_NAMES_MALE[classFile]
 			if class then
 				local playerInfo = {
@@ -143,6 +135,7 @@ function ns.ScanGuildRoster()
 					race = nil,
 					raceFile = nil,
 				}
+				-- name from GuildRoster is "Name-Realm", CachePlayerInfo handles stripping
 				ns.CachePlayerInfo(name, playerInfo)
 			end
 		end

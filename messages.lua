@@ -51,6 +51,12 @@ function ns:FRIENDLIST_UPDATE()
             ns.onlineCache[lower] = info.connected or false
         end
     end
+    
+    -- Scan for detailed player info (class/race cache)
+    if ns.ScanFriendList then
+        ns.ScanFriendList()
+    end
+    
     if ns.UpdateHeaderButtons then
         ns.UpdateHeaderButtons()
     end
@@ -216,7 +222,6 @@ function ns:CHAT_MSG_BN_WHISPER(text, sender, _, _, _, _, _, _, _, _, _, _, bnet
     if not bnetIDAccount then return end
     
     local convoName = "BNet:" .. bnetIDAccount
-    local displayName = ns.GetBNetDisplayName and ns.GetBNetDisplayName(bnetIDAccount) or sender
     
     local isFriend = true -- BNet friends are always friends
     local entry = ns.StoreMessage(convoName, text, "them", isFriend)

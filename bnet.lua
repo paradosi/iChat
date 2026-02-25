@@ -144,19 +144,18 @@ function ns.GetBNetGameInfo(bnetIDAccount)
 		return string.format("WoW: %s (L%s %s)", charName, level, className)
 	end
 	
-	-- Other games
-	local gameNames = {
-		[BNET_CLIENT_D3] = "Diablo 3",
-		[BNET_CLIENT_WTCG] = "Hearthstone",
-		[BNET_CLIENT_HEROES] = "Heroes of the Storm",
-		[BNET_CLIENT_OVERWATCH] = "Overwatch",
-		[BNET_CLIENT_SC2] = "StarCraft 2",
-		[BNET_CLIENT_SC] = "StarCraft",
-		[BNET_CLIENT_DESTINY2] = "Destiny 2",
-		[BNET_CLIENT_COD] = "Call of Duty",
-		[BNET_CLIENT_COD_MW] = "Modern Warfare",
-		[BNET_CLIENT_COD_MW2] = "Modern Warfare 2",
-	}
+	-- Other games (with defensive nil checks for Classic/TBC compatibility)
+	local gameNames = {}
+	if BNET_CLIENT_D3 then gameNames[BNET_CLIENT_D3] = "Diablo 3" end
+	if BNET_CLIENT_WTCG then gameNames[BNET_CLIENT_WTCG] = "Hearthstone" end
+	if BNET_CLIENT_HEROES then gameNames[BNET_CLIENT_HEROES] = "Heroes of the Storm" end
+	if BNET_CLIENT_OVERWATCH then gameNames[BNET_CLIENT_OVERWATCH] = "Overwatch" end
+	if BNET_CLIENT_SC2 then gameNames[BNET_CLIENT_SC2] = "StarCraft 2" end
+	if BNET_CLIENT_SC then gameNames[BNET_CLIENT_SC] = "StarCraft" end
+	if BNET_CLIENT_DESTINY2 then gameNames[BNET_CLIENT_DESTINY2] = "Destiny 2" end
+	if BNET_CLIENT_COD then gameNames[BNET_CLIENT_COD] = "Call of Duty" end
+	if BNET_CLIENT_COD_MW then gameNames[BNET_CLIENT_COD_MW] = "Modern Warfare" end
+	if BNET_CLIENT_COD_MW2 then gameNames[BNET_CLIENT_COD_MW2] = "Modern Warfare 2" end
 	
 	return gameNames[client] or ("Playing " .. (client or "Unknown"))
 end

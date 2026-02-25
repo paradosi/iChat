@@ -111,17 +111,22 @@ function ns:PLAYER_LOGIN()
 end
 
 -- Friend list updated - scan for player info
-function ns:FRIENDLIST_UPDATE()
-    if ns.ScanFriendList then
-        ns.ScanFriendList()
-    end
-end
+-- MOVED TO messages.lua to avoid conflict
 
 -- Guild roster updated - scan for player info
-function ns:GUILD_ROSTER_UPDATE()
-    if ns.ScanGuildRoster then
-        ns.ScanGuildRoster()
-    end
+-- MOVED TO social.lua to avoid conflict
+
+-- BNet Friend list updated
+function ns:BN_FRIEND_LIST_SIZE_CHANGED()
+	if ns.RefreshConversationList then
+		ns.RefreshConversationList()
+	end
+end
+
+function ns:BN_FRIEND_INFO_CHANGED()
+	if ns.RefreshConversationList then
+		ns.RefreshConversationList()
+	end
 end
 
 -- Hide window on combat start, restore on combat end
