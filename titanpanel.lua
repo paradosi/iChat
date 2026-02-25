@@ -121,6 +121,7 @@ local function OnLoad(self)
 		tooltipTextFunction = GetTooltipText,
 		icon = "Interface\\AddOns\\iChat\\media\\textures\\icon",
 		iconWidth = 16,
+		iconButtonWidth = 24,  -- Add padding around icon (16px icon + 4px each side)
 		notes = "iMessage-style whisper client for WoW",
 		controlVariables = {
 			ShowIcon = true,
