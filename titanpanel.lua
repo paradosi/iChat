@@ -6,6 +6,9 @@ local _, ns = ...
 -- This module provides native Titan Panel plugin integration with proper
 -- layout, positioning, and right-click menu support.
 --
+-- NOTE: This is a NATIVE Titan plugin, not LibDataBroker (LDB).
+-- TitanPanelComboTemplate is used for direct integration.
+--
 -- Behavior:
 --   - iChat appears as a proper Titan Panel plugin with correct positioning
 --   - Left-click: toggle iChat window
