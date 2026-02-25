@@ -3,6 +3,16 @@
 ## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-24)
 
 ### Added
+- **Battle.net whisper integration** — iChat now handles BNet (RealID) whispers seamlessly alongside regular whispers.
+  - Mix BNet and regular whispers in one conversation list
+  - Show character names for WoW players (with class colors)
+  - Show BattleTag for friends playing other games
+  - Display game info in header (e.g., "WoW: Char (L60 Warrior)" or "Diablo 3")
+  - Support cross-game messaging (D3, Hearthstone, Overwatch, etc.)
+  - Suppress BNet whispers from default chat (when enabled)
+- `bnet.lua` — new module for BNet friend info and messaging
+- `playerinfo.lua` — new module for class/race caching from friend list, guild roster, and units
+
 - **Titan Panel integration** — iChat now registers as a native Titan Panel plugin with full layout integration.
   - Left-click the bar icon to toggle the iChat window
   - Right-click shows proper Titan Panel menu with "Toggle iChat Window" and "Settings..." options
@@ -18,6 +28,7 @@
 - **Class-colored names** — conversation header now shows class-colored player names (no icon). Works via friend list, guild roster, and unit scanning + caching. Remembers class info even when players are offline or in different zones. Toggle in Settings → Display → "Show class-colored names".
 - **Input box focus behavior** — clicking anywhere outside the input box (conversation list, chat area, header) now clears focus, preventing keyboard lock-in issues. Also clears focus when window fades or hides.
 - **Compose button** — increased size (28×28 → 40×40) and brightness for better visibility. Now glows bright cyan.
+- **Emoji button** — increased size (24×24 → 32×32) and brightness for better visibility.
 
 ### Notes
 - The existing custom floating button (`minimap.lua`) is unaffected; both can coexist. Users who prefer the Titan Panel icon exclusively can hide the floating button via Settings → "Show minimap button".
