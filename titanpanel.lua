@@ -69,9 +69,40 @@ local function GetTooltipText()
 	
 	table.insert(lines, " ")
 	table.insert(lines, TitanUtils_GetNormalText("Left-click: Toggle window"))
-	table.insert(lines, TitanUtils_GetNormalText("Right-click: Settings"))
+	table.insert(lines, TitanUtils_GetNormalText("Right-click: Menu"))
 	
 	return table.concat(lines, "\n")
+end
+
+---------------------------------------------------------------------------
+-- Menu Generator (Right-Click Menu)
+---------------------------------------------------------------------------
+
+local function GeneratorFunction(owner, rootDescription)
+	local root = rootDescription
+	
+	-- Add custom iChat commands at the top
+	root:CreateButton("Toggle iChat Window", function()
+		ns.StopFlashButton()
+		ns.ToggleWindow()
+	end)
+	
+	root:CreateButton("Settings...", function()
+		-- Ensure the main window is visible before toggling settings
+		if ns.mainWindow and not ns.mainWindow:IsShown() then
+			ns.ToggleWindow()
+		end
+		ns.ToggleSettings()
+	end)
+	
+	root:CreateDivider()
+	
+	-- Titan Panel adds standard options automatically after this:
+	-- - Show Icon
+	-- - Show Label Text
+	-- - Show Colored Text
+	-- - Display on Right Side
+	-- - Hide
 end
 
 ---------------------------------------------------------------------------
@@ -84,6 +115,7 @@ local function OnLoad(self)
 		category = "Interface",
 		version = "1.4.2",
 		menuText = "iChat",
+		menuContextFunction = GeneratorFunction,
 		buttonTextFunction = GetButtonText,
 		tooltipTitle = "|cff007AFFiChat|r",
 		tooltipTextFunction = GetTooltipText,
@@ -114,13 +146,9 @@ local function OnShow(self)
 end
 
 local function OnClick(self, button)
-	if button == "RightButton" then
-		-- Ensure the main window is visible before toggling settings
-		if ns.mainWindow and not ns.mainWindow:IsShown() then
-			ns.ToggleWindow()
-		end
-		ns.ToggleSettings()
-	else
+	-- Left-click: toggle window
+	-- Right-click: handled by Titan Panel (shows menu via menuContextFunction)
+	if button == "LeftButton" then
 		ns.StopFlashButton()
 		ns.ToggleWindow()
 	end
