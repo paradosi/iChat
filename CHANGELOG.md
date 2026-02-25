@@ -3,36 +3,48 @@
 ## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-24)
 
 ### Added
-- **Battle.net whisper integration** — iChat now handles BNet (RealID) whispers seamlessly alongside regular whispers.
-  - Mix BNet and regular whispers in one conversation list
-  - Show character names for WoW players (with class colors)
-  - Show BattleTag for friends playing other games
-  - Display game info in header (e.g., "WoW: Char (L60 Warrior)" or "Diablo 3")
-  - Support cross-game messaging (D3, Hearthstone, Overwatch, etc.)
-  - Suppress BNet whispers from default chat (when enabled)
-- `bnet.lua` — new module for BNet friend info and messaging
-- `playerinfo.lua` — new module for class/race caching from friend list, guild roster, and units
 
-- **Titan Panel integration** — iChat now registers as a native Titan Panel plugin with full layout integration.
-  - Left-click the bar icon to toggle the iChat window
-  - Right-click shows proper Titan Panel menu with "Toggle iChat Window" and "Settings..." options
-  - Unread message count appears as bar text (e.g. `3`, `99+`)
-  - Tooltip shows current unread count and click hints
-  - Icon has proper horizontal padding (no more crowding)
-- `titanpanel.lua` — new module; added to all three TOC files (`iChat.toc`, `iChat-Mainline.toc`, `iChat_Vanilla.toc`)
+**Battle.net Integration**
+- Full BNet (RealID) whisper support — send and receive whispers to/from Battle.net friends
+- Smart display format: `BattleTag (CharacterName)` with BattleTag in Blizzard's cyan-blue and character name in class color
+- Mixed conversation list — BNet and regular whispers appear together, sorted by activity
+- Cross-game messaging — message friends playing Diablo 3, Hearthstone, Overwatch, StarCraft, etc.
+- Game info display — header shows what game they're playing (e.g., "WoW: CharName (L60 Warrior)" or "Diablo 3")
+- BNet chat filter — suppress BNet whispers from default chat frame (respects "Suppress whispers" setting)
+- New modules: `bnet.lua` (BNet messaging & friend info), `playerinfo.lua` (class/race caching system)
+
+**Titan Panel Integration**
+- Native Titan Panel plugin with proper layout integration
+- Left-click: toggle iChat window
+- Right-click: shows Titan Panel context menu with "Toggle iChat Window" and "Settings..." options
+- Bar display: unread count (e.g., `3`, `99+`) or empty when no unread messages
+- Tooltip: shows unread count and usage hints
+- Proper horizontal padding (no icon overlap)
+- New module: `titanpanel.lua` (added to all three TOC files)
+
+**Class-Colored Names**
+- Player info caching system scans friend list, guild roster, and visible units
+- Class colors persist even when players are offline or in different zones
+- Works for both regular whispers and BNet WoW characters
+- Toggle in Settings → Display → "Show class-colored names in conversation header"
 
 ### Fixed
-- **Titan Panel duplicate registration error** — removed LibDataBroker registration to avoid conflict with native Titan Panel plugin
+- **Window fade behavior** — no longer fades while typing or actively using the window; only fades when mouse leaves AND input is not focused
+- **Input focus clearing** — clicking outside the window now clears focus immediately (not after 1.5s fade delay)
+- **Titan Panel duplicate registration** — removed conflicting LibDataBroker registration
 
 ### Changed
-- **Class-colored names** — conversation header now shows class-colored player names (no icon). Works via friend list, guild roster, and unit scanning + caching. Remembers class info even when players are offline or in different zones. Toggle in Settings → Display → "Show class-colored names".
-- **Input box focus behavior** — clicking anywhere outside the input box (conversation list, chat area, header) now clears focus, preventing keyboard lock-in issues. Also clears focus when window fades or hides.
-- **Compose button** — increased size (28×28 → 40×40) and brightness for better visibility. Now glows bright cyan.
-- **Emoji button** — increased size (24×24 → 32×32) and brightness for better visibility.
+- **BNet visual language** — BNet conversations use Blizzard's signature cyan-blue color (RGB 0, 184, 255) throughout: conversation list names, header names, and chat bubbles
+- **Compose button** — 43% larger (28×28 → 40×40) and 50% brighter for better visibility
+- **Emoji button** — 33% larger (24×24 → 32×32) and 50% brighter for better visibility
+- **Portrait system removed** — 3D portraits and race icons removed in favor of clean class-colored text
+- Setting renamed: "Show 3D portrait" → "Show class-colored names in conversation header"
 
-### Notes
-- The existing custom floating button (`minimap.lua`) is unaffected; both can coexist. Users who prefer the Titan Panel icon exclusively can hide the floating button via Settings → "Show minimap button".
-- Setting label updated from "Show 3D portrait" to "Show class icon in conversation header".
+### Technical Notes
+- BNet conversations stored as `BNet:12345` (where 12345 is bnetIDAccount)
+- Player info cache stored in `SavedVariables` for persistence across sessions
+- Titan Panel integration uses native API (not LDB auto-discovery) for proper layout participation
+- Friend list and guild roster scanned on login and during `FRIENDLIST_UPDATE`/`GUILD_ROSTER_UPDATE` events
 
 ## [1.4.1](https://github.com/paradosi/iChat/tree/1.4.1) (2026-02-23)
 
