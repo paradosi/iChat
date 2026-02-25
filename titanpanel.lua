@@ -17,8 +17,9 @@ local _, ns = ...
 --   - Tooltip     : unread count + click hints
 --
 -- Behavior when Titan Panel is NOT installed:
---   - The LDB object is still registered (other display addons may use
---     it), but there is no visible effect without a display addon.
+--   - If an LDB library is available, the LDB object is still registered
+--     (other display addons may use it), but there is no visible effect
+--     without a display addon.
 --
 -- Prerequisites:
 --   LibDataBroker-1.1 and LibStub must be loaded. Both ship with Titan
@@ -77,18 +78,34 @@ local ldbObj = LDB:NewDataObject("iChat", {
 })
 
 ---------------------------------------------------------------------------
--- ns.UpdateLDBText()
--- Refreshes the LDB bar text with the current total unread count.
+-- ns.UpdateLDBText(total)
+-- Refreshes the LDB bar text with the given total unread count.
 -- Called from ns.UpdateButtonBadge() in minimap.lua so both the
 -- floating button badge and the Titan Panel text stay in sync.
+-- If total is not provided, computes it from ns.db.conversations.
 ---------------------------------------------------------------------------
-function ns.UpdateLDBText()
+function ns.UpdateLDBText(total)
     if not ldbObj then return end
-    local total = 0
-    if ns.db and ns.db.conversations then
-        for _, convo in pairs(ns.db.conversations) do
-            total = total + (convo.unread or 0)
+    
+    -- If total not provided, compute it
+    if not total then
+        total = 0
+        if ns.db and ns.db.conversations then
+            for _, convo in pairs(ns.db.conversations) do
+                total = total + (convo.unread or 0)
+            end
         end
     end
+    
     ldbObj.text = total > 0 and (total > 99 and "99+" or tostring(total)) or ""
 end
+
+---------------------------------------------------------------------------
+-- Initialize the LDB bar text on addon load so it reflects any
+-- persisted unread state even before new whispers occur.
+---------------------------------------------------------------------------
+C_Timer.After(0, function()
+    if ns.db then
+        ns.UpdateLDBText()
+    end
+end)

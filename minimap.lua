@@ -123,7 +123,7 @@ function ns.UpdateButtonBadge()
 
     -- Sync Titan Panel / LDB bar text
     if ns.UpdateLDBText then
-        ns.UpdateLDBText()
+        ns.UpdateLDBText(total)
     end
 end
 
