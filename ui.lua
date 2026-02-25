@@ -17,6 +17,7 @@ local _, ns = ...
 -- Color palette
 local C = {
     BLUE        = { 0.00, 0.48, 1.00, 1.0 },
+    BNET_BLUE   = { 0.00, 0.44, 0.87, 1.0 }, -- Blizzard's BNet blue
     GREEN       = { 0.20, 0.78, 0.35, 1.0 },
     BG_DARK     = { 0.05, 0.05, 0.05, 0.95 },
     BG_PANEL    = { 0.06, 0.06, 0.06, 1.0 },
@@ -742,8 +743,11 @@ function ns.RefreshConversationList()
         
         entry.nameText:SetText(displayName)
 
-        -- Class-colored names
-        if ns.db.settings.classColoredNames then
+        -- BNet conversations always show in BNet blue
+        if ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
+            entry.nameText:SetTextColor(unpack(C.BNET_BLUE))
+        -- Class-colored names for regular whispers
+        elseif ns.db.settings.classColoredNames then
             local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(data.name)
             if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
                 local cc = RAID_CLASS_COLORS[playerInfo.classFile]

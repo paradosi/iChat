@@ -247,7 +247,7 @@ end
 ---------------------------------------------------------------------------
 -- Layout a Single Bubble
 ---------------------------------------------------------------------------
-local function LayoutBubble(bubble, entry, chatWidth, yOffset)
+local function LayoutBubble(bubble, entry, chatWidth, yOffset, playerName)
     local maxTextWidth = chatWidth * BUBBLE_MAX_WIDTH_RATIO - (BUBBLE_PADDING_H * 2)
     if maxTextWidth < 50 then maxTextWidth = 50 end
 
@@ -297,7 +297,10 @@ local function LayoutBubble(bubble, entry, chatWidth, yOffset)
         bubble.timeText:SetPoint("TOPRIGHT", bubble, "BOTTOMRIGHT", 0, -1)
         bubble.timeText:SetJustifyH("RIGHT")
     else
-        if entry.isFriend then
+        -- BNet conversations use Blizzard's BNet blue
+        if playerName and ns.IsBNetConversation and ns.IsBNetConversation(playerName) then
+            bubble:SetBubbleColor(0.00, 0.44, 0.87, 0.85) -- BNet blue
+        elseif entry.isFriend then
             bubble:SetBubbleColor(0.00, 0.40, 0.85, 0.85)
         else
             bubble:SetBubbleColor(0.20, 0.78, 0.35, 0.9)
@@ -432,7 +435,7 @@ function ns.RebuildBubbles(playerName)
         end
 
         local bubble = AcquireBubble(ns.chatScrollChild)
-        local height = LayoutBubble(bubble, entry, chatWidth, yOffset)
+        local height = LayoutBubble(bubble, entry, chatWidth, yOffset, playerName)
         table.insert(ns.activeBubbles, bubble)
         yOffset = yOffset + height
         prevTime = entry.time
@@ -469,7 +472,7 @@ function ns.AddBubble(entry, playerName)
     end
 
     local bubble = AcquireBubble(ns.chatScrollChild)
-    local height = LayoutBubble(bubble, entry, chatWidth, yOffset)
+    local height = LayoutBubble(bubble, entry, chatWidth, yOffset, playerName)
     table.insert(ns.activeBubbles, bubble)
 
     ns.currentYOffset = yOffset + height

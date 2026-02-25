@@ -24,6 +24,13 @@ function ns.UpdatePortrait()
 	ns.headerName:ClearAllPoints()
 	ns.headerName:SetPoint("LEFT", 10, 2)
 
+	-- BNet conversations always show in BNet blue
+	if ns.IsBNetConversation and ns.IsBNetConversation(ns.activeConversation) then
+		-- BNet blue (0.0, 0.44, 0.87)
+		ns.headerName:SetTextColor(0.0, 0.44, 0.87)
+		return
+	end
+
 	-- Check if class colors are enabled
 	local enabled = ns.db and ns.db.settings and ns.db.settings.showPortrait
 	local playerInfo = enabled and ns.activeConversation and ns.GetPlayerInfo(ns.activeConversation)
