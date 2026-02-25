@@ -121,7 +121,12 @@ function ns.UpdateButtonBadge()
         ns.FireUnreadChanged(total)
     end
 
-    -- Sync Titan Panel / LDB bar text
+    -- Sync Titan Panel button
+    if ns.UpdateTitanButton then
+        ns.UpdateTitanButton()
+    end
+    
+    -- Sync LDB bar text (for non-Titan LDB displays)
     if ns.UpdateLDBText then
         ns.UpdateLDBText(total)
     end
