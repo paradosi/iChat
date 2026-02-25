@@ -3,17 +3,21 @@
 ## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-24)
 
 ### Added
-- **Titan Panel integration** — iChat now registers a `LibDataBroker-1.1` data object (type: `launcher`). Titan Panel, FuBar, ChocolateBar, Bazooka, and any other LDB display addon will automatically discover iChat and show it as a plugin in the info bar.
+- **Titan Panel integration** — iChat now registers a native Titan Panel plugin with full layout integration. Also includes LibDataBroker object for compatibility with other LDB displays (FuBar, ChocolateBar, Bazooka).
   - Left-click the bar icon to toggle the iChat window
-  - Right-click the bar icon to open Settings
+  - Right-click shows proper Titan Panel menu with "Toggle iChat Window" and "Settings..." options
   - Unread message count appears as bar text (e.g. `3`, `99+`)
   - Tooltip shows current unread count and click hints
+  - Icon has proper horizontal padding (no more crowding)
 - `titanpanel.lua` — new module; added to all three TOC files (`iChat.toc`, `iChat-Mainline.toc`, `iChat_Vanilla.toc`)
-- `ns.UpdateLDBText()` — public helper; called from `UpdateButtonBadge` so the floating button badge and Titan Panel bar text stay in sync
+
+### Changed
+- **Class icons replace 3D portraits** — conversation header now shows a clean class icon (28×28px) instead of the resource-heavy 3D PlayerModel. Player names are now class-colored.
+- **Input box focus behavior** — clicking anywhere outside the input box (conversation list, chat area, header) now clears focus, preventing keyboard lock-in issues.
 
 ### Notes
 - The existing custom floating button (`minimap.lua`) is unaffected; both can coexist. Users who prefer the Titan Panel icon exclusively can hide the floating button via Settings → "Show minimap button".
-- `LibDataBroker-1.1` was already listed in `OptionalDeps` but had no corresponding implementation; this PR fulfills that declaration.
+- Setting label updated from "Show 3D portrait" to "Show class icon in conversation header".
 
 ## [1.4.1](https://github.com/paradosi/iChat/tree/1.4.1) (2026-02-23)
 

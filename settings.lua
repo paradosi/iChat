@@ -691,7 +691,7 @@ function ns.CreateSettingsPanel()
     onlineStatusCB:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 26
 
-    local portraitCB = CreateSettingsCheckbox(child, "Show 3D portrait in conversation header",
+    local portraitCB = CreateSettingsCheckbox(child, "Show class icon in conversation header",
         function() return ns.db.settings.showPortrait end,
         function(v)
             ns.db.settings.showPortrait = v
