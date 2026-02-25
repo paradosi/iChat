@@ -171,16 +171,16 @@ function ns.CreateTitleBar(parent)
 
     -- Compose (new chat) button — chat bubble icon
     local composeBtn = CreateFrame("Button", nil, bar)
-    composeBtn:SetSize(28, 28)
+    composeBtn:SetSize(40, 40)
     composeBtn:SetPoint("LEFT", 4, 0)
     local composeIcon = composeBtn:CreateTexture(nil, "ARTWORK")
-    composeIcon:SetSize(26, 26)
+    composeIcon:SetSize(36, 36)
     composeIcon:SetPoint("CENTER")
     composeIcon:SetTexture("Interface\\CHATFRAME\\UI-ChatIcon-Chat-Up")
-    composeIcon:SetVertexColor(unpack(C.BLUE))
+    composeIcon:SetVertexColor(0.3, 0.9, 1.5) -- Brighter cyan
     composeBtn:SetScript("OnClick", function() ns.ToggleCompose() end)
-    composeBtn:SetScript("OnEnter", function() composeIcon:SetVertexColor(1, 1, 1) end)
-    composeBtn:SetScript("OnLeave", function() composeIcon:SetVertexColor(unpack(C.BLUE)) end)
+    composeBtn:SetScript("OnEnter", function() composeIcon:SetVertexColor(0.5, 1.2, 2.0) end)
+    composeBtn:SetScript("OnLeave", function() composeIcon:SetVertexColor(0.3, 0.9, 1.5) end)
 
     ns.titleBar = bar
 end
