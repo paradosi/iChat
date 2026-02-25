@@ -3,13 +3,16 @@
 ## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-24)
 
 ### Added
-- **Titan Panel integration** — iChat now registers a native Titan Panel plugin with full layout integration. Also includes LibDataBroker object for compatibility with other LDB displays (FuBar, ChocolateBar, Bazooka).
+- **Titan Panel integration** — iChat now registers as a native Titan Panel plugin with full layout integration.
   - Left-click the bar icon to toggle the iChat window
   - Right-click shows proper Titan Panel menu with "Toggle iChat Window" and "Settings..." options
   - Unread message count appears as bar text (e.g. `3`, `99+`)
   - Tooltip shows current unread count and click hints
   - Icon has proper horizontal padding (no more crowding)
 - `titanpanel.lua` — new module; added to all three TOC files (`iChat.toc`, `iChat-Mainline.toc`, `iChat_Vanilla.toc`)
+
+### Fixed
+- **Titan Panel duplicate registration error** — removed LibDataBroker registration to avoid conflict with native Titan Panel plugin
 
 ### Changed
 - **Class icons replace 3D portraits** — conversation header now shows a clean class icon (28×28px) instead of the resource-heavy 3D PlayerModel. Player names are now class-colored.

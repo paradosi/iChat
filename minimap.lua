@@ -125,11 +125,6 @@ function ns.UpdateButtonBadge()
     if ns.UpdateTitanButton then
         ns.UpdateTitanButton()
     end
-    
-    -- Sync LDB bar text (for non-Titan LDB displays)
-    if ns.UpdateLDBText then
-        ns.UpdateLDBText(total)
-    end
 end
 
 -- Repeating flash on incoming whisper — pulses until user opens iChat

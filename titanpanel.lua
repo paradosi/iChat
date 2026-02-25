@@ -1,16 +1,15 @@
 local _, ns = ...
 
 ---------------------------------------------------------------------------
--- Titan Panel Integration (Native + LDB)
+-- Titan Panel Integration (Native)
 --
--- This module provides dual integration:
--- 1. Native Titan Panel plugin (proper layout, positioning)
--- 2. LibDataBroker object (compatibility with other LDB displays)
+-- This module provides native Titan Panel plugin integration with proper
+-- layout, positioning, and right-click menu support.
 --
 -- Behavior:
 --   - iChat appears as a proper Titan Panel plugin with correct positioning
 --   - Left-click: toggle iChat window
---   - Right-click: open iChat Settings
+--   - Right-click: shows Titan Panel menu with custom iChat options
 --   - Bar text: shows unread count (e.g. "3", "99+") or blank
 --   - Tooltip: unread count + click hints
 --
@@ -196,52 +195,3 @@ end
 
 -- Create the frame when this file loads
 CreateFrames()
-
----------------------------------------------------------------------------
--- LibDataBroker Integration (for other LDB displays)
----------------------------------------------------------------------------
-
-local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
-if LDB then
-	local ldbObj = LDB:NewDataObject("iChat", {
-		type  = "launcher",
-		label = "iChat",
-		icon  = "Interface\\AddOns\\iChat\\media\\textures\\icon",
-		text  = "",
-		
-		OnClick = function(_, button)
-			OnClick(_G[TITAN_BUTTON] or UIParent, button)
-		end,
-		
-		OnTooltipShow = function(tooltip)
-			tooltip:AddLine("|cff007AFFiChat|r")
-			tooltip:AddLine("Left-click: Toggle window", 0.7, 0.7, 0.7)
-			tooltip:AddLine("Right-click: Settings", 0.7, 0.7, 0.7)
-			
-			local total = GetUnreadCount()
-			if total > 0 then
-				local label = total == 1 and "1 unread message" or total .. " unread messages"
-				tooltip:AddLine("|cffff9900" .. label .. "|r")
-			end
-		end,
-	})
-	
-	-- Update LDB text when unread count changes
-	function ns.UpdateLDBText(total)
-		if not ldbObj then return end
-		
-		-- If total not provided, compute it
-		if not total then
-			total = GetUnreadCount()
-		end
-		
-		ldbObj.text = total > 0 and (total > 99 and "99+" or tostring(total)) or ""
-	end
-	
-	-- Initialize LDB text on load
-	C_Timer.After(0, function()
-		if ns.db then
-			ns.UpdateLDBText()
-		end
-	end)
-end
