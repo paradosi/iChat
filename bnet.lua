@@ -47,26 +47,44 @@ function ns.GetBNetPresenceID(bnetIDAccount)
 	return info and info.bnetAccountID
 end
 
--- Get display name for BNet friend (character name or BattleTag)
-function ns.GetBNetDisplayName(bnetIDAccount)
+-- Get BattleTag for BNet friend
+function ns.GetBNetBattleTag(bnetIDAccount)
 	local info = ns.GetBNetFriendInfo(bnetIDAccount)
 	if not info then
 		return "BNet Friend #" .. (bnetIDAccount or "?")
 	end
+	return info.battleTag or info.accountName or ("BNet #" .. bnetIDAccount)
+end
+
+-- Get character name for BNet friend (if playing WoW)
+function ns.GetBNetCharacterName(bnetIDAccount)
+	local info = ns.GetBNetFriendInfo(bnetIDAccount)
+	if not info or not info.gameAccountInfo then
+		return nil
+	end
 	
-	-- If they're playing WoW, show character name
-	if info.gameAccountInfo and info.gameAccountInfo.isOnline then
-		if info.gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
-			local charName = info.gameAccountInfo.characterName
-			local realmName = info.gameAccountInfo.realmName
-			if charName then
-				return charName .. (realmName and ("-" .. realmName) or "")
-			end
+	local gameInfo = info.gameAccountInfo
+	if gameInfo.isOnline and gameInfo.clientProgram == BNET_CLIENT_WOW then
+		local charName = gameInfo.characterName
+		local realmName = gameInfo.realmName
+		if charName then
+			return charName .. (realmName and ("-" .. realmName) or "")
 		end
 	end
 	
-	-- Otherwise show BattleTag
-	return info.battleTag or info.accountName or ("BNet #" .. bnetIDAccount)
+	return nil
+end
+
+-- Get display name for BNet friend (BattleTag (CharacterName) format)
+function ns.GetBNetDisplayName(bnetIDAccount)
+	local battleTag = ns.GetBNetBattleTag(bnetIDAccount)
+	local charName = ns.GetBNetCharacterName(bnetIDAccount)
+	
+	if charName then
+		return battleTag .. " (" .. charName .. ")"
+	end
+	
+	return battleTag
 end
 
 -- Get BNet friend's class/race info (for WoW characters)

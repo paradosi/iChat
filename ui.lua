@@ -17,7 +17,7 @@ local _, ns = ...
 -- Color palette
 local C = {
     BLUE        = { 0.00, 0.48, 1.00, 1.0 },
-    BNET_BLUE   = { 0.00, 0.44, 0.87, 1.0 }, -- Blizzard's BNet blue
+    BNET_BLUE   = { 0.00, 0.72, 1.00, 1.0 }, -- Blizzard's BNet cyan-blue (matches friends list)
     GREEN       = { 0.20, 0.78, 0.35, 1.0 },
     BG_DARK     = { 0.05, 0.05, 0.05, 0.95 },
     BG_PANEL    = { 0.06, 0.06, 0.06, 1.0 },
@@ -732,21 +732,46 @@ function ns.RefreshConversationList()
         local entry = ns.convoEntries[i]
         entry.playerName = data.name
         
-        -- Display name (BNet friends show character name or BattleTag)
+        -- Display name with colors
         local displayName = data.name
+        local useColoredText = false
+        
+        -- BNet conversations: "BattleTag (CharName)" with BNet blue + class color
         if ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
             local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(data.name)
-            if bnetIDAccount and ns.GetBNetDisplayName then
-                displayName = ns.GetBNetDisplayName(bnetIDAccount)
+            if bnetIDAccount then
+                local battleTag = ns.GetBNetBattleTag and ns.GetBNetBattleTag(bnetIDAccount) or "BNet Friend"
+                local charName = ns.GetBNetCharacterName and ns.GetBNetCharacterName(bnetIDAccount)
+                
+                if charName then
+                    -- Get class color for character name
+                    local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(data.name)
+                    local classColorHex = "ffffffff" -- white default
+                    
+                    if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
+                        local cc = RAID_CLASS_COLORS[playerInfo.classFile]
+                        if cc then
+                            classColorHex = string.format("ff%02x%02x%02x", cc.r * 255, cc.g * 255, cc.b * 255)
+                        end
+                    end
+                    
+                    -- Format: BattleTag (CharName) with BNet blue + class color
+                    displayName = string.format("|cff00b8ff%s|r |c%s(%s)|r", battleTag, classColorHex, charName)
+                    useColoredText = true
+                else
+                    displayName = battleTag
+                end
             end
         end
         
         entry.nameText:SetText(displayName)
 
-        -- BNet conversations always show in BNet blue
-        if ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
+        -- Set text color (only for non-colored text since colored text has inline codes)
+        if useColoredText then
+            -- For colored text (BNet with inline codes), use white as base so codes work
+            entry.nameText:SetTextColor(1, 1, 1)
+        elseif ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
             entry.nameText:SetTextColor(unpack(C.BNET_BLUE))
-        -- Class-colored names for regular whispers
         elseif ns.db.settings.classColoredNames then
             local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(data.name)
             if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
@@ -905,18 +930,47 @@ end
 function ns.SelectConversation(playerName)
     ns.activeConversation = playerName
     
-    -- Display name (BNet friends show character name or BattleTag)
+    -- Display name with colors for BNet: "BattleTag (CharName)"
     local displayName = playerName
     local gameInfo = ""
+    local useBNetColors = false
+    
     if ns.IsBNetConversation and ns.IsBNetConversation(playerName) then
         local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(playerName)
         if bnetIDAccount then
-            displayName = ns.GetBNetDisplayName and ns.GetBNetDisplayName(bnetIDAccount) or playerName
             gameInfo = ns.GetBNetGameInfo and ns.GetBNetGameInfo(bnetIDAccount) or ""
+            
+            local battleTag = ns.GetBNetBattleTag and ns.GetBNetBattleTag(bnetIDAccount) or "BNet Friend"
+            local charName = ns.GetBNetCharacterName and ns.GetBNetCharacterName(bnetIDAccount)
+            
+            if charName then
+                -- Get class color for character name
+                local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(playerName)
+                local classColorHex = "ffffffff" -- white default
+                
+                if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
+                    local cc = RAID_CLASS_COLORS[playerInfo.classFile]
+                    if cc then
+                        classColorHex = string.format("ff%02x%02x%02x", cc.r * 255, cc.g * 255, cc.b * 255)
+                    end
+                end
+                
+                -- Format: BattleTag (CharName) with BNet blue + class color
+                displayName = string.format("|cff00b8ff%s|r |c%s(%s)|r", battleTag, classColorHex, charName)
+                useBNetColors = true
+            else
+                displayName = battleTag
+                useBNetColors = true
+            end
         end
     end
     
     ns.headerName:SetText(displayName)
+    
+    -- Set white color for BNet (so inline codes work), UpdatePortrait will handle others
+    if useBNetColors then
+        ns.headerName:SetTextColor(1, 1, 1)
+    end
 
     -- Show contact note + relationship tags + game info in header
     if ns.headerNote then

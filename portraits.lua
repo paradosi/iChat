@@ -24,10 +24,9 @@ function ns.UpdatePortrait()
 	ns.headerName:ClearAllPoints()
 	ns.headerName:SetPoint("LEFT", 10, 2)
 
-	-- BNet conversations always show in BNet blue
+	-- BNet conversations already have inline color codes set in SelectConversation
+	-- Don't override the color
 	if ns.IsBNetConversation and ns.IsBNetConversation(ns.activeConversation) then
-		-- BNet blue (0.0, 0.44, 0.87)
-		ns.headerName:SetTextColor(0.0, 0.44, 0.87)
 		return
 	end
 

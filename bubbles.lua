@@ -297,9 +297,9 @@ local function LayoutBubble(bubble, entry, chatWidth, yOffset, playerName)
         bubble.timeText:SetPoint("TOPRIGHT", bubble, "BOTTOMRIGHT", 0, -1)
         bubble.timeText:SetJustifyH("RIGHT")
     else
-        -- BNet conversations use Blizzard's BNet blue
+        -- BNet conversations use Blizzard's BNet cyan-blue
         if playerName and ns.IsBNetConversation and ns.IsBNetConversation(playerName) then
-            bubble:SetBubbleColor(0.00, 0.44, 0.87, 0.85) -- BNet blue
+            bubble:SetBubbleColor(0.00, 0.72, 1.00, 0.85) -- BNet cyan-blue (matches friends list)
         elseif entry.isFriend then
             bubble:SetBubbleColor(0.00, 0.40, 0.85, 0.85)
         else
