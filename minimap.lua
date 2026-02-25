@@ -121,9 +121,9 @@ function ns.UpdateButtonBadge()
         ns.FireUnreadChanged(total)
     end
 
-    -- Sync Titan Panel button
-    if ns.UpdateTitanButton then
-        ns.UpdateTitanButton()
+    -- Sync LDB text (Titan Panel / ChocolateBar / Bazooka / etc.)
+    if ns.UpdateLDBText then
+        ns.UpdateLDBText()
     end
 end
 
