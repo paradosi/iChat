@@ -39,6 +39,7 @@ function ns:ADDON_LOADED(loadedName)
     frame:RegisterEvent("CHAT_MSG_DND")
     frame:RegisterEvent("FRIENDLIST_UPDATE")
     frame:RegisterEvent("IGNORELIST_UPDATE")
+    frame:RegisterEvent("GUILD_ROSTER_UPDATE")
     frame:RegisterEvent("CHAT_MSG_SYSTEM")
     frame:RegisterEvent("PLAYER_REGEN_DISABLED")
     frame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -93,6 +94,30 @@ function ns:PLAYER_LOGIN()
     C_Timer.NewTicker(60, function()
         C_FriendList.ShowFriends()
     end)
+    
+    -- Initial player info scans
+    C_Timer.After(2, function()
+        if ns.ScanFriendList then
+            ns.ScanFriendList()
+        end
+        if ns.ScanGuildRoster then
+            ns.ScanGuildRoster()
+        end
+    end)
+end
+
+-- Friend list updated - scan for player info
+function ns:FRIENDLIST_UPDATE()
+    if ns.ScanFriendList then
+        ns.ScanFriendList()
+    end
+end
+
+-- Guild roster updated - scan for player info
+function ns:GUILD_ROSTER_UPDATE()
+    if ns.ScanGuildRoster then
+        ns.ScanGuildRoster()
+    end
 end
 
 -- Hide window on combat start, restore on combat end

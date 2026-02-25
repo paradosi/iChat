@@ -15,8 +15,8 @@
 - **Titan Panel duplicate registration error** — removed LibDataBroker registration to avoid conflict with native Titan Panel plugin
 
 ### Changed
-- **Class icons replace 3D portraits** — conversation header now shows a clean class icon (28×28px) instead of the resource-heavy 3D PlayerModel. Player names are now class-colored.
-- **Input box focus behavior** — clicking anywhere outside the input box (conversation list, chat area, header) now clears focus, preventing keyboard lock-in issues.
+- **Race icons + class-colored names** — conversation header now shows race icon (28×28px) with class-colored name instead of resource-heavy 3D portraits. Works via friend list, guild roster, and unit scanning + caching. Remembers class/race info even when players are offline or in different zones.
+- **Input box focus behavior** — clicking anywhere outside the input box (conversation list, chat area, header) now clears focus, preventing keyboard lock-in issues. Also clears focus when window fades or hides.
 
 ### Notes
 - The existing custom floating button (`minimap.lua`) is unaffected; both can coexist. Users who prefer the Titan Panel icon exclusively can hide the floating button via Settings → "Show minimap button".

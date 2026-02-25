@@ -18,6 +18,7 @@ local defaults = {
     pinnedConversations = {},
     contactNotes = {},
     mutedContacts = {},
+    playerInfoCache = {},
     settings = {
         scale = 1.0,
         suppressDefault = true,

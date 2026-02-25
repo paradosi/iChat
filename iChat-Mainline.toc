@@ -15,6 +15,7 @@ core.lua
 config.lua
 messages.lua
 emoji.lua
+playerinfo.lua
 portraits.lua
 ui.lua
 bubbles.lua
