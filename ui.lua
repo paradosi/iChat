@@ -1046,6 +1046,11 @@ function ns.SetupFadeHooks()
     end)
 
     ns.mainWindow:HookScript("OnLeave", function()
+        -- Clear input focus immediately when mouse leaves window
+        if ns.inputBox and ns.inputBox:HasFocus() then
+            ns.inputBox:ClearFocus()
+        end
+        
         -- Start fade timer when mouse leaves
         if ns.mainWindow:IsShown() then
             ScheduleFadeOut()
