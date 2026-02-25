@@ -1,5 +1,34 @@
 # iChat Changelog
 
+## [1.4.3](https://github.com/paradosi/iChat/tree/1.4.3) (2026-02-25)
+
+### Added
+
+**Titan Panel Integration**
+- Native Titan Panel plugin with proper layout integration
+- Left-click: toggle iChat window
+- Right-click: shows Titan Panel context menu
+- Bar display: unread count (e.g., `3`, `99+`)
+- Tooltip: shows unread count and usage hints
+
+**Battle.net Integration**
+- Full BNet (RealID) whisper support
+- Smart display format: `AccountName` in header, `AccountName (CharacterName)` in list
+- BNet cyan-blue coloring for names and bubbles
+- Cross-game messaging (D3, HS, OW, etc.)
+- Game info display in header (e.g. "WoW: CharName" or "Diablo 3")
+
+**Enhanced Player Info**
+- Robust class/race caching from Friend List, Guild Roster, and Battle.net
+- Class-colored names in conversation header (toggleable in Settings)
+- BNet character names shown in class color
+
+### Fixed
+- **Titan Panel crash** — fixed error when Titan Panel is not installed
+- **Window fade behavior** — no longer fades while typing
+- **Input focus** — clicking outside clears focus immediately
+- **Classic Era compatibility** — fixed API calls for `C_FriendList` on Vanilla clients
+
 ## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-23)
 
 ### Added

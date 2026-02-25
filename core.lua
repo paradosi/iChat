@@ -35,10 +35,15 @@ function ns:ADDON_LOADED(loadedName)
     -- Register whisper events
     frame:RegisterEvent("CHAT_MSG_WHISPER")
     frame:RegisterEvent("CHAT_MSG_WHISPER_INFORM")
+    frame:RegisterEvent("CHAT_MSG_BN_WHISPER")
+    frame:RegisterEvent("CHAT_MSG_BN_WHISPER_INFORM")
     frame:RegisterEvent("CHAT_MSG_AFK")
     frame:RegisterEvent("CHAT_MSG_DND")
     frame:RegisterEvent("FRIENDLIST_UPDATE")
     frame:RegisterEvent("IGNORELIST_UPDATE")
+    frame:RegisterEvent("GUILD_ROSTER_UPDATE")
+    frame:RegisterEvent("BN_FRIEND_LIST_SIZE_CHANGED")
+    frame:RegisterEvent("BN_FRIEND_INFO_CHANGED")
     frame:RegisterEvent("CHAT_MSG_SYSTEM")
     frame:RegisterEvent("PLAYER_REGEN_DISABLED")
     frame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -65,7 +70,6 @@ function ns:ADDON_LOADED(loadedName)
     end
 
     -- Register guild roster event
-    frame:RegisterEvent("GUILD_ROSTER_UPDATE")
     if IsInGuild() then
         C_GuildInfo.GuildRoster()
     end
@@ -86,13 +90,49 @@ end
 
 function ns:PLAYER_LOGIN()
     ns.playerName = UnitName("player")
-    C_FriendList.ShowFriends()
+    
+    local function RequestFriendInfo()
+        if C_FriendList and C_FriendList.ShowFriends then
+            C_FriendList.ShowFriends()
+        elseif ShowFriends then
+            ShowFriends()
+        end
+    end
+    
+    RequestFriendInfo()
     frame:UnregisterEvent("PLAYER_LOGIN")
 
     -- Poll friend list every 60s to keep online status current
-    C_Timer.NewTicker(60, function()
-        C_FriendList.ShowFriends()
+    C_Timer.NewTicker(60, RequestFriendInfo)
+    
+    -- Initial player info scans
+    C_Timer.After(2, function()
+        if ns.ScanFriendList then
+            ns.ScanFriendList()
+        end
+        if ns.ScanGuildRoster then
+            ns.ScanGuildRoster()
+        end
     end)
+end
+
+-- Friend list updated - scan for player info
+-- MOVED TO messages.lua to avoid conflict
+
+-- Guild roster updated - scan for player info
+-- MOVED TO social.lua to avoid conflict
+
+-- BNet Friend list updated
+function ns:BN_FRIEND_LIST_SIZE_CHANGED()
+	if ns.RefreshConversationList then
+		ns.RefreshConversationList()
+	end
+end
+
+function ns:BN_FRIEND_INFO_CHANGED()
+	if ns.RefreshConversationList then
+		ns.RefreshConversationList()
+	end
 end
 
 -- Hide window on combat start, restore on combat end

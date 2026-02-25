@@ -85,4 +85,9 @@ end
 ---------------------------------------------------------------------------
 function ns:GUILD_ROSTER_UPDATE()
     ns.RefreshGuildRoster()
+    
+    -- Scan roster for player info cache (class/race data)
+    if ns.ScanGuildRoster then
+        ns.ScanGuildRoster()
+    end
 end

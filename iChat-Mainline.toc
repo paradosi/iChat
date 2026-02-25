@@ -2,17 +2,19 @@
 ## Title: |cff007AFFiChat|r
 ## Notes: iMessage-style whisper client.
 ## Author: paradosi-Dreamscythe
-## Version: 1.4.2
+## Version: 1.4.3
 ## IconTexture: Interface\AddOns\iChat\media\textures\icon
 ## Category-enUS: Chat
 ## SavedVariables: ICHAT_ACCOUNT
 ## SavedVariablesPerCharacter: ICHAT_DATA
 ## X-Wago-ID: YK9b8zGL
 ## X-Curse-Project-ID: 1461921
-## OptionalDeps: Emoji-Core, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, ElvUI, WeakAuras
+## OptionalDeps: Emoji-Core, LibSharedMedia-3.0, LibDBIcon-1.0, LibDataBroker-1.1, ElvUI, WeakAuras, TitanPanel
 
 core.lua
 config.lua
+playerinfo.lua
+bnet.lua
 messages.lua
 emoji.lua
 portraits.lua
@@ -25,3 +27,4 @@ social.lua
 elvui.lua
 weakauras.lua
 minimap.lua
+titanpanel.lua

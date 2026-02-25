@@ -17,6 +17,7 @@ local _, ns = ...
 -- Color palette
 local C = {
     BLUE        = { 0.00, 0.48, 1.00, 1.0 },
+    BNET_BLUE   = { 0.00, 0.72, 1.00, 1.0 }, -- Blizzard's BNet cyan-blue (matches friends list)
     GREEN       = { 0.20, 0.78, 0.35, 1.0 },
     BG_DARK     = { 0.05, 0.05, 0.05, 0.95 },
     BG_PANEL    = { 0.06, 0.06, 0.06, 1.0 },
@@ -171,16 +172,16 @@ function ns.CreateTitleBar(parent)
 
     -- Compose (new chat) button — chat bubble icon
     local composeBtn = CreateFrame("Button", nil, bar)
-    composeBtn:SetSize(28, 28)
+    composeBtn:SetSize(40, 40)
     composeBtn:SetPoint("LEFT", 4, 0)
     local composeIcon = composeBtn:CreateTexture(nil, "ARTWORK")
-    composeIcon:SetSize(26, 26)
+    composeIcon:SetSize(36, 36)
     composeIcon:SetPoint("CENTER")
     composeIcon:SetTexture("Interface\\CHATFRAME\\UI-ChatIcon-Chat-Up")
-    composeIcon:SetVertexColor(unpack(C.BLUE))
+    composeIcon:SetVertexColor(0.2, 0.8, 1.0) -- Bright cyan
     composeBtn:SetScript("OnClick", function() ns.ToggleCompose() end)
-    composeBtn:SetScript("OnEnter", function() composeIcon:SetVertexColor(1, 1, 1) end)
-    composeBtn:SetScript("OnLeave", function() composeIcon:SetVertexColor(unpack(C.BLUE)) end)
+    composeBtn:SetScript("OnEnter", function() composeIcon:SetVertexColor(0.4, 0.9, 1.0) end)
+    composeBtn:SetScript("OnLeave", function() composeIcon:SetVertexColor(0.2, 0.8, 1.0) end)
 
     ns.titleBar = bar
 end
@@ -262,6 +263,7 @@ function ns.CreateLeftPanel(parent)
     scroll:SetPoint("TOPLEFT", searchBar, "BOTTOMLEFT", -4, -2)
     scroll:SetPoint("BOTTOMRIGHT")
     scroll:EnableMouseWheel(true)
+    scroll:EnableMouse(true)
 
     local child = CreateFrame("Frame", "iChatConvoScrollChild", scroll)
     child:SetWidth(LEFT_WIDTH)
@@ -273,6 +275,13 @@ function ns.CreateLeftPanel(parent)
         local maxScroll = math.max(0, child:GetHeight() - self:GetHeight())
         local newVal = math.max(0, math.min(maxScroll, current - (delta * 30)))
         self:SetVerticalScroll(newVal)
+    end)
+
+    -- Click on conversation list area clears input focus
+    scroll:SetScript("OnMouseDown", function(self, button)
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
     end)
 
     ns.leftPanel = panel
@@ -378,7 +387,7 @@ function ns.CreateConvoEntry(index)
         if button == "RightButton" then
             ns.ShowContextMenu(self.playerName)
         else
-            ns.SelectConversation(self.playerName, true)
+            ns.SelectConversation(self.playerName)
         end
     end)
     entry:SetScript("OnEnter", function(self)
@@ -419,12 +428,20 @@ function ns.CreateRightPanel(parent)
     header:SetHeight(36)
     header:SetPoint("TOPLEFT")
     header:SetPoint("TOPRIGHT")
+    header:EnableMouse(true)
 
     local headerBorder = header:CreateTexture(nil, "OVERLAY")
     headerBorder:SetHeight(1)
     headerBorder:SetPoint("BOTTOMLEFT")
     headerBorder:SetPoint("BOTTOMRIGHT")
     headerBorder:SetColorTexture(unpack(C.DIVIDER))
+
+    -- Click on header clears input focus
+    header:SetScript("OnMouseDown", function(self, button)
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
+    end)
 
     local headerName = header:CreateFontString(nil, "OVERLAY")
     headerName:SetFont("Fonts\\FRIZQT__.TTF", 12, "")
@@ -539,6 +556,7 @@ function ns.CreateRightPanel(parent)
     chatScroll:SetPoint("TOPLEFT", header, "BOTTOMLEFT", 0, 0)
     chatScroll:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, qrOffset)
     chatScroll:EnableMouseWheel(true)
+    chatScroll:EnableMouse(true)
 
     local chatChild = CreateFrame("Frame", "iChatBubbleScrollChild", chatScroll)
     chatChild:SetWidth(1) -- updated in OnSizeChanged
@@ -550,6 +568,13 @@ function ns.CreateRightPanel(parent)
         local maxScroll = math.max(0, chatChild:GetHeight() - self:GetHeight())
         local newVal = math.max(0, math.min(maxScroll, current - (delta * 40)))
         self:SetVerticalScroll(newVal)
+    end)
+
+    -- Click on chat area clears input focus
+    chatScroll:SetScript("OnMouseDown", function(self, button)
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
     end)
 
     chatScroll:SetScript("OnSizeChanged", function(self, w, h)
@@ -581,7 +606,7 @@ function ns.CreateRightPanel(parent)
     -- Input EditBox
     local inputBox = CreateFrame("EditBox", "iChatInputBox", inputBar)
     inputBox:SetPoint("LEFT", 10, 0)
-    inputBox:SetPoint("RIGHT", -68, 0)
+    inputBox:SetPoint("RIGHT", -74, 0)
     inputBox:SetHeight(24)
     inputBox:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
     inputBox:SetTextColor(1, 1, 1)
@@ -590,7 +615,7 @@ function ns.CreateRightPanel(parent)
 
     local inputBoxBg = inputBox:CreateTexture(nil, "BACKGROUND")
     inputBoxBg:SetPoint("TOPLEFT", inputBar, "TOPLEFT", 6, -6)
-    inputBoxBg:SetPoint("BOTTOMRIGHT", inputBar, "BOTTOMRIGHT", -64, 6)
+    inputBoxBg:SetPoint("BOTTOMRIGHT", inputBar, "BOTTOMRIGHT", -70, 6)
     inputBoxBg:SetTexture("Interface\\AddOns\\iChat\\media\\textures\\inputbox")
     inputBoxBg:SetVertexColor(0.18, 0.18, 0.18, 1)
 
@@ -626,21 +651,22 @@ function ns.CreateRightPanel(parent)
 
     -- Emoji picker button (between input and send)
     local emojiBtn = CreateFrame("Button", nil, inputBar)
-    emojiBtn:SetSize(24, 24)
+    emojiBtn:SetSize(32, 32)
     emojiBtn:SetPoint("RIGHT", sendBtn, "LEFT", -2, 0)
     local emojiIcon = emojiBtn:CreateTexture(nil, "ARTWORK")
-    emojiIcon:SetSize(20, 20)
+    emojiIcon:SetSize(28, 28)
     emojiIcon:SetPoint("CENTER")
     emojiIcon:SetTexture("Interface\\AddOns\\iChat\\media\\emoji\\smile.png")
+    emojiIcon:SetVertexColor(1.0, 1.0, 0.9) -- Bright default
     emojiBtn:SetScript("OnClick", function() ns.ToggleEmojiPicker() end)
     emojiBtn:SetScript("OnEnter", function()
-        emojiIcon:SetVertexColor(1, 1, 0.7)
+        emojiIcon:SetVertexColor(1.0, 1.0, 1.0) -- Pure white on hover
         GameTooltip:SetOwner(emojiBtn, "ANCHOR_TOP")
         GameTooltip:SetText("Emoji")
         GameTooltip:Show()
     end)
     emojiBtn:SetScript("OnLeave", function()
-        emojiIcon:SetVertexColor(1, 1, 1)
+        emojiIcon:SetVertexColor(1.0, 1.0, 0.9) -- Back to bright default
         GameTooltip:Hide()
     end)
 
@@ -705,14 +731,56 @@ function ns.RefreshConversationList()
     for i, data in ipairs(sorted) do
         local entry = ns.convoEntries[i]
         entry.playerName = data.name
-        entry.nameText:SetText(data.name)
+        
+        -- Display name with colors
+        local displayName = data.name
+        local useColoredText = false
+        
+        -- BNet conversations: "BattleTag (CharName)" with BNet blue + class color
+        if ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
+            local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(data.name)
+            if bnetIDAccount then
+                local battleTag = ns.GetBNetBattleTag and ns.GetBNetBattleTag(bnetIDAccount) or "BNet Friend"
+                local charName = ns.GetBNetCharacterName and ns.GetBNetCharacterName(bnetIDAccount)
+                
+                if charName then
+                    -- Get class color for character name
+                    local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(data.name)
+                    local classColorHex = "ffffffff" -- white default
+                    
+                    if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
+                        local cc = RAID_CLASS_COLORS[playerInfo.classFile]
+                        if cc then
+                            classColorHex = string.format("ff%02x%02x%02x", cc.r * 255, cc.g * 255, cc.b * 255)
+                        end
+                    end
+                    
+                    -- Format: BattleTag (CharName) with BNet blue + class color
+                    displayName = string.format("|cff00b8ff%s|r |c%s(%s)|r", battleTag, classColorHex, charName)
+                    useColoredText = true
+                else
+                    displayName = battleTag
+                end
+            end
+        end
+        
+        entry.nameText:SetText(displayName)
 
-        -- Class-colored names
-        if ns.db.settings.classColoredNames and ns.classCache then
-            local classToken = ns.classCache[data.name:lower()]
-            if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-                local cc = RAID_CLASS_COLORS[classToken]
-                entry.nameText:SetTextColor(cc.r, cc.g, cc.b)
+        -- Set text color (only for non-colored text since colored text has inline codes)
+        if useColoredText then
+            -- For colored text (BNet with inline codes), use white as base so codes work
+            entry.nameText:SetTextColor(1, 1, 1)
+        elseif ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
+            entry.nameText:SetTextColor(unpack(C.BNET_BLUE))
+        elseif ns.db.settings.classColoredNames then
+            local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(data.name)
+            if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
+                local cc = RAID_CLASS_COLORS[playerInfo.classFile]
+                if cc then
+                    entry.nameText:SetTextColor(cc.r, cc.g, cc.b)
+                else
+                    entry.nameText:SetTextColor(unpack(C.TEXT_WHITE))
+                end
             else
                 entry.nameText:SetTextColor(unpack(C.TEXT_WHITE))
             end
@@ -859,21 +927,45 @@ end
 ---------------------------------------------------------------------------
 -- Select Conversation
 ---------------------------------------------------------------------------
-function ns.SelectConversation(playerName, focusInput)
+function ns.SelectConversation(playerName)
     ns.activeConversation = playerName
-    ns.headerName:SetText(playerName)
+    
+    -- Display name for BNet: just the account name (e.g., "Jim Fano") in cyan-blue
+    local displayName = playerName
+    local gameInfo = ""
+    local useBNetColors = false
+    
+    if ns.IsBNetConversation and ns.IsBNetConversation(playerName) then
+        local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(playerName)
+        if bnetIDAccount then
+            gameInfo = ns.GetBNetGameInfo and ns.GetBNetGameInfo(bnetIDAccount) or ""
+            
+            local battleTag = ns.GetBNetBattleTag and ns.GetBNetBattleTag(bnetIDAccount) or "BNet Friend"
+            
+            -- Simple format: just the account name in BNet blue
+            displayName = string.format("|cff00b8ff%s|r", battleTag)
+            useBNetColors = true
+        end
+    end
+    
+    ns.headerName:SetText(displayName)
+    
+    -- Set white color for BNet (so inline codes work), UpdatePortrait will handle others
+    if useBNetColors then
+        ns.headerName:SetTextColor(1, 1, 1)
+    end
 
-    -- Show contact note + relationship tags in header
+    -- Show contact note + relationship tags + game info in header
     if ns.headerNote then
         local note = ns.db.contactNotes and ns.db.contactNotes[playerName] or ""
         local tags = ns.FormatRelationshipTags and ns.FormatRelationshipTags(playerName) or ""
-        if note ~= "" and tags ~= "" then
-            ns.headerNote:SetText(note .. "  " .. tags)
-        elseif tags ~= "" then
-            ns.headerNote:SetText(tags)
-        else
-            ns.headerNote:SetText(note)
-        end
+        
+        local parts = {}
+        if note ~= "" then table.insert(parts, note) end
+        if gameInfo ~= "" then table.insert(parts, gameInfo) end
+        if tags ~= "" then table.insert(parts, tags) end
+        
+        ns.headerNote:SetText(table.concat(parts, "  "))
     end
 
     -- Hide empty state
@@ -908,8 +1000,8 @@ function ns.SelectConversation(playerName, focusInput)
     ns.ScrollToBottom()
     ns.RefreshConversationList()
 
-    -- Focus input only when explicitly requested (e.g. user clicked a conversation)
-    if focusInput and not InCombatLockdown() then
+    -- Focus input (skip if in combat — avoids interrupting rotation keybinds)
+    if not InCombatLockdown() then
         ns.inputBox:SetFocus()
     end
 end
@@ -962,12 +1054,18 @@ local function ScheduleFadeOut()
     end
     ns.fadeTimer = C_Timer.NewTimer(FADE_DELAY, function()
         ns.fadeTimer = nil
-        -- Don't fade while interacting with settings or emoji picker
+        -- Don't fade while actively using the window
         if ns.settingsPanel and ns.settingsPanel:IsShown() then return end
         if ns.emojiPicker and ns.emojiPicker:IsShown() then return end
+        if ns.inputBox and ns.inputBox:HasFocus() then return end -- Don't fade while typing!
         if ns.mainWindow and ns.mainWindow:IsShown() then
             UIFrameFadeOut(ns.mainWindow, FADE_OUT_SPEED, ns.mainWindow:GetAlpha(), FADE_ALPHA)
             ns.isFaded = true
+            
+            -- Clear input focus when window fades
+            if ns.inputBox then
+                ns.inputBox:ClearFocus()
+            end
         end
     end)
 end
@@ -990,16 +1088,17 @@ function ns.SetupFadeHooks()
 
     ns.mainWindow:HookScript("OnLeave", function()
         -- Start fade timer when mouse leaves
+        -- Note: Don't clear focus here; it interrupts typing and the fade timer will clear it later
         if ns.mainWindow:IsShown() then
             ScheduleFadeOut()
         end
     end)
 
     ns.mainWindow:HookScript("OnShow", function()
-        -- Start visible, schedule fade
+        -- Start visible, don't auto-fade on show
         ns.mainWindow:SetAlpha(1.0)
         ns.isFaded = false
-        ScheduleFadeOut()
+        -- Don't schedule fade on show - only fade when mouse leaves
     end)
 
     ns.mainWindow:HookScript("OnHide", function()
@@ -1010,6 +1109,11 @@ function ns.SetupFadeHooks()
         end
         ns.isFaded = false
         ns.mainWindow:SetAlpha(1.0)
+        
+        -- Clear input focus when window is hidden
+        if ns.inputBox then
+            ns.inputBox:ClearFocus()
+        end
     end)
 
     ns.fadeHooked = true
@@ -1098,7 +1202,7 @@ function ns.ToggleCompose()
                         lastActivity = time(),
                     }
                 end
-                ns.SelectConversation(name, true)
+                ns.SelectConversation(name)
                 ns.RefreshConversationList()
                 self:SetText("")
                 bar:Hide()
@@ -1420,7 +1524,7 @@ function ns.SetupKeyboardShortcuts()
             else
                 nextIdx = currentIdx < #sorted and (currentIdx + 1) or 1
             end
-            ns.SelectConversation(sorted[nextIdx].name, true)
+            ns.SelectConversation(sorted[nextIdx].name)
         else
             self:SetPropagateKeyboardInput(true)
         end
