@@ -1013,9 +1013,10 @@ local function ScheduleFadeOut()
     end
     ns.fadeTimer = C_Timer.NewTimer(FADE_DELAY, function()
         ns.fadeTimer = nil
-        -- Don't fade while interacting with settings or emoji picker
+        -- Don't fade while actively using the window
         if ns.settingsPanel and ns.settingsPanel:IsShown() then return end
         if ns.emojiPicker and ns.emojiPicker:IsShown() then return end
+        if ns.inputBox and ns.inputBox:HasFocus() then return end -- Don't fade while typing!
         if ns.mainWindow and ns.mainWindow:IsShown() then
             UIFrameFadeOut(ns.mainWindow, FADE_OUT_SPEED, ns.mainWindow:GetAlpha(), FADE_ALPHA)
             ns.isFaded = true
@@ -1052,10 +1053,10 @@ function ns.SetupFadeHooks()
     end)
 
     ns.mainWindow:HookScript("OnShow", function()
-        -- Start visible, schedule fade
+        -- Start visible, don't auto-fade on show
         ns.mainWindow:SetAlpha(1.0)
         ns.isFaded = false
-        ScheduleFadeOut()
+        -- Don't schedule fade on show - only fade when mouse leaves
     end)
 
     ns.mainWindow:HookScript("OnHide", function()
