@@ -691,7 +691,7 @@ function ns.CreateSettingsPanel()
     onlineStatusCB:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 26
 
-    local portraitCB = CreateSettingsCheckbox(child, "Show race icon in conversation header",
+    local portraitCB = CreateSettingsCheckbox(child, "Show class-colored names in conversation header",
         function() return ns.db.settings.showPortrait end,
         function(v)
             ns.db.settings.showPortrait = v

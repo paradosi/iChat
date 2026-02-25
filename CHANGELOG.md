@@ -15,8 +15,9 @@
 - **Titan Panel duplicate registration error** — removed LibDataBroker registration to avoid conflict with native Titan Panel plugin
 
 ### Changed
-- **Race icons + class-colored names** — conversation header now shows race icon (28×28px) with class-colored name instead of resource-heavy 3D portraits. Works via friend list, guild roster, and unit scanning + caching. Remembers class/race info even when players are offline or in different zones.
+- **Class-colored names** — conversation header now shows class-colored player names (no icon). Works via friend list, guild roster, and unit scanning + caching. Remembers class info even when players are offline or in different zones. Toggle in Settings → Display → "Show class-colored names".
 - **Input box focus behavior** — clicking anywhere outside the input box (conversation list, chat area, header) now clears focus, preventing keyboard lock-in issues. Also clears focus when window fades or hides.
+- **Compose button** — increased size (28×28 → 40×40) and brightness for better visibility. Now glows bright cyan.
 
 ### Notes
 - The existing custom floating button (`minimap.lua`) is unaffected; both can coexist. Users who prefer the Titan Panel icon exclusively can hide the floating button via Settings → "Show minimap button".
