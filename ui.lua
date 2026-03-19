@@ -48,7 +48,12 @@ function ns.CreateMainWindow()
     win:SetFrameStrata("DIALOG")
     win:SetMovable(true)
     win:SetResizable(true)
-    win:SetResizeBounds(350, 400, 700, 800)
+    if win.SetResizeBounds then
+        win:SetResizeBounds(350, 400, 700, 800)
+    else
+        win:SetMinResize(350, 400)
+        win:SetMaxResize(700, 800)
+    end
     win:SetClampedToScreen(true)
     win:EnableMouse(true)
     win:Hide()
@@ -80,7 +85,7 @@ function ns.CreateMainWindow()
     resizer:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
     resizer:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
     resizer:SetScript("OnMouseDown", function()
-        if not InCombatLockdown() then win:StartSizing("BOTTOMRIGHT") end
+        if not InCombatLockdown() and win:IsResizable() then win:StartSizing("BOTTOMRIGHT") end
     end)
     resizer:SetScript("OnMouseUp", function()
         win:StopMovingOrSizing()
@@ -1049,6 +1054,8 @@ ns.fadeTimer = nil
 
 -- Schedule a fade-out after a short delay
 local function ScheduleFadeOut()
+    -- Skip if auto-fade is disabled
+    if ns.db and ns.db.settings and not ns.db.settings.enableAutoFade then return end
     if ns.fadeTimer then
         ns.fadeTimer:Cancel()
     end
@@ -1191,8 +1198,8 @@ function ns.ToggleCompose()
         nameBox:SetScript("OnEnterPressed", function(self)
             local name = self:GetText():match("^%s*(.-)%s*$")
             if name and name ~= "" then
-                -- Capitalize first letter
-                name = name:sub(1, 1):upper() .. name:sub(2):lower()
+                -- Capitalize first letter (preserve rest for realm names like Player-MoonGuard)
+                name = name:sub(1, 1):upper() .. name:sub(2)
 
                 -- Create or select conversation
                 if not ns.db.conversations[name] then

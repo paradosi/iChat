@@ -1,5 +1,23 @@
 # iChat Changelog
 
+## [1.4.4](https://github.com/paradosi/iChat/tree/1.4.4) (2026-03-18)
+
+### Added
+- **Disable auto-fade option** — new toggle in Settings → Behavior: "Auto-fade when mouse leaves". When disabled, the window stays at full opacity permanently. Enabled by default (existing behavior unchanged).
+
+### Fixed
+- **Collapsed resizing crash** — fixed `iChatMainWindow:StartSizing(): Frame is not resizable` error when trying to resize while minimized. The resize handle now checks `IsResizable()` before attempting to resize.
+- **Classic Era compatibility** — added API guards throughout:
+  - `bnet.lua`: `C_BattleNet.GetFriendAccountInfo`, `BNGetNumFriends`, `BNET_CLIENT_WOW`, and `LOCALIZED_CLASS_NAMES_MALE` now guarded against nil on Classic clients
+  - `notifications.lua`: `CheckFriendStatusChanges` now uses the same `C_FriendList`/`GetNumFriends` compatibility wrapper as `messages.lua`
+  - `ui.lua`: `SetResizeBounds` falls back to `SetMinResize`/`SetMaxResize` on pre-10.0 clients
+- **Compose bar name normalization** — no longer lowercases everything after the first character, preserving realm-qualified names like "Player-MoonGuard"
+- **Duplicate function definition** — removed duplicate `ns.FindUnitByName` from `portraits.lua` (single definition now lives in `playerinfo.lua`)
+- **Toast notification queue** — clicking a toast to dismiss now properly drains the queue instead of blocking subsequent toasts
+- **ElvUI color revert** — original `C.BLUE` accent color is now saved before ElvUI overrides it, allowing future revert support
+- **Wasteful table allocation** — removed unnecessary `wipe(ns.autoRepliedTo or {})` that created a throwaway table
+- **Missing default** — added `playerInfoCache` to config defaults table for consistent initialization
+
 ## [1.4.3](https://github.com/paradosi/iChat/tree/1.4.3) (2026-02-25)
 
 ### Added

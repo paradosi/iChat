@@ -62,8 +62,11 @@ function ns._ApplyElvUISkinInner()
         ns.mainWindow:SetBackdropBorderColor(borderR, borderG, borderB, 1)
     end
 
-    -- Override accent color
+    -- Override accent color (save original for reverting)
     ns.C = ns.C or {}
+    if not ns._originalBlue then
+        ns._originalBlue = { unpack(ns.C.BLUE or { 0.00, 0.48, 1.00, 1.0 }) }
+    end
     ns.C.BLUE = { valueR, valueG, valueB, 1 }
 
     -- Use ElvUI's font if available

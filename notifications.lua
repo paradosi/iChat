@@ -58,6 +58,13 @@ local function CreateToastFrame()
             ns.SelectConversation(self._playerName)
         end
         self:Hide()
+        -- Drain queue on click-dismiss
+        if #toastQueue > 0 then
+            local next = table.remove(toastQueue, 1)
+            ShowToast(next.name, next.online)
+        else
+            toastShowing = false
+        end
     end)
 
     toast:Hide()
@@ -137,10 +144,22 @@ function ns.CheckFriendStatusChanges()
     if not ns.db.settings.showOnlineNotifications then return end
 
     local currentOnline = {}
-    local numFriends = C_FriendList.GetNumFriends()
+    local numFriends = 0
+    local GetInfo
+
+    if C_FriendList and C_FriendList.GetNumFriends then
+        numFriends = C_FriendList.GetNumFriends()
+        GetInfo = C_FriendList.GetFriendInfoByIndex
+    elseif GetNumFriends then
+        numFriends = GetNumFriends()
+        GetInfo = function(i)
+            local name, _, _, _, connected = GetFriendInfo(i)
+            if name then return { name = name, connected = connected } end
+        end
+    end
 
     for i = 1, numFriends do
-        local info = C_FriendList.GetFriendInfoByIndex(i)
+        local info = GetInfo(i)
         if info and info.name then
             local lower = info.name:lower()
             currentOnline[lower] = info.connected or false

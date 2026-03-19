@@ -6,7 +6,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ![Promo](https://raw.githubusercontent.com/paradosi/iChat/master/media/art/promo.png)
 
-![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.3](https://img.shields.io/badge/Version-1.4.3-lightgrey)
+![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.4](https://img.shields.io/badge/Version-1.4.4-lightgrey)
 
 ### Screenshots
 
@@ -135,7 +135,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Open on incoming whisper** toggle
 - **Suppress default chat whispers** toggle
 - **Display toggles** — date separators, hover timestamps, item links, class colors, online status
-- **Behavior toggles** — keyboard shortcuts, minimap button, hide in combat, typing indicator, online/offline notifications, ElvUI theme, shared account
+- **Behavior toggles** — keyboard shortcuts, minimap button, hide in combat, auto-fade, typing indicator, online/offline notifications, ElvUI theme, shared account
 - **Auto-reply section** — enable/disable with custom message editor
 - **Quick reply editor** — configure up to 5 quick reply messages
 - **Export conversation** — copy conversation history as plain text
@@ -157,6 +157,7 @@ Custom events for WeakAuras triggers:
 - Window fades to 25% opacity after 1.5 seconds when the mouse leaves
 - Instantly restores on hover or incoming whisper
 - Fade is disabled while the settings panel or emoji picker is open
+- **Can be fully disabled** in Settings → Behavior → "Auto-fade when mouse leaves"
 
 ### LibSharedMedia Integration
 - Optional dependency — works without it, enhanced with it

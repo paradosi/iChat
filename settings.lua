@@ -785,6 +785,19 @@ function ns.CreateSettingsPanel()
     )
     hideCombatCB:SetPoint("TOPLEFT", 0, -yPos)
     hideCombatCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
+    local autoFadeCB = CreateSettingsCheckbox(child, "Auto-fade when mouse leaves",
+        function() return ns.db.settings.enableAutoFade end,
+        function(v)
+            ns.db.settings.enableAutoFade = v
+            if not v then
+                ns.CancelFade()
+            end
+        end
+    )
+    autoFadeCB:SetPoint("TOPLEFT", 0, -yPos)
+    autoFadeCB:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 30
 
     local buttonSizeSlider = CreateSettingsSlider(child, "Button Size", 24, 64, 2,
@@ -1019,6 +1032,7 @@ function ns.CreateSettingsPanel()
         onlineNotifyCB.Refresh()
         elvuiCB.Refresh()
         buttonSizeSlider.Refresh()
+        autoFadeCB.Refresh()
         autoReplyCB.Refresh()
         arMsgBox:SetText(ns.db.settings.autoReplyMessage or "")
         clearAllConfirm = false

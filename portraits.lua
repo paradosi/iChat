@@ -12,35 +12,7 @@ local _, ns = ...
 --   ns.UpdatePortrait()              → call on conversation switch / toggle
 ---------------------------------------------------------------------------
 
--- Scan all accessible unit IDs for one whose name matches `name`.
--- Strips -Realm suffix before comparing.
--- Exposed as ns.FindUnitByName so other modules (e.g. messages.lua) can use it.
-function ns.FindUnitByName(name)
-    if not name then return nil end
-    local bare = name:match("^([^%-]+)") or name
-
-    local function matches(unit)
-        local n = UnitName(unit)
-        return n == bare or n == name
-    end
-
-    -- Self first (self-whisper)
-    if UnitExists("player") and matches("player") then return "player" end
-    -- Target / focus
-    if UnitExists("target") and matches("target") then return "target" end
-    if UnitExists("focus")  and matches("focus")  then return "focus"  end
-    -- Party (up to 4)
-    for i = 1, 4 do
-        local u = "party" .. i
-        if UnitExists(u) and matches(u) then return u end
-    end
-    -- Raid (up to 40)
-    for i = 1, 40 do
-        local u = "raid" .. i
-        if UnitExists(u) and matches(u) then return u end
-    end
-    return nil
-end
+-- ns.FindUnitByName is defined in playerinfo.lua (single definition)
 
 -- Local class cache for players seen in range (keyed by lowercase name → token).
 -- Supplements ns.classCache (friends list) with any player we've rendered a 3D portrait for.

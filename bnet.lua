@@ -29,15 +29,16 @@ end
 -- Get BNet friend info by bnetIDAccount
 function ns.GetBNetFriendInfo(bnetIDAccount)
 	if not bnetIDAccount then return nil end
-	
-	local numFriends = BNGetNumFriends()
+	if not C_BattleNet or not C_BattleNet.GetFriendAccountInfo then return nil end
+
+	local numFriends = BNGetNumFriends and BNGetNumFriends() or 0
 	for i = 1, numFriends do
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(i)
 		if accountInfo and accountInfo.bnetAccountID == bnetIDAccount then
 			return accountInfo
 		end
 	end
-	
+
 	return nil
 end
 
@@ -65,7 +66,7 @@ function ns.GetBNetCharacterName(bnetIDAccount)
 	end
 	
 	local gameInfo = info.gameAccountInfo
-	if gameInfo.isOnline and gameInfo.clientProgram == BNET_CLIENT_WOW then
+	if gameInfo.isOnline and BNET_CLIENT_WOW and gameInfo.clientProgram == BNET_CLIENT_WOW then
 		local charName = gameInfo.characterName
 		local realmName = gameInfo.realmName
 		if charName then
@@ -94,7 +95,7 @@ function ns.GetBNetPlayerInfo(bnetIDAccount)
 	if not info or not info.gameAccountInfo then return nil end
 	
 	local gameInfo = info.gameAccountInfo
-	if not gameInfo.isOnline or gameInfo.clientProgram ~= BNET_CLIENT_WOW then
+	if not gameInfo.isOnline or not BNET_CLIENT_WOW or gameInfo.clientProgram ~= BNET_CLIENT_WOW then
 		return nil
 	end
 	
@@ -105,6 +106,7 @@ function ns.GetBNetPlayerInfo(bnetIDAccount)
 	
 	-- Convert localized class name to classFile
 	local classFile
+	if not LOCALIZED_CLASS_NAMES_MALE then return nil end
 	for file, name in pairs(LOCALIZED_CLASS_NAMES_MALE) do
 		if name == className then
 			classFile = file
@@ -137,7 +139,7 @@ function ns.GetBNetGameInfo(bnetIDAccount)
 	local client = gameInfo.clientProgram or "?"
 	
 	-- WoW-specific info
-	if client == BNET_CLIENT_WOW then
+	if BNET_CLIENT_WOW and client == BNET_CLIENT_WOW then
 		local charName = gameInfo.characterName or "Unknown"
 		local level = gameInfo.characterLevel or "?"
 		local className = gameInfo.className or "?"

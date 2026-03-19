@@ -189,7 +189,6 @@ function ns.SlashHandler(msg)
     elseif msg == "autoreply" then
         ns.db.settings.autoReplyEnabled = not ns.db.settings.autoReplyEnabled
         if ns.db.settings.autoReplyEnabled then
-            wipe(ns.autoRepliedTo or {})
             ns.autoRepliedTo = {}
             DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Auto-reply |cff00ff00enabled|r: " .. (ns.db.settings.autoReplyMessage or ""))
         else
