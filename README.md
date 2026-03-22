@@ -6,7 +6,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ![Promo](https://raw.githubusercontent.com/paradosi/iChat/master/media/art/promo.png)
 
-![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.4](https://img.shields.io/badge/Version-1.4.4-lightgrey)
+![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.5](https://img.shields.io/badge/Version-1.4.5-lightgrey)
 
 ### Screenshots
 
@@ -143,6 +143,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ### ElvUI Integration
 - **Auto-detect ElvUI** and match backdrop, border, and accent colors
+- **ElvUI DataText** — "iChat" appears in the DataText list (right-click any ElvUI info panel → select "iChat"). Shows unread count with ElvUI's value color. Left-click toggles the window, right-click opens settings.
 - Only overrides font if you haven't explicitly chosen one
 - Toggle in Settings → Behavior
 

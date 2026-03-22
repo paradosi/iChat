@@ -1,5 +1,10 @@
 # iChat Changelog
 
+## [1.4.5](https://github.com/paradosi/iChat/tree/1.4.5) (2026-03-22)
+
+### Added
+- **ElvUI DataText** — iChat now registers as an ElvUI DataText. Right-click any ElvUI info panel and select "iChat" to display unread whisper count with ElvUI's value color. Left-click toggles the window, right-click opens settings. Updates live as whispers arrive.
+
 ## [1.4.4](https://github.com/paradosi/iChat/tree/1.4.4) (2026-03-18)
 
 ### Added

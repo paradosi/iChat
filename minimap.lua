@@ -116,6 +116,16 @@ function ns.UpdateButtonBadge()
         ns.minimapButton.unreadBadge:Hide()
     end
 
+    -- Update Titan Panel
+    if ns.UpdateTitanButton then
+        ns.UpdateTitanButton()
+    end
+
+    -- Update ElvUI DataText
+    if ns.UpdateElvUIDataText then
+        ns.UpdateElvUIDataText()
+    end
+
     -- Fire WeakAuras event
     if ns.FireUnreadChanged then
         ns.FireUnreadChanged(total)
