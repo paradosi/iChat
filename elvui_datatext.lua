@@ -21,6 +21,10 @@ if not E then return end
 local DT = E:GetModule("DataTexts", true)
 if not DT then return end
 
+-- Guard: RegisterDataText/RegisterDatatext not available (e.g. TBC Classic ElvUI)
+local registerFn = DT.RegisterDataText or DT.RegisterDatatext
+if not registerFn then return end
+
 local displayString = ""
 
 local function GetUnreadCount()
@@ -79,13 +83,14 @@ local function ValueColorUpdate(self, hex)
     OnEvent(self)
 end
 
-DT:RegisterDataText("iChat", nil, { "CHAT_MSG_WHISPER", "CHAT_MSG_BN_WHISPER" }, OnEvent, nil, OnClick, OnEnter, nil, "iChat Whispers", nil, ValueColorUpdate)
+registerFn(DT, "iChat", nil, { "CHAT_MSG_WHISPER", "CHAT_MSG_BN_WHISPER" }, OnEvent, nil, OnClick, OnEnter, nil, "iChat Whispers", nil, ValueColorUpdate)
 
 ---------------------------------------------------------------------------
 -- Public API — called from minimap.lua when unread count changes
 ---------------------------------------------------------------------------
 function ns.UpdateElvUIDataText()
-    if not DT or not DT.RegisteredDataTexts or not DT.RegisteredDataTexts["iChat"] then return end
+    local reg = DT.RegisteredDataTexts or DT.RegisteredDatatexts
+    if not DT or not reg or not reg["iChat"] then return end
     -- Force update all panels that have this DataText active
     local panels = DT.RegisteredPanels
     if not panels then return end
