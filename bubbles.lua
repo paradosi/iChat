@@ -264,7 +264,7 @@ local function LayoutBubble(bubble, entry, chatWidth, yOffset)
         displayText = ns.ReplaceEmoji(displayText, emojiSize)
     end
     if Emojis and Emojis.ReplaceEmojiToIcon then
-        displayText = Emojis.ReplaceEmojiToIcon(displayText, emojiSize)
+        displayText = Emojis:ReplaceEmojiToIcon(displayText, emojiSize)
     end
 
     -- Measure text

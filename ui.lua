@@ -837,7 +837,7 @@ function ns.RefreshConversationList()
                 preview = ns.ReplaceEmoji(preview, 14)
             end
             if Emojis and Emojis.ReplaceEmojiToIcon then
-                preview = Emojis.ReplaceEmojiToIcon(preview, 14)
+                preview = Emojis:ReplaceEmojiToIcon(preview, 14)
             end
             entry.previewText:SetText(preview)
             entry.timeText:SetText(ns.FormatTimestamp(last.time))
