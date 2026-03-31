@@ -6,7 +6,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ![Promo](https://raw.githubusercontent.com/paradosi/iChat/master/media/art/promo.png)
 
-![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.5](https://img.shields.io/badge/Version-1.4.5-lightgrey)
+![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.8](https://img.shields.io/badge/Version-1.4.8-lightgrey)
 
 ### Screenshots
 
@@ -79,6 +79,12 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Tooltip** — hover for unread count and usage hints
 - **Optional** — no errors if Titan Panel is not installed
 
+### Player Info & Portraits
+- **Level, race, class, and location** displayed in the conversation header subtitle (e.g., "Lv70 Human Warrior Stormwind")
+- **3D portrait** when the player is visible as a unit (target, party, raid)
+- **Class icon fallback** when a player is out of range but class is known — hidden entirely when no info is available (no question marks)
+- Data sourced from friends list, guild roster, and visible units
+
 ### Guild & Party Awareness
 - **Guild rank** shown in conversation header (green)
 - **Party role** with tank/healer/DPS icon (blue)
@@ -125,6 +131,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Whisper flash** — pulses on incoming whispers until you open iChat
 - **Configurable button size** (24–64px) — slider in Settings → Behavior
 - **Freely positionable** — drag anywhere on screen, position saved between sessions
+- **LibDBIcon support** — also registers with minimap button manager addons (MinimapButtonButton, etc.)
 
 ### Settings Panel
 - **Settings panel font size slider** (8–14) — adjust the settings UI text size with smooth live preview
@@ -135,7 +142,8 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 - **Open on incoming whisper** toggle
 - **Suppress default chat whispers** toggle
 - **Display toggles** — date separators, hover timestamps, item links, class colors, online status
-- **Behavior toggles** — keyboard shortcuts, minimap button, hide in combat, auto-fade, typing indicator, online/offline notifications, ElvUI theme, shared account
+- **Window scale slider** (0.5x–2.0x) — scales everything including fonts, icons, and buttons
+- **Behavior toggles** — keyboard shortcuts, minimap button, hide in combat, auto-fade, fade while moving, typing indicator, online/offline notifications, ElvUI theme, shared account
 - **Auto-reply section** — enable/disable with custom message editor
 - **Quick reply editor** — configure up to 5 quick reply messages
 - **Export conversation** — copy conversation history as plain text
@@ -156,8 +164,9 @@ Custom events for WeakAuras triggers:
 
 ### Auto-Fade
 - Window fades to 25% opacity after 1.5 seconds when the mouse leaves
-- Instantly restores on hover or incoming whisper
+- Instantly restores when hovering anywhere on the window (chat area, input box, conversation list — not just the title bar)
 - Fade is disabled while the settings panel or emoji picker is open
+- **Fade while moving** — optional setting to fade when your character moves, restores when stopped
 - **Can be fully disabled** in Settings → Behavior → "Auto-fade when mouse leaves"
 
 ### LibSharedMedia Integration
@@ -196,6 +205,7 @@ Custom events for WeakAuras triggers:
 - Use quick reply buttons for canned responses
 
 ### Keyboard Shortcuts
+- **Custom keybind** — bind "Toggle iChat Window" in WoW's Options → Key Bindings → iChat
 - **Tab** — cycle to next conversation
 - **Shift+Tab** — cycle to previous conversation
 - **Escape** — close the window
@@ -239,6 +249,7 @@ Data persists across sessions. Use `/ichat clear` or the settings panel to manag
 |-------|-------------|
 | [Emoji-Core](https://github.com/KittenBall/Emoji-Core) | Unicode emoji autocomplete in the input box, additional emoji rendering |
 | [LibSharedMedia-3.0](https://www.curseforge.com/wow/addons/libsharedmedia-3-0) | Extra fonts and sounds from other addons appear in settings |
+| [LibDBIcon-1.0](https://www.curseforge.com/wow/addons/libdbicon-1-0) | Minimap button manager integration (MinimapButtonButton, etc.) |
 | [ElvUI](https://www.tukui.org/elvui) | Auto-applies ElvUI's color theme to iChat |
 | [WeakAuras](https://www.curseforge.com/wow/addons/weakauras-2) | Expose iChat events for custom triggers |
 | [Titan Panel](https://www.curseforge.com/wow/addons/titan-panel) | Native iChat plugin in the Titan bar with unread count |
