@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="ICHAT_TOGGLE" header="ICHAT" runOnUp="false">
+    iChatToggle()
+  </Binding>
+</Bindings>

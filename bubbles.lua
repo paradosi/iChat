@@ -112,8 +112,10 @@ local function CreateBubbleFrame(parent)
     timeText:SetTextColor(0.45, 0.45, 0.45)
     bubble.timeText = timeText
 
-    -- Item link support
-    bubble:SetHyperlinksEnabled(true)
+    -- Item link support (SetHyperlinksEnabled is Retail 10.0+ only)
+    if bubble.SetHyperlinksEnabled then
+        bubble:SetHyperlinksEnabled(true)
+    end
     bubble:SetScript("OnHyperlinkEnter", function(self, link)
         GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
         GameTooltip:SetHyperlink(link)

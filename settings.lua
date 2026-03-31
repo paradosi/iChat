@@ -118,7 +118,9 @@ local function CreateSettingsSlider(parent, label, min, max, step, getValue, onC
     slider:SetHeight(14)
     slider:SetMinMaxValues(min, max)
     slider:SetValueStep(step)
-    slider:SetObeyStepOnDrag(true)
+    if slider.SetObeyStepOnDrag then
+        slider:SetObeyStepOnDrag(true)
+    end
     slider:SetOrientation("HORIZONTAL")
     slider:EnableMouse(true)
 
@@ -800,6 +802,14 @@ function ns.CreateSettingsPanel()
     autoFadeCB:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 30
 
+    local fadeMoveCB = CreateSettingsCheckbox(child, "Fade while moving",
+        function() return ns.db.settings.fadeWhileMoving end,
+        function(v) ns.db.settings.fadeWhileMoving = v end
+    )
+    fadeMoveCB:SetPoint("TOPLEFT", 0, -yPos)
+    fadeMoveCB:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 26
+
     local buttonSizeSlider = CreateSettingsSlider(child, "Button Size", 24, 64, 2,
         function() return ns.db.settings.buttonSize or 40 end,
         function(v)
@@ -810,6 +820,20 @@ function ns.CreateSettingsPanel()
     )
     buttonSizeSlider:SetPoint("TOPLEFT", 0, -yPos)
     buttonSizeSlider:SetPoint("RIGHT", child, "RIGHT")
+    yPos = yPos + 44
+
+    local scaleSlider = CreateSettingsSlider(child, "Window Scale", 0.5, 2.0, 0.05,
+        function() return ns.db.settings.scale or 1.0 end,
+        function(v)
+            ns.db.settings.scale = v
+            if ns.mainWindow then
+                ns.mainWindow:SetScale(v)
+            end
+        end,
+        "x"
+    )
+    scaleSlider:SetPoint("TOPLEFT", 0, -yPos)
+    scaleSlider:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 44
 
     -----------------------------------------------------------------------
@@ -1031,8 +1055,12 @@ function ns.CreateSettingsPanel()
         typingCB.Refresh()
         onlineNotifyCB.Refresh()
         elvuiCB.Refresh()
+        portraitCB.Refresh()
+        hideCombatCB.Refresh()
         buttonSizeSlider.Refresh()
+        scaleSlider.Refresh()
         autoFadeCB.Refresh()
+        fadeMoveCB.Refresh()
         autoReplyCB.Refresh()
         arMsgBox:SetText(ns.db.settings.autoReplyMessage or "")
         clearAllConfirm = false

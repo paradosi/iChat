@@ -13,6 +13,16 @@ ns.version = "?"
 ns.playerName = nil
 ns.activeConversation = nil
 
+-- Keybinding support — header and handler for WoW Key Bindings UI
+BINDING_HEADER_ICHAT = "iChat"
+BINDING_NAME_ICHAT_TOGGLE = "Toggle iChat Window"
+
+function iChatToggle()
+    if ns.ToggleWindow then
+        ns.ToggleWindow()
+    end
+end
+
 -- Event frame
 local frame = CreateFrame("Frame", "iChatEventFrame", UIParent)
 frame:RegisterEvent("ADDON_LOADED")
@@ -29,7 +39,8 @@ function ns:ADDON_LOADED(loadedName)
     frame:UnregisterEvent("ADDON_LOADED")
 
     ns.InitDB()
-    ns.version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
+    local GetMeta = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+    ns.version = GetMeta and GetMeta(addonName, "Version") or "?"
     ns.playerName = UnitName("player")
 
     -- Register whisper events
@@ -47,6 +58,8 @@ function ns:ADDON_LOADED(loadedName)
     frame:RegisterEvent("CHAT_MSG_SYSTEM")
     frame:RegisterEvent("PLAYER_REGEN_DISABLED")
     frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    frame:RegisterEvent("PLAYER_STARTED_MOVING")
+    frame:RegisterEvent("PLAYER_STOPPED_MOVING")
 
     -- Build the UI (hidden by default)
     ns.CreateMainWindow()
@@ -71,7 +84,11 @@ function ns:ADDON_LOADED(loadedName)
 
     -- Register guild roster event
     if IsInGuild() then
-        C_GuildInfo.GuildRoster()
+        if C_GuildInfo and C_GuildInfo.GuildRoster then
+            C_GuildInfo.GuildRoster()
+        elseif GuildRoster then
+            GuildRoster()
+        end
     end
 
     -- Apply ElvUI skin if available
@@ -151,6 +168,23 @@ function ns:PLAYER_REGEN_ENABLED()
     if ns.wasShownBeforeCombat and ns.mainWindow then
         ns.mainWindow:Show()
         ns.wasShownBeforeCombat = false
+    end
+end
+
+-- Fade window when player starts moving
+function ns:PLAYER_STARTED_MOVING()
+    if not ns.db.settings.fadeWhileMoving then return end
+    if ns.mainWindow and ns.mainWindow:IsShown() then
+        UIFrameFadeOut(ns.mainWindow, 0.3, ns.mainWindow:GetAlpha(), 0.25)
+        ns.isMoveFaded = true
+    end
+end
+
+function ns:PLAYER_STOPPED_MOVING()
+    if not ns.db.settings.fadeWhileMoving then return end
+    if ns.isMoveFaded and ns.mainWindow then
+        UIFrameFadeIn(ns.mainWindow, 0.15, ns.mainWindow:GetAlpha(), 1.0)
+        ns.isMoveFaded = false
     end
 end
 

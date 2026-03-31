@@ -116,7 +116,7 @@ function ns.UpdatePortrait()
         ns.headerName:SetPoint("LEFT", ns.headerPortrait, "RIGHT", 6, 2)
 
     else
-        -- 2D fallback — check friends cache, then local portrait cache
+        -- 2D fallback — show class icon if known, hide entirely if unknown
         ns.headerPortrait:ClearModel()
         ns.headerPortrait:Hide()
         ApplyNameClassColor(name)
@@ -124,10 +124,17 @@ function ns.UpdatePortrait()
             local key        = name:lower()
             local classToken = (ns.classCache and ns.classCache[key])
                             or portraitClassCache[key]
-            ns.headerPortrait2D:SetTexture(GetClassIconPath(classToken))
-            ns.headerPortrait2D:Show()
-            ns.headerName:ClearAllPoints()
-            ns.headerName:SetPoint("LEFT", ns.headerPortrait2D, "RIGHT", 6, 2)
+            if classToken then
+                ns.headerPortrait2D:SetTexture(GetClassIconPath(classToken))
+                ns.headerPortrait2D:Show()
+                ns.headerName:ClearAllPoints()
+                ns.headerName:SetPoint("LEFT", ns.headerPortrait2D, "RIGHT", 6, 2)
+            else
+                -- No class info — hide portrait entirely (no question mark)
+                ns.headerPortrait2D:Hide()
+                ns.headerName:ClearAllPoints()
+                ns.headerName:SetPoint("LEFT", 10, 2)
+            end
         else
             ns.headerName:ClearAllPoints()
             ns.headerName:SetPoint("LEFT", 10, 2)

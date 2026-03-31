@@ -47,13 +47,14 @@ function ns.GetPlayerInfo(name)
 	local unit = ns.FindUnitByName(bare)
 	if unit then
 		local class, classFile = UnitClass(unit)
-		local _, raceFile = UnitRace(unit)
+		local raceName, raceFile = UnitRace(unit)
 		if classFile then
 			local playerInfo = {
 				class = class,
 				classFile = classFile,
-				race = select(2, UnitRace(unit)),
+				race = raceName,
 				raceFile = raceFile,
+				level = UnitLevel(unit),
 			}
 			ns.CachePlayerInfo(bare, playerInfo)
 			return playerInfo
@@ -81,7 +82,7 @@ end
 function ns.ScanFriendList()
 	local numFriends = 0
 	local GetInfo
-	
+
 	if C_FriendList and C_FriendList.GetNumFriends then
 		numFriends = C_FriendList.GetNumFriends()
 		GetInfo = C_FriendList.GetFriendInfoByIndex
@@ -90,7 +91,7 @@ function ns.ScanFriendList()
 		GetInfo = function(i)
 			local name, level, className, area, connected = GetFriendInfo(i)
 			if name then
-				return { name = name, className = className, connected = connected }
+				return { name = name, level = level, className = className, area = area, connected = connected }
 			end
 		end
 	end
@@ -101,7 +102,7 @@ function ns.ScanFriendList()
 			-- Friend info provides localized class name; need to map to token
 			local className = info.className
 			local classFile = nil
-			
+
 			if className and LOCALIZED_CLASS_NAMES_MALE then
 				-- Try to find class token from localized name
 				for token, localizedName in pairs(LOCALIZED_CLASS_NAMES_MALE) do
@@ -120,13 +121,15 @@ function ns.ScanFriendList()
 					end
 				end
 			end
-			
+
 			if classFile then
 				local playerInfo = {
 					class = className,
 					classFile = classFile,
 					race = nil, -- Friend list API doesn't provide race
 					raceFile = nil,
+					level = info.level,
+					area = info.area,
 				}
 				ns.CachePlayerInfo(info.name, playerInfo)
 			end

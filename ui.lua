@@ -1,6 +1,24 @@
 local _, ns = ...
 
 ---------------------------------------------------------------------------
+-- UIFrameFade compat — Blizzard removed these in recent Retail builds.
+-- Provide lightweight polyfills so fade code works on all clients.
+---------------------------------------------------------------------------
+if not UIFrameFadeIn then
+    function UIFrameFadeIn(frame, timeToFade, startAlpha, endAlpha)
+        frame:SetAlpha(endAlpha or 1.0)
+    end
+end
+if not UIFrameFadeOut then
+    function UIFrameFadeOut(frame, timeToFade, startAlpha, endAlpha)
+        frame:SetAlpha(endAlpha or 0)
+    end
+end
+if not UIFrameFadeRemoveFrame then
+    function UIFrameFadeRemoveFrame(frame) end
+end
+
+---------------------------------------------------------------------------
 -- UI — Main window, panels, conversation list, compose, context menus,
 --       keyboard shortcuts, auto-fade, and copy/note editor popups
 --
@@ -489,9 +507,17 @@ function ns.CreateRightPanel(parent)
     blockBtn:SetScript("OnClick", function()
         if not ns.activeConversation then return end
         if ns.IsIgnored(ns.activeConversation) then
-            C_FriendList.DelIgnore(ns.activeConversation)
+            if C_FriendList and C_FriendList.DelIgnore then
+                C_FriendList.DelIgnore(ns.activeConversation)
+            elseif DelIgnore then
+                DelIgnore(ns.activeConversation)
+            end
         else
-            C_FriendList.AddIgnore(ns.activeConversation)
+            if C_FriendList and C_FriendList.AddIgnore then
+                C_FriendList.AddIgnore(ns.activeConversation)
+            elseif AddIgnore then
+                AddIgnore(ns.activeConversation)
+            end
         end
         C_Timer.After(0.1, function() ns.UpdateHeaderButtons() end)
     end)
@@ -530,7 +556,11 @@ function ns.CreateRightPanel(parent)
     friendBtn:SetScript("OnLeave", function() friendText:SetTextColor(unpack(C.BLUE)) end)
     friendBtn:SetScript("OnClick", function()
         if not ns.activeConversation then return end
-        C_FriendList.AddFriend(ns.activeConversation)
+        if C_FriendList and C_FriendList.AddFriend then
+            C_FriendList.AddFriend(ns.activeConversation)
+        elseif AddFriend then
+            AddFriend(ns.activeConversation)
+        end
         C_Timer.After(0.2, function()
             ns:FRIENDLIST_UPDATE()
             ns.UpdateHeaderButtons()
@@ -906,7 +936,11 @@ function ns.UpdateHeaderButtons()
         ns.friendBtn:SetScript("OnLeave", function() ns.friendText:SetTextColor(unpack(C.BLUE)) end)
         ns.friendBtn:SetScript("OnClick", function()
             if not ns.activeConversation then return end
-            C_FriendList.AddFriend(ns.activeConversation)
+            if C_FriendList and C_FriendList.AddFriend then
+                C_FriendList.AddFriend(ns.activeConversation)
+            elseif AddFriend then
+                AddFriend(ns.activeConversation)
+            end
             C_Timer.After(0.2, function()
                 ns:FRIENDLIST_UPDATE()
                 ns.UpdateHeaderButtons()
@@ -960,17 +994,41 @@ function ns.SelectConversation(playerName)
         ns.headerName:SetTextColor(1, 1, 1)
     end
 
-    -- Show contact note + relationship tags + game info in header
+    -- Show player info + contact note + relationship tags + game info in header
     if ns.headerNote then
         local note = ns.db.contactNotes and ns.db.contactNotes[playerName] or ""
         local tags = ns.FormatRelationshipTags and ns.FormatRelationshipTags(playerName) or ""
-        
+
         local parts = {}
+
+        -- Build player info string (level, race, class, location)
+        if not useBNetColors and ns.GetPlayerInfo then
+            local info = ns.GetPlayerInfo(playerName)
+            if info then
+                local infoParts = {}
+                if info.level and info.level > 0 then
+                    table.insert(infoParts, "Lv" .. info.level)
+                end
+                if info.race then
+                    table.insert(infoParts, info.race)
+                end
+                if info.class then
+                    table.insert(infoParts, info.class)
+                end
+                if info.area and info.area ~= "" then
+                    table.insert(infoParts, info.area)
+                end
+                if #infoParts > 0 then
+                    table.insert(parts, table.concat(infoParts, " "))
+                end
+            end
+        end
+
         if note ~= "" then table.insert(parts, note) end
         if gameInfo ~= "" then table.insert(parts, gameInfo) end
         if tags ~= "" then table.insert(parts, tags) end
-        
-        ns.headerNote:SetText(table.concat(parts, "  "))
+
+        ns.headerNote:SetText(table.concat(parts, "  |cff333333\194\183|r  "))
     end
 
     -- Hide empty state
@@ -1077,34 +1135,46 @@ local function ScheduleFadeOut()
     end)
 end
 
--- Hook mouse enter/leave on the main window (called once during init)
+-- Hook mouse-over polling + show/hide on the main window (called once during init)
 function ns.SetupFadeHooks()
     if ns.fadeHooked then return end
 
-    ns.mainWindow:HookScript("OnEnter", function()
-        -- Cancel pending fade and restore full opacity
-        if ns.fadeTimer then
-            ns.fadeTimer:Cancel()
-            ns.fadeTimer = nil
-        end
-        if ns.isFaded then
-            UIFrameFadeIn(ns.mainWindow, FADE_IN_SPEED, ns.mainWindow:GetAlpha(), 1.0)
-            ns.isFaded = false
-        end
-    end)
+    ns.mouseWasOver = false
+    local pollElapsed = 0
+    local POLL_INTERVAL = 0.1 -- check ~10x per second
 
-    ns.mainWindow:HookScript("OnLeave", function()
-        -- Start fade timer when mouse leaves
-        -- Note: Don't clear focus here; it interrupts typing and the fade timer will clear it later
-        if ns.mainWindow:IsShown() then
-            ScheduleFadeOut()
+    ns.mainWindow:HookScript("OnUpdate", function(self, elapsed)
+        pollElapsed = pollElapsed + elapsed
+        if pollElapsed < POLL_INTERVAL then return end
+        pollElapsed = 0
+
+        local isOver = self:IsMouseOver()
+
+        if isOver and not ns.mouseWasOver then
+            -- Mouse just entered the window area
+            if ns.fadeTimer then
+                ns.fadeTimer:Cancel()
+                ns.fadeTimer = nil
+            end
+            if ns.isFaded then
+                UIFrameFadeIn(ns.mainWindow, FADE_IN_SPEED, ns.mainWindow:GetAlpha(), 1.0)
+                ns.isFaded = false
+            end
+        elseif not isOver and ns.mouseWasOver then
+            -- Mouse just left the window area
+            if ns.mainWindow:IsShown() then
+                ScheduleFadeOut()
+            end
         end
+
+        ns.mouseWasOver = isOver
     end)
 
     ns.mainWindow:HookScript("OnShow", function()
         -- Start visible, don't auto-fade on show
         ns.mainWindow:SetAlpha(1.0)
         ns.isFaded = false
+        ns.mouseWasOver = false
         -- Don't schedule fade on show - only fade when mouse leaves
     end)
 
@@ -1115,8 +1185,9 @@ function ns.SetupFadeHooks()
             ns.fadeTimer = nil
         end
         ns.isFaded = false
+        ns.mouseWasOver = false
         ns.mainWindow:SetAlpha(1.0)
-        
+
         -- Clear input focus when window is hidden
         if ns.inputBox then
             ns.inputBox:ClearFocus()

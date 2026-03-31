@@ -2,9 +2,51 @@ local _, ns = ...
 
 ---------------------------------------------------------------------------
 -- Floating Button — freely draggable anywhere on screen
+-- Also registers with LibDBIcon (if available) so minimap button manager
+-- addons like MinimapButtonButton can collect the icon.
 ---------------------------------------------------------------------------
 
 local ICON_PATH = "Interface\\AddOns\\iChat\\media\\textures\\"
+
+---------------------------------------------------------------------------
+-- LibDBIcon / LibDataBroker integration (optional)
+---------------------------------------------------------------------------
+local function RegisterLibDBIcon()
+    local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
+    local LDBIcon = LibStub and LibStub("LibDBIcon-1.0", true)
+    if not LDB or not LDBIcon then return end
+
+    local faction = UnitFactionGroup("player")
+    local iconFile = ICON_PATH .. (faction == "Horde" and "icon_horde" or "icon_alliance")
+
+    local dataObj = LDB:NewDataObject("iChat", {
+        type = "launcher",
+        icon = iconFile,
+        label = "iChat",
+        OnClick = function(self, button)
+            if button == "RightButton" then
+                ns.ToggleSettings()
+            else
+                if ns.StopFlashButton then ns.StopFlashButton() end
+                ns.ToggleWindow()
+            end
+        end,
+        OnTooltipShow = function(tooltip)
+            tooltip:AddLine("|cff007AFFiChat|r")
+            tooltip:AddLine("Left-click: Toggle window", 0.7, 0.7, 0.7)
+            tooltip:AddLine("Right-click: Settings", 0.7, 0.7, 0.7)
+        end,
+    })
+
+    -- Use saved minimap position from DB, or defaults
+    if not ns.db.minimapIcon then
+        ns.db.minimapIcon = { hide = false }
+    end
+
+    LDBIcon:Register("iChat", dataObj, ns.db.minimapIcon)
+    ns.ldbIcon = LDBIcon
+    ns.ldbDataObj = dataObj
+end
 
 function ns.CreateMinimapButton()
     if ns.minimapButton then return end
@@ -98,6 +140,9 @@ function ns.CreateMinimapButton()
     if not ns.db.settings.showMinimapButton then
         btn:Hide()
     end
+
+    -- Register with LibDBIcon for minimap button manager addons
+    RegisterLibDBIcon()
 end
 
 -- Update the unread badge on the floating button
@@ -114,6 +159,11 @@ function ns.UpdateButtonBadge()
         ns.minimapButton.unreadBadge:Show()
     else
         ns.minimapButton.unreadBadge:Hide()
+    end
+
+    -- Update LibDataBroker text (shown by LDB display addons)
+    if ns.ldbDataObj then
+        ns.ldbDataObj.text = total > 0 and tostring(total) or ""
     end
 
     -- Update Titan Panel
@@ -169,6 +219,14 @@ function ns.SetMinimapButtonVisible(show)
         ns.minimapButton:Show()
     else
         ns.minimapButton:Hide()
+    end
+    -- Sync LibDBIcon visibility
+    if ns.ldbIcon then
+        if show then
+            ns.ldbIcon:Show("iChat")
+        else
+            ns.ldbIcon:Hide("iChat")
+        end
     end
 end
 

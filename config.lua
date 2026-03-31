@@ -47,6 +47,7 @@ local defaults = {
         elvuiSkin = true,
         showPortrait = true,
         enableAutoFade = true,
+        fadeWhileMoving = false,
     },
 }
 
@@ -152,7 +153,8 @@ function ns.InitDB()
     end
 
     -- Check if WIM is loaded — avoid double-suppression
-    if C_AddOns.IsAddOnLoaded("WIM") then
+    local IsLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+    if IsLoaded and IsLoaded("WIM") then
         ns.db.settings.suppressDefault = false
     end
 end
