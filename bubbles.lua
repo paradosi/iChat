@@ -28,6 +28,17 @@ local SEPARATOR_HEIGHT = 24
 local bubblePool = {}
 local separatorPool = {}
 ns.activeBubbles = {}
+
+-- Re-apply the item-link setting to bubbles that already exist. Only meaningful
+-- where SetHyperlinksEnabled exists; the OnHyperlinkEnter guard covers the rest.
+function ns.RefreshItemLinks()
+    local enabled = ns.db.settings.enableItemLinks ~= false
+    for _, bubble in ipairs(ns.activeBubbles) do
+        if bubble.SetHyperlinksEnabled then
+            bubble:SetHyperlinksEnabled(enabled)
+        end
+    end
+end
 ns.activeSeparators = {}
 
 local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
@@ -112,11 +123,15 @@ local function CreateBubbleFrame(parent)
     timeText:SetTextColor(0.45, 0.45, 0.45)
     bubble.timeText = timeText
 
-    -- Item link support (SetHyperlinksEnabled is Retail 10.0+ only)
+    -- Item link support, gated on the "Enable item links" setting.
+    -- (SetHyperlinksEnabled is Retail 10.0+ only, so on Classic the tooltip
+    -- handler below is what actually governs the behaviour. It reads the
+    -- setting at call time, so toggling takes effect without a rebuild.)
     if bubble.SetHyperlinksEnabled then
-        bubble:SetHyperlinksEnabled(true)
+        bubble:SetHyperlinksEnabled(ns.db.settings.enableItemLinks ~= false)
     end
     bubble:SetScript("OnHyperlinkEnter", function(self, link)
+        if ns.db.settings.enableItemLinks == false then return end
         GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
         GameTooltip:SetHyperlink(link)
         GameTooltip:Show()

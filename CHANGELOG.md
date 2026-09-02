@@ -1,5 +1,11 @@
 # iChat Changelog
 
+## [1.4.10](https://github.com/paradosi/iChat/tree/1.4.10) (2026-09-02)
+
+### Fixed
+- **"Clear All History" threw on first click** — the button's callback referenced `clearAllBtn`, but it was declared and assigned in a single `local` statement, and a Lua local is not in scope until *after* the statement that declares it. The closure therefore captured the nil global, so the first click errored instead of asking for confirmation. Forward-declared.
+- **"Enable item links" did nothing** — the checkbox stored its value but nothing read it: hyperlink handling was registered unconditionally on every bubble, so item links were permanently on. The setting is now honoured, takes effect immediately without needing a reload, and existing bubbles are refreshed when it is toggled.
+
 ## [1.4.5](https://github.com/paradosi/iChat/tree/1.4.5) (2026-03-22)
 
 ### Added

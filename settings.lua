@@ -665,7 +665,10 @@ function ns.CreateSettingsPanel()
 
     local itemLinksCB = CreateSettingsCheckbox(child, "Enable item links",
         function() return ns.db.settings.enableItemLinks end,
-        function(v) ns.db.settings.enableItemLinks = v end
+        function(v)
+            ns.db.settings.enableItemLinks = v
+            if ns.RefreshItemLinks then ns.RefreshItemLinks() end
+        end
     )
     itemLinksCB:SetPoint("TOPLEFT", 0, -yPos)
     itemLinksCB:SetPoint("RIGHT", child, "RIGHT")
@@ -1003,7 +1006,11 @@ function ns.CreateSettingsPanel()
 
     -- Clear All with two-click confirmation
     local clearAllConfirm = false
-    local clearAllBtn = CreateActionButton(child, "Clear All History", {0.8, 0.25, 0.2, 1}, function()
+    -- Forward-declared: the callback below references clearAllBtn, and a Lua
+    -- local is not in scope until after the statement that declares it. Assigning
+    -- in the same statement would capture the (nil) global instead.
+    local clearAllBtn
+    clearAllBtn = CreateActionButton(child, "Clear All History", {0.8, 0.25, 0.2, 1}, function()
         if not clearAllConfirm then
             clearAllConfirm = true
             clearAllBtn.label:SetText("Are you sure? Click again")
