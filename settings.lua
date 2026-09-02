@@ -1,3 +1,23 @@
+
+---------------------------------------------------------------------------
+-- Two traps this file has already fallen into. Both fail silently.
+--
+-- 1. A control whose callback references the control itself must be
+--    FORWARD-DECLARED:
+--        local btn
+--        btn = CreateActionButton(..., function() btn:Foo() end)
+--    Writing `local btn = CreateActionButton(..., function() btn... end)`
+--    captures the *global* btn (nil), because a Lua local is not in scope
+--    until after the statement declaring it. "Clear All History" threw on
+--    every click this way until 1.4.10.
+--
+-- 2. Adding a control here is not enough to make a setting work. Something
+--    outside this file has to READ ns.db.settings.<key>; otherwise the
+--    checkbox stores a value that changes nothing, with no error. That was
+--    "Enable item links" until 1.4.10. Settings consumed only through a
+--    helper defined in this file (PlayNotifySound, CreateQuickReplyBar,
+--    IsSharedAccount) are fine -- grep for the helper, not just the key.
+---------------------------------------------------------------------------
 local _, ns = ...
 
 ---------------------------------------------------------------------------
