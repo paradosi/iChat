@@ -168,6 +168,8 @@ function ns.FindUnitByName(name)
 
 	local function matches(unit)
 		local n = UnitName(unit)
+		-- Retail: names of units outside the group can be secret on restricted maps
+		if not ns.CanRead(n) then return false end
 		return n == bare or n == name
 	end
 

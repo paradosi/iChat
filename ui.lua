@@ -1,8 +1,8 @@
 local _, ns = ...
 
 ---------------------------------------------------------------------------
--- UIFrameFade compat — Blizzard removed these in recent Retail builds.
--- Provide lightweight polyfills so fade code works on all clients.
+-- UIFrameFade fallback. Every current client still ships UIFrameFadeIn/Out
+-- (Blizzard's UIParent code); these only cover a client that someday drops them.
 ---------------------------------------------------------------------------
 if not UIFrameFadeIn then
     function UIFrameFadeIn(frame, timeToFade, startAlpha, endAlpha)
@@ -536,8 +536,24 @@ function ns.CreateRightPanel(parent)
     inviteBtn:SetScript("OnEnter", function() inviteText:SetTextColor(0.5, 1, 0.6) end)
     inviteBtn:SetScript("OnLeave", function() inviteText:SetTextColor(0.2, 0.78, 0.35) end)
     inviteBtn:SetScript("OnClick", function()
-        if not ns.activeConversation then return end
-        InviteUnit(ns.activeConversation)
+        local target = ns.activeConversation
+        if not target then return end
+        -- Battle.net conversations: invite the friend's WoW game account,
+        -- as the Friends list does (works across realms)
+        if ns.IsBNetConversation and ns.IsBNetConversation(target) then
+            local id = ns.GetBNetIDFromName and ns.GetBNetIDFromName(target)
+            local info = id and ns.GetBNetFriendInfo(id)
+            local game = info and info.gameAccountInfo
+            if game and game.isOnline and game.gameAccountID and game.clientProgram == BNET_CLIENT_WOW
+                and C_BattleNet and C_BattleNet.InviteFriend then
+                C_BattleNet.InviteFriend(game.gameAccountID)
+            else
+                DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r That friend is not playing WoW right now.")
+            end
+            return
+        end
+        local invite = (C_PartyInfo and C_PartyInfo.InviteUnit) or InviteUnit
+        if invite then invite(target) end
     end)
     inviteBtn:Hide()
     ns.inviteBtn = inviteBtn

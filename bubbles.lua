@@ -140,7 +140,8 @@ local function CreateBubbleFrame(parent)
         GameTooltip:Hide()
     end)
     bubble:SetScript("OnHyperlinkClick", function(self, link, text, button)
-        ChatFrame_OnHyperlinkShow(ChatFrame1, link, text, button)
+        -- What a chat frame does with a clicked link (item tooltip, player menu, ...)
+        SetItemRef(link, text, button, DEFAULT_CHAT_FRAME)
     end)
 
     bubble.SetBubbleColor = SetBubbleColor

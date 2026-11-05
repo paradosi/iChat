@@ -1,5 +1,17 @@
 # iChat Changelog
 
+## [1.4.12](https://github.com/paradosi/iChat/tree/1.4.12) (2026-11-05)
+
+### Fixed
+- Retail: whispers no longer cause Lua errors in dungeons, raids, encounters, Mythic+ and PvP. Blizzard hides whisper contents from addons there, so those whispers stay in the normal chat window, and iChat says so once per session
+- Retail: Battle.net whispers are no longer attempted while chat is locked down
+- "Player not found" detection now works in every client language, not only English
+- The unread separator stays on the right message when old history is trimmed
+- Friend online/offline toasts: clicking one to dismiss it no longer causes an error, and a queued toast is no longer cut short by the previous one's timer
+- The Invite button works again, including for Battle.net friends who are playing WoW
+- Clicking a link inside a message bubble works again
+- The WeakAuras events `ICHAT_FRIEND_ONLINE` and `ICHAT_FRIEND_OFFLINE` now fire, as documented
+
 ## [1.4.11](https://github.com/paradosi/iChat/tree/1.4.11) (2026-11-05)
 
 ### Changed

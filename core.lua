@@ -13,6 +13,26 @@ ns.version = "?"
 ns.playerName = nil
 ns.activeConversation = nil
 
+-- Retail 12.x "secret values": inside dungeons and raids, and during encounters,
+-- Mythic+ and PvP matches, chat event text and sender names (and some unit
+-- info) reach addons as secrets. Any string method, comparison or table key on
+-- one raises a Lua error, so every handler checks first. canaccessvalue exists
+-- on every client; on Classic it simply always returns true.
+local canaccessvalue = canaccessvalue
+function ns.CanRead(...)
+    return not canaccessvalue or canaccessvalue(...)
+end
+
+-- A whisper iChat could not read stays in the default chat frame: Blizzard
+-- skips addon chat filters for secret messages, so suppressDefault cannot hide
+-- it. Say so once per session, so a missing message is not a mystery.
+local notedSecret = false
+function ns.NoteUnreadableWhisper()
+    if notedSecret then return end
+    notedSecret = true
+    DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Blizzard hides whisper contents from addons in instances and during encounters. Those whispers appear in the normal chat window instead.")
+end
+
 -- Keybinding support — header and handler for WoW Key Bindings UI
 BINDING_HEADER_ICHAT = "iChat"
 BINDING_NAME_ICHAT_TOGGLE = "Toggle iChat Window"

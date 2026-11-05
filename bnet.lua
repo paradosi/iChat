@@ -125,7 +125,7 @@ end
 -- Send a BNet whisper
 function ns.SendBNetWhisper(bnetIDAccount, message)
 	if not bnetIDAccount or not message or message == "" then return end
-	BNSendWhisper(bnetIDAccount, message)
+	ns.SendBNetWhisperRaw(bnetIDAccount, message)
 end
 
 -- Get game info string for header display

@@ -16,6 +16,9 @@ local initialized = false
 local toastQueue = {}
 local toastShowing = false
 
+local ShowToast -- defined below; the click handler needs it first
+local toastGen = 0 -- bumped per toast, so an old toast's fade timer leaves the next one alone
+
 local function CreateToastFrame()
     if ns.toastFrame then return end
 
@@ -71,8 +74,10 @@ local function CreateToastFrame()
     ns.toastFrame = toast
 end
 
-local function ShowToast(playerName, isOnline)
+function ShowToast(playerName, isOnline)
     CreateToastFrame()
+    toastGen = toastGen + 1
+    local gen = toastGen
 
     local toast = ns.toastFrame
     toast._playerName = playerName
@@ -103,10 +108,14 @@ local function ShowToast(playerName, isOnline)
 
     -- Auto-hide after duration
     C_Timer.After(TOAST_DURATION, function()
-        if toast:IsShown() then
+        if gen == toastGen and toast:IsShown() then
             -- Simple fade
             local elapsed = 0
             local ticker = C_Timer.NewTicker(0.03, function(self)
+                if gen ~= toastGen then
+                    self:Cancel()
+                    return
+                end
                 elapsed = elapsed + 0.03
                 local alpha = 1 - (elapsed / TOAST_FADE_TIME)
                 if alpha <= 0 then
@@ -141,7 +150,7 @@ end
 -- Friend Status Change Detection
 ---------------------------------------------------------------------------
 function ns.CheckFriendStatusChanges()
-    if not ns.db.settings.showOnlineNotifications then return end
+    local toasts = ns.db.settings.showOnlineNotifications
 
     local currentOnline = {}
     local numFriends = 0
@@ -164,12 +173,17 @@ function ns.CheckFriendStatusChanges()
             local lower = info.name:lower()
             currentOnline[lower] = info.connected or false
 
-            -- Only notify for people we have conversations with
-            if initialized and ns.db.conversations[info.name] then
-                local wasOnline = previousOnline[lower]
-                local isOnline = info.connected or false
-
-                if wasOnline ~= nil and wasOnline ~= isOnline then
+            local wasOnline = previousOnline[lower]
+            local isOnline = info.connected or false
+            if initialized and wasOnline ~= nil and wasOnline ~= isOnline then
+                -- WeakAuras hears about every friend
+                if isOnline then
+                    if ns.FireFriendOnline then ns.FireFriendOnline(info.name) end
+                elseif ns.FireFriendOffline then
+                    ns.FireFriendOffline(info.name)
+                end
+                -- Toasts only for people we have conversations with
+                if toasts and ns.db.conversations[info.name] then
                     ns.QueueToast(info.name, isOnline)
                 end
             end
