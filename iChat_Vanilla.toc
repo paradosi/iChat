@@ -1,4 +1,4 @@
-## Interface: 11508
+## Interface: 11509
 ## Title: |cff007AFFiChat|r
 ## Notes: iMessage-style whisper client.
 ## Author: paradosi-Dreamscythe
