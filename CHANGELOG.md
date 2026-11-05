@@ -1,5 +1,11 @@
 # iChat Changelog
 
+## [1.4.11](https://github.com/paradosi/iChat/tree/1.4.11) (2026-11-05)
+
+### Changed
+- Updated for the current clients (Retail 12.1.5, TBC Anniversary 2.5.6 and Classic Era 1.15.9), so the addon no longer shows as out of date
+- Release notes on CurseForge and Wago are now this changelog instead of the commit log
+
 ## [1.4.10](https://github.com/paradosi/iChat/tree/1.4.10) (2026-09-02)
 
 ### Fixed
