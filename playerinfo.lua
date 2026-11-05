@@ -9,7 +9,8 @@ local _, ns = ...
 --
 -- Public API:
 --   ns.GetPlayerInfo(name)     → returns { class, race, classFile, raceFile } or nil
---   ns.ScanFriendList()        → scan friends and cache their info
+--   ns.GetFriends()            → the friend list as plain tables, read once
+--   ns.ScanFriendList([friends]) → cache class info for online friends
 --   ns.ScanGuildRoster()       → scan guild and cache their info
 --   ns.CachePlayerInfo(name, info) → cache an info table for a player
 ---------------------------------------------------------------------------
@@ -78,60 +79,61 @@ function ns.CachePlayerInfo(name, info)
 	ns.db.playerInfoCache[bare] = info
 end
 
--- Scan friend list and cache all info (Single pass)
-function ns.ScanFriendList()
-	local numFriends = 0
-	local GetInfo
-
-	if C_FriendList and C_FriendList.GetNumFriends then
-		numFriends = C_FriendList.GetNumFriends()
-		GetInfo = C_FriendList.GetFriendInfoByIndex
-	else
-		numFriends = GetNumFriends()
-		GetInfo = function(i)
-			local name, level, className, area, connected = GetFriendInfo(i)
-			if name then
-				return { name = name, level = level, className = className, area = area, connected = connected }
+-- Localized class name -> class token ("Krieger"/"Kriegerin" -> "WARRIOR").
+-- The friend list gives localized names; RAID_CLASS_COLORS wants tokens.
+local classTokenByName
+function ns.ClassTokenFromName(className)
+	if not className then return nil end
+	if not classTokenByName then
+		classTokenByName = {}
+		for i = 1, (GetNumClasses and GetNumClasses() or 0) do
+			local name, token = GetClassInfo(i)
+			if name and token then classTokenByName[name] = token end
+		end
+		for _, names in ipairs({ LOCALIZED_CLASS_NAMES_MALE or {}, LOCALIZED_CLASS_NAMES_FEMALE or {} }) do
+			for token, name in pairs(names) do
+				classTokenByName[name] = classTokenByName[name] or token
 			end
 		end
 	end
+	return classTokenByName[className]
+end
 
-	for i = 1, numFriends do
-		local info = GetInfo(i)
-		if info and info.name and info.connected then
-			-- Friend info provides localized class name; need to map to token
-			local className = info.className
-			local classFile = nil
-
-			if className and LOCALIZED_CLASS_NAMES_MALE then
-				-- Try to find class token from localized name
-				for token, localizedName in pairs(LOCALIZED_CLASS_NAMES_MALE) do
-					if localizedName == className then
-						classFile = token
-						break
-					end
-				end
-				-- Fallback for female names if needed (usually MALE table covers generic)
-				if not classFile and LOCALIZED_CLASS_NAMES_FEMALE then
-					for token, localizedName in pairs(LOCALIZED_CLASS_NAMES_FEMALE) do
-						if localizedName == className then
-							classFile = token
-							break
-						end
-					end
-				end
+-- The friend list, read once into plain tables:
+-- { name, level, className, area, connected }
+function ns.GetFriends()
+	local friends = {}
+	if C_FriendList and C_FriendList.GetNumFriends then
+		for i = 1, C_FriendList.GetNumFriends() do
+			local info = C_FriendList.GetFriendInfoByIndex(i)
+			if info and info.name then friends[#friends + 1] = info end
+		end
+	elseif GetNumFriends then
+		for i = 1, GetNumFriends() do
+			local name, level, className, area, connected = GetFriendInfo(i)
+			if name then
+				friends[#friends + 1] = { name = name, level = level, className = className, area = area, connected = connected }
 			end
+		end
+	end
+	return friends
+end
 
+-- Cache class/level/zone for online friends. Pass the list from
+-- ns.GetFriends() when you already have it.
+function ns.ScanFriendList(friends)
+	for _, info in ipairs(friends or ns.GetFriends()) do
+		if info.connected then
+			local classFile = ns.ClassTokenFromName(info.className)
 			if classFile then
-				local playerInfo = {
-					class = className,
+				ns.CachePlayerInfo(info.name, {
+					class = info.className,
 					classFile = classFile,
 					race = nil, -- Friend list API doesn't provide race
 					raceFile = nil,
 					level = info.level,
 					area = info.area,
-				}
-				ns.CachePlayerInfo(info.name, playerInfo)
+				})
 			end
 		end
 	end

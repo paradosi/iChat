@@ -8,7 +8,6 @@ local _, ns = ...
 ---------------------------------------------------------------------------
 
 local TYPING_TIMEOUT = 2.0       -- seconds before "typing" clears after you stop
-local INCOMING_ANIM_DURATION = 1.5  -- how long the "..." shows before the real message
 
 -- Dot animation frames
 local DOT_FRAMES = { ".", "..", "..." }

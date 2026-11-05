@@ -16,8 +16,6 @@ local _, ns = ...
 --   end
 ---------------------------------------------------------------------------
 
-local eventFrame = CreateFrame("Frame", "iChatEvents", UIParent)
-
 -- Fire a custom event that WeakAuras can pick up
 function ns.FireEvent(eventName, ...)
     if WeakAuras then

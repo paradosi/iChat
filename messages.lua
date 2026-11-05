@@ -34,61 +34,31 @@ ns.classCache = {}
 ns.onlineCache = {}
 ns.autoRepliedTo = {}
 
--- Build reverse lookup: localized class name -> token (e.g. "Warrior" -> "WARRIOR")
--- Needed because C_FriendList returns localized class names but
--- RAID_CLASS_COLORS is keyed by uppercase tokens
-local classNameToToken = {}
-for i = 1, GetNumClasses() do
-    local name, token = GetClassInfo(i)
-    if name and token then
-        classNameToToken[name] = token
-    end
-end
-
 function ns:FRIENDLIST_UPDATE()
+    -- One read of the friend list, shared by every consumer below
+    local friends = ns.GetFriends()
+
     -- Check for online/offline changes before wiping cache
     if ns.CheckFriendStatusChanges then
-        ns.CheckFriendStatusChanges()
+        ns.CheckFriendStatusChanges(friends)
     end
 
     wipe(ns.friendCache)
     wipe(ns.classCache)
     wipe(ns.onlineCache)
-    
-    local numFriends = 0
-    local GetInfo
-    if C_FriendList and C_FriendList.GetNumFriends then
-        numFriends = C_FriendList.GetNumFriends()
-        GetInfo = C_FriendList.GetFriendInfoByIndex
-    else
-        numFriends = GetNumFriends()
-        GetInfo = function(i)
-            local name, level, className, area, connected = GetFriendInfo(i)
-            if name then
-                return { name = name, className = className, connected = connected }
-            end
+
+    for _, info in ipairs(friends) do
+        local lower = info.name:lower()
+        ns.friendCache[lower] = true
+        if info.className then
+            ns.classCache[lower] = ns.ClassTokenFromName(info.className) or info.className:upper()
         end
+        ns.onlineCache[lower] = info.connected or false
     end
 
-    for i = 1, numFriends do
-        local info = GetInfo(i)
-        if info and info.name then
-            local lower = info.name:lower()
-            ns.friendCache[lower] = true
-            if info.className then
-                -- Convert localized class name to token for RAID_CLASS_COLORS
-                local token = classNameToToken[info.className] or info.className:upper()
-                ns.classCache[lower] = token
-            end
-            ns.onlineCache[lower] = info.connected or false
-        end
-    end
-    
     -- Scan for detailed player info (class/race cache)
-    if ns.ScanFriendList then
-        ns.ScanFriendList()
-    end
-    
+    ns.ScanFriendList(friends)
+
     if ns.UpdateHeaderButtons then
         ns.UpdateHeaderButtons()
     end

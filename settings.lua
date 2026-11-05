@@ -36,7 +36,6 @@ local _, ns = ...
 -- merged with built-in options when available.
 ---------------------------------------------------------------------------
 
-local C = ns.C
 
 -- LibSharedMedia integration (optional)
 local LSM = LibStub and LibStub("LibSharedMedia-3.0", true)
@@ -520,13 +519,6 @@ function ns.CreateSettingsPanel()
     end)
 
     local yPos = 0
-
-    -- Track all settings UI font strings for dynamic resizing
-    local settingsFontStrings = {}
-    local function TrackFS(fs)
-        table.insert(settingsFontStrings, fs)
-        return fs
-    end
 
     -----------------------------------------------------------------------
     -- Settings Panel Font Size

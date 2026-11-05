@@ -13,7 +13,6 @@ local _, ns = ...
 -- emoji rendering, item link tooltips, and right-click to copy.
 ---------------------------------------------------------------------------
 
-local C = ns.C
 
 -- Bubble settings
 local BUBBLE_MAX_WIDTH_RATIO = 0.65

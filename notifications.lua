@@ -111,7 +111,7 @@ function ShowToast(playerName, isOnline)
         if gen == toastGen and toast:IsShown() then
             -- Simple fade
             local elapsed = 0
-            local ticker = C_Timer.NewTicker(0.03, function(self)
+            C_Timer.NewTicker(0.03, function(self)
                 if gen ~= toastGen then
                     self:Cancel()
                     return
@@ -149,43 +149,26 @@ end
 ---------------------------------------------------------------------------
 -- Friend Status Change Detection
 ---------------------------------------------------------------------------
-function ns.CheckFriendStatusChanges()
+function ns.CheckFriendStatusChanges(friends)
     local toasts = ns.db.settings.showOnlineNotifications
 
     local currentOnline = {}
-    local numFriends = 0
-    local GetInfo
+    for _, info in ipairs(friends or ns.GetFriends()) do
+        local lower = info.name:lower()
+        currentOnline[lower] = info.connected or false
 
-    if C_FriendList and C_FriendList.GetNumFriends then
-        numFriends = C_FriendList.GetNumFriends()
-        GetInfo = C_FriendList.GetFriendInfoByIndex
-    elseif GetNumFriends then
-        numFriends = GetNumFriends()
-        GetInfo = function(i)
-            local name, _, _, _, connected = GetFriendInfo(i)
-            if name then return { name = name, connected = connected } end
-        end
-    end
-
-    for i = 1, numFriends do
-        local info = GetInfo(i)
-        if info and info.name then
-            local lower = info.name:lower()
-            currentOnline[lower] = info.connected or false
-
-            local wasOnline = previousOnline[lower]
-            local isOnline = info.connected or false
-            if initialized and wasOnline ~= nil and wasOnline ~= isOnline then
-                -- WeakAuras hears about every friend
-                if isOnline then
-                    if ns.FireFriendOnline then ns.FireFriendOnline(info.name) end
-                elseif ns.FireFriendOffline then
-                    ns.FireFriendOffline(info.name)
-                end
-                -- Toasts only for people we have conversations with
-                if toasts and ns.db.conversations[info.name] then
-                    ns.QueueToast(info.name, isOnline)
-                end
+        local wasOnline = previousOnline[lower]
+        local isOnline = info.connected or false
+        if initialized and wasOnline ~= nil and wasOnline ~= isOnline then
+            -- WeakAuras hears about every friend
+            if isOnline then
+                if ns.FireFriendOnline then ns.FireFriendOnline(info.name) end
+            elseif ns.FireFriendOffline then
+                ns.FireFriendOffline(info.name)
+            end
+            -- Toasts only for people we have conversations with
+            if toasts and ns.db.conversations[info.name] then
+                ns.QueueToast(info.name, isOnline)
             end
         end
     end

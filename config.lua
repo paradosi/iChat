@@ -114,24 +114,10 @@ local function MigrateToAccount()
 end
 
 local function InitStorage(storage)
-    -- Merge top-level keys from defaults
-    for k, v in pairs(defaults) do
-        if storage[k] == nil then
-            storage[k] = DeepCopy(v)
-        end
-    end
-
-    -- Merge missing settings keys
-    for k, v in pairs(defaults.settings) do
-        if storage.settings[k] == nil then
-            storage.settings[k] = v
-        end
-    end
-
-    -- Ensure new top-level tables exist
-    if not storage.pinnedConversations then storage.pinnedConversations = {} end
-    if not storage.contactNotes then storage.contactNotes = {} end
-    if not storage.mutedContacts then storage.mutedContacts = {} end
+    -- Fill in whatever is missing, at any depth, from fresh copies of the
+    -- defaults. (Copying a table default by reference made quickReplies one
+    -- shared table between per-character and account storage.)
+    DeepMerge(storage, defaults)
 end
 
 function ns.InitDB()

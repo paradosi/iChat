@@ -11,6 +11,11 @@
 - The Invite button works again, including for Battle.net friends who are playing WoW
 - Clicking a link inside a message bubble works again
 - The WeakAuras events `ICHAT_FRIEND_ONLINE` and `ICHAT_FRIEND_OFFLINE` now fire, as documented
+- Quick replies are no longer accidentally shared between per-character and account-wide settings
+
+### Changed
+- The friend list is read once per update instead of three times
+- Removed unused code and an unused emoji image
 
 ## [1.4.11](https://github.com/paradosi/iChat/tree/1.4.11) (2026-11-05)
 

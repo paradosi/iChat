@@ -56,6 +56,21 @@ local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
 
 -- Portrait logic lives in portraits.lua (ns.CreatePortraitFrame / ns.UpdatePortrait)
 
+-- "Add Friend" in the header: shared by the button's first setup and by
+-- UpdateHeaderButtons, which resets its scripts
+local function AddActiveFriend()
+    if not ns.activeConversation then return end
+    if C_FriendList and C_FriendList.AddFriend then
+        C_FriendList.AddFriend(ns.activeConversation)
+    elseif AddFriend then
+        AddFriend(ns.activeConversation)
+    end
+    C_Timer.After(0.2, function()
+        ns:FRIENDLIST_UPDATE()
+        ns.UpdateHeaderButtons()
+    end)
+end
+
 ---------------------------------------------------------------------------
 -- Main Window
 ---------------------------------------------------------------------------
@@ -570,18 +585,7 @@ function ns.CreateRightPanel(parent)
     friendText:SetTextColor(unpack(C.BLUE))
     friendBtn:SetScript("OnEnter", function() friendText:SetTextColor(1, 1, 1) end)
     friendBtn:SetScript("OnLeave", function() friendText:SetTextColor(unpack(C.BLUE)) end)
-    friendBtn:SetScript("OnClick", function()
-        if not ns.activeConversation then return end
-        if C_FriendList and C_FriendList.AddFriend then
-            C_FriendList.AddFriend(ns.activeConversation)
-        elseif AddFriend then
-            AddFriend(ns.activeConversation)
-        end
-        C_Timer.After(0.2, function()
-            ns:FRIENDLIST_UPDATE()
-            ns.UpdateHeaderButtons()
-        end)
-    end)
+    friendBtn:SetScript("OnClick", AddActiveFriend)
     friendBtn:Hide()
     ns.friendBtn = friendBtn
     ns.friendText = friendText
@@ -950,18 +954,7 @@ function ns.UpdateHeaderButtons()
         ns.friendText:SetTextColor(unpack(C.BLUE))
         ns.friendBtn:SetScript("OnEnter", function() ns.friendText:SetTextColor(1, 1, 1) end)
         ns.friendBtn:SetScript("OnLeave", function() ns.friendText:SetTextColor(unpack(C.BLUE)) end)
-        ns.friendBtn:SetScript("OnClick", function()
-            if not ns.activeConversation then return end
-            if C_FriendList and C_FriendList.AddFriend then
-                C_FriendList.AddFriend(ns.activeConversation)
-            elseif AddFriend then
-                AddFriend(ns.activeConversation)
-            end
-            C_Timer.After(0.2, function()
-                ns:FRIENDLIST_UPDATE()
-                ns.UpdateHeaderButtons()
-            end)
-        end)
+        ns.friendBtn:SetScript("OnClick", AddActiveFriend)
     end
     ns.friendBtn:Show()
 
@@ -1414,27 +1407,35 @@ function ns.ShowContextMenu(playerName)
 end
 
 ---------------------------------------------------------------------------
+-- Small draggable dialog shell shared by the note editor and copy popup
+---------------------------------------------------------------------------
+local function CreateDialogFrame(globalName, width, height)
+    local f = CreateFrame("Frame", globalName, UIParent, "BackdropTemplate")
+    f:SetSize(width, height)
+    f:SetPoint("CENTER")
+    f:SetFrameStrata("FULLSCREEN_DIALOG")
+    f:SetMovable(true)
+    f:EnableMouse(true)
+    f:RegisterForDrag("LeftButton")
+    f:SetScript("OnDragStart", f.StartMoving)
+    f:SetScript("OnDragStop", f.StopMovingOrSizing)
+
+    f:SetBackdrop({
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Buttons\\WHITE8x8",
+        edgeSize = 1,
+    })
+    f:SetBackdropColor(0.06, 0.06, 0.06, 0.98)
+    f:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+    return f
+end
+
+---------------------------------------------------------------------------
 -- Contact Note Editor
 ---------------------------------------------------------------------------
 function ns.ShowNoteEditor(playerName)
     if not ns.noteEditorFrame then
-        local f = CreateFrame("Frame", "iChatNoteEditor", UIParent, "BackdropTemplate")
-        f:SetSize(260, 100)
-        f:SetPoint("CENTER")
-        f:SetFrameStrata("FULLSCREEN_DIALOG")
-        f:SetMovable(true)
-        f:EnableMouse(true)
-        f:RegisterForDrag("LeftButton")
-        f:SetScript("OnDragStart", f.StartMoving)
-        f:SetScript("OnDragStop", f.StopMovingOrSizing)
-
-        f:SetBackdrop({
-            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-            edgeFile = "Interface\\Buttons\\WHITE8x8",
-            edgeSize = 1,
-        })
-        f:SetBackdropColor(0.06, 0.06, 0.06, 0.98)
-        f:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+        local f = CreateDialogFrame("iChatNoteEditor", 260, 100)
 
         local title = f:CreateFontString(nil, "OVERLAY")
         title:SetFont("Fonts\\FRIZQT__.TTF", 11, "")
@@ -1518,23 +1519,7 @@ end
 ---------------------------------------------------------------------------
 function ns.ShowCopyPopup(text, title)
     if not ns.copyFrame then
-        local f = CreateFrame("Frame", "iChatCopyPopup", UIParent, "BackdropTemplate")
-        f:SetSize(320, 80)
-        f:SetPoint("CENTER")
-        f:SetFrameStrata("FULLSCREEN_DIALOG")
-        f:SetMovable(true)
-        f:EnableMouse(true)
-        f:RegisterForDrag("LeftButton")
-        f:SetScript("OnDragStart", f.StartMoving)
-        f:SetScript("OnDragStop", f.StopMovingOrSizing)
-
-        f:SetBackdrop({
-            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-            edgeFile = "Interface\\Buttons\\WHITE8x8",
-            edgeSize = 1,
-        })
-        f:SetBackdropColor(0.06, 0.06, 0.06, 0.98)
-        f:SetBackdropBorderColor(0.2, 0.2, 0.2, 1)
+        local f = CreateDialogFrame("iChatCopyPopup", 320, 80)
 
         local ftitle = f:CreateFontString(nil, "OVERLAY")
         ftitle:SetFont("Fonts\\FRIZQT__.TTF", 10, "")

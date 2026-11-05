@@ -19,7 +19,6 @@ function ns._ApplyElvUISkinInner()
     local E = _G.ElvUI and _G.ElvUI[1]
     if not E then return false end
 
-    local S = E:GetModule("Skins", true)
     local db = E.db
 
     if not db or not db.general then return false end
