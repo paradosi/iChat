@@ -6,7 +6,7 @@ Replace the default whisper system with a modern messaging UI featuring chat bub
 
 ![Promo](https://raw.githubusercontent.com/paradosi/iChat/master/media/art/promo.png)
 
-![Classic Era: 11508](https://img.shields.io/badge/Classic_Era-11508-yellow) ![TBC Anniversary: 20505](https://img.shields.io/badge/TBC_Anniversary-20505-blue) ![Retail: 120001](https://img.shields.io/badge/Retail-120001-green) ![Version: 1.4.8](https://img.shields.io/badge/Version-1.4.8-lightgrey)
+![Classic Era: 11509](https://img.shields.io/badge/Classic_Era-11509-yellow) ![TBC Anniversary: 20506](https://img.shields.io/badge/TBC_Anniversary-20506-blue) ![Retail: 120105](https://img.shields.io/badge/Retail-120105-green) ![WoW Forever: 16001](https://img.shields.io/badge/WoW_Forever-16001-purple) ![Version: 1.4.12](https://img.shields.io/badge/Version-1.4.12-lightgrey)
 
 ### Screenshots
 
@@ -182,8 +182,9 @@ Custom events for WeakAuras triggers:
    | Classic Era | `_classic_era_/Interface/AddOns/iChat/` | `iChat_Vanilla.toc` |
    | TBC Anniversary | `_anniversary_/Interface/AddOns/iChat/` | `iChat.toc` |
    | Retail | `_retail_/Interface/AddOns/iChat/` | `iChat-Mainline.toc` |
+   | WoW Forever | `_forever_/Interface/AddOns/iChat/` | `iChat_Camelot.toc` |
 
-2. Restart WoW or `/reload` if already in-game.
+2. Restart WoW. A `/reload` does not pick up a newly installed addon, only changes to one already loaded.
 
 ## Usage
 
@@ -256,9 +257,10 @@ Data persists across sessions. Use `/ichat clear` or the settings panel to manag
 
 ## Compatibility
 
-- **Classic Era** (1.15.x) — Interface 11508
-- **TBC Classic Anniversary** (2.5.x) — Interface 20505
-- **Retail** (12.x Midnight) — Interface 120001
+- **Classic Era** (1.15.x) — Interface 11509
+- **TBC Classic Anniversary** (2.5.x) — Interface 20506
+- **Retail** (12.x Midnight) — Interface 120105
+- **WoW Forever** (1.60.x) — Interface 16001
 
 ## Known Issues
 

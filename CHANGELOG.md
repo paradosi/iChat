@@ -2,6 +2,9 @@
 
 ## [1.4.12](https://github.com/paradosi/iChat/tree/1.4.12) (2026-11-05)
 
+### Added
+- WoW Forever support
+
 ### Fixed
 - Retail: whispers no longer cause Lua errors in dungeons, raids, encounters, Mythic+ and PvP. Blizzard hides whisper contents from addons there, so those whispers stay in the normal chat window, and iChat says so once per session
 - Retail: Battle.net whispers are no longer attempted while chat is locked down
