@@ -144,7 +144,7 @@ local function CreateBubbleFrame(parent)
         -- frame, and C_Club.GetLastTicketResponse is then blocked for the rest of
         -- the session (ADDON_ACTION_FORBIDDEN), even for invites clicked in chat.
         if link:match("^clubTicket:") then
-            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Open community invites from the chat window, not from iChat.")
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r To open this community invite, click it in your chat window. iChat leaves invites there for that reason.")
             return
         end
         -- What a chat frame does with a clicked link (item tooltip, player menu, ...)

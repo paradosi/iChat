@@ -423,6 +423,12 @@ end
 -- Chat filter to suppress whispers from default chat frame
 function ns.WhisperFilter(self, event, ...)
     if ns.db.settings.suppressDefault then
+        -- A community invite stays in the chat window as well: it can only be
+        -- opened from there (see OnHyperlinkClick in bubbles.lua).
+        local msg = ...
+        if ns.CanRead(msg) and type(msg) == "string" and msg:find("|HclubTicket:", 1, true) then
+            return false, ...
+        end
         return true
     end
     return false, ...

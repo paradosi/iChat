@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Clicking a community invite link in a message bubble no longer causes an "iChat tried to call the protected function" error. iChat now asks you to open the invite from the chat window, because opening it from iChat would block community invites for the rest of the session
+- Clicking a community invite link in a message bubble no longer causes an "iChat tried to call the protected function" error. Opening an invite from iChat would block community invites for the rest of the session, so a whisper containing one now also stays in the normal chat window, where the invite can be clicked
 
 ## [1.4.12](https://github.com/paradosi/iChat/tree/1.4.12) (2026-11-05)
 
