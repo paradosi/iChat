@@ -139,6 +139,14 @@ local function CreateBubbleFrame(parent)
         GameTooltip:Hide()
     end)
     bubble:SetScript("OnHyperlinkClick", function(self, link, text, button)
+        -- A community invite can't be opened from here. Blizzard's handler creates
+        -- its listener frame on first use, so opening it from addon code taints that
+        -- frame, and C_Club.GetLastTicketResponse is then blocked for the rest of
+        -- the session (ADDON_ACTION_FORBIDDEN), even for invites clicked in chat.
+        if link:match("^clubTicket:") then
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Open community invites from the chat window, not from iChat.")
+            return
+        end
         -- What a chat frame does with a clicked link (item tooltip, player menu, ...)
         SetItemRef(link, text, button, DEFAULT_CHAT_FRAME)
     end)
