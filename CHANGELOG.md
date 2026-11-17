@@ -1,11 +1,11 @@
 # iChat Changelog
 
-## Unreleased
+## [1.4.13](https://github.com/paradosi/iChat/tree/v1.4.13) (2026-11-17)
 
 ### Fixed
 - Clicking a community invite link in a message bubble no longer causes an "iChat tried to call the protected function" error. Opening an invite from iChat would block community invites for the rest of the session, so a whisper containing one now also stays in the normal chat window, where the invite can be clicked
 
-## [1.4.12](https://github.com/paradosi/iChat/tree/1.4.12) (2026-11-05)
+## [1.4.12](https://github.com/paradosi/iChat/tree/v1.4.12) (2026-11-05)
 
 ### Added
 - WoW Forever support
@@ -25,24 +25,24 @@
 - The friend list is read once per update instead of three times
 - Removed unused code and an unused emoji image
 
-## [1.4.11](https://github.com/paradosi/iChat/tree/1.4.11) (2026-11-05)
+## [1.4.11](https://github.com/paradosi/iChat/tree/v1.4.11) (2026-11-05)
 
 ### Changed
 - Updated for the current clients (Retail 12.1.5, TBC Anniversary 2.5.6 and Classic Era 1.15.9), so the addon no longer shows as out of date
 - Release notes on CurseForge and Wago are now this changelog instead of the commit log
 
-## [1.4.10](https://github.com/paradosi/iChat/tree/1.4.10) (2026-09-02)
+## [1.4.10](https://github.com/paradosi/iChat/tree/v1.4.10) (2026-09-02)
 
 ### Fixed
 - **"Clear All History" threw on first click** — the button's callback referenced `clearAllBtn`, but it was declared and assigned in a single `local` statement, and a Lua local is not in scope until *after* the statement that declares it. The closure therefore captured the nil global, so the first click errored instead of asking for confirmation. Forward-declared.
 - **"Enable item links" did nothing** — the checkbox stored its value but nothing read it: hyperlink handling was registered unconditionally on every bubble, so item links were permanently on. The setting is now honoured, takes effect immediately without needing a reload, and existing bubbles are refreshed when it is toggled.
 
-## [1.4.5](https://github.com/paradosi/iChat/tree/1.4.5) (2026-03-22)
+## [1.4.5](https://github.com/paradosi/iChat/tree/v1.4.5) (2026-03-22)
 
 ### Added
 - **ElvUI DataText** — iChat now registers as an ElvUI DataText. Right-click any ElvUI info panel and select "iChat" to display unread whisper count with ElvUI's value color. Left-click toggles the window, right-click opens settings. Updates live as whispers arrive.
 
-## [1.4.4](https://github.com/paradosi/iChat/tree/1.4.4) (2026-03-18)
+## [1.4.4](https://github.com/paradosi/iChat/tree/v1.4.4) (2026-03-18)
 
 ### Added
 - **Disable auto-fade option** — new toggle in Settings → Behavior: "Auto-fade when mouse leaves". When disabled, the window stays at full opacity permanently. Enabled by default (existing behavior unchanged).
@@ -60,7 +60,7 @@
 - **Wasteful table allocation** — removed unnecessary `wipe(ns.autoRepliedTo or {})` that created a throwaway table
 - **Missing default** — added `playerInfoCache` to config defaults table for consistent initialization
 
-## [1.4.3](https://github.com/paradosi/iChat/tree/1.4.3) (2026-02-25)
+## [1.4.3](https://github.com/paradosi/iChat/tree/v1.4.3) (2026-02-25)
 
 ### Added
 
@@ -89,7 +89,7 @@
 - **Input focus** — clicking outside clears focus immediately
 - **Classic Era compatibility** — fixed API calls for `C_FriendList` on Vanilla clients
 
-## [1.4.2](https://github.com/paradosi/iChat/tree/1.4.2) (2026-02-23)
+## [1.4.2](https://github.com/paradosi/iChat/tree/v1.4.2) (2026-02-23)
 
 ### Added
 - **2D class icon fallback** — when the conversation partner is out of range, a class icon is shown instead of the 3D portrait. Falls back to a question mark if class is unknown.
@@ -101,22 +101,22 @@
 - **Stale portrait on conversation switch** — `ClearModel()` is now called before `SetUnit()` so switching conversations always loads the correct character model.
 - **Auto-focus on WoW window activation** — the input box no longer steals focus when clicking back into WoW. Focus only happens when explicitly clicking a conversation, picking from the compose bar, or cycling with Tab.
 
-## [1.4.1](https://github.com/paradosi/iChat/tree/1.4.1) (2026-02-23)
+## [1.4.1](https://github.com/paradosi/iChat/tree/v1.4.1) (2026-02-23)
 
 ### Changed
 - **True head-and-shoulders portrait** — `SetCamera(1)` now applied after `SetUnit()` (deferred one frame via `C_Timer.After` so the model geometry is ready). This is the same portrait zoom WoW uses for character frames. Portrait frame is 46×50px with a slight vertical offset to crop cleanly within the 36px header.
 
-## [1.4.0](https://github.com/paradosi/iChat/tree/1.4.0) (2026-02-23)
+## [1.4.0](https://github.com/paradosi/iChat/tree/v1.4.0) (2026-02-23)
 
 ### Changed
 - **Portrait logic extracted to `portraits.lua`** — `FindUnitByName`, `ns.CreatePortraitFrame`, and `ns.UpdatePortrait` now live in a dedicated module. `ui.lua` calls the library; no behavior change.
 
-## [1.3.9](https://github.com/paradosi/iChat/tree/1.3.9) (2026-02-23)
+## [1.3.9](https://github.com/paradosi/iChat/tree/v1.3.9) (2026-02-23)
 
 ### Fixed
 - **Portrait missing on self-whisper** — `FindUnitByName` now checks `"player"` first, so whispering yourself correctly shows your own 3D portrait.
 
-## [1.3.8](https://github.com/paradosi/iChat/tree/1.3.8) (2026-02-23)
+## [1.3.8](https://github.com/paradosi/iChat/tree/v1.3.8) (2026-02-23)
 
 ### Added
 - **3D portrait in conversation header** — when the selected conversation partner is your current target, focus, or party/raid member, their 3D character model appears in the header next to their name. Updates automatically when you switch conversations.
@@ -125,27 +125,27 @@
 ### Changed
 - **Brighter floating button icon** — resting brightness raised from 100% → 150% (hover 130% → 200%). The button is now clearly visible without hovering.
 
-## [1.3.7](https://github.com/paradosi/iChat/tree/1.3.7) (2026-02-23)
+## [1.3.7](https://github.com/paradosi/iChat/tree/v1.3.7) (2026-02-23)
 
 ### Fixed
 - **Addon list icon still white** — v1.3.6 used `minimap_icon.png` as source, which has a white opaque background baked in. Switched to `app_logo.png` (the actual addon icon) as source, scaled to 64×64 via ffmpeg. Icon now renders correctly in the addon list.
 
-## [1.3.6](https://github.com/paradosi/iChat/tree/1.3.6) (2026-02-23)
+## [1.3.6](https://github.com/paradosi/iChat/tree/v1.3.6) (2026-02-23)
 
 ### Fixed
 - **Addon list icon white background** — replaced sips-converted TGA (which lost alpha) with a properly hand-crafted uncompressed BGRA TGA. Icon now shows correctly with transparency.
 
-## [1.3.5](https://github.com/paradosi/iChat/tree/1.3.5) (2026-02-23)
+## [1.3.5](https://github.com/paradosi/iChat/tree/v1.3.5) (2026-02-23)
 
 ### Fixed
 - **Addon list icon missing** — added `icon.tga` (64×64 RGBA). WoW requires TGA/BLP for `## IconTexture`; the existing `icon.png` was silently ignored.
 
-## [1.3.4](https://github.com/paradosi/iChat/tree/1.3.4) (2026-02-23)
+## [1.3.4](https://github.com/paradosi/iChat/tree/v1.3.4) (2026-02-23)
 
 ### Fixed
 - **Combat focus steal** — input box no longer auto-focuses when a DM arrives while the player is in combat (dungeon/raid). Uses `InCombatLockdown()` to detect combat state. Rotation keybinds will no longer accidentally type into the chat input.
 
-## [1.3.3](https://github.com/paradosi/iChat/tree/1.3.3) (2026-02-22)
+## [1.3.3](https://github.com/paradosi/iChat/tree/v1.3.3) (2026-02-22)
 
 ### Added
 - **Invite to Group** button in conversation header (next to Add Friend / Block)
