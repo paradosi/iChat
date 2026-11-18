@@ -44,35 +44,35 @@ local function GetButtonText()
 	if total == 0 then
 		return "", "" -- empty label and text when no unreads
 	end
-	
+
 	local label = TitanGetVar(TITAN_ICHAT_ID, "ShowLabelText") and "iChat: " or ""
 	local text = total > 99 and "99+" or tostring(total)
-	
+
 	-- Apply coloring if enabled
 	if TitanGetVar(TITAN_ICHAT_ID, "ShowColoredText") then
 		text = TitanUtils_GetGreenText(text)
 	else
 		text = TitanUtils_GetHighlightText(text)
 	end
-	
+
 	return label, text
 end
 
 local function GetTooltipText()
 	local total = GetUnreadCount()
 	local lines = {}
-	
+
 	if total > 0 then
 		local label = total == 1 and "1 unread message" or total .. " unread messages"
 		table.insert(lines, TitanUtils_GetGreenText(label))
 	else
 		table.insert(lines, TitanUtils_GetNormalText("No unread messages"))
 	end
-	
+
 	table.insert(lines, " ")
 	table.insert(lines, TitanUtils_GetNormalText("Left-click: Toggle window"))
 	table.insert(lines, TitanUtils_GetNormalText("Right-click: Menu"))
-	
+
 	return table.concat(lines, "\n")
 end
 
@@ -82,13 +82,13 @@ end
 
 local function GeneratorFunction(owner, rootDescription)
 	local root = rootDescription
-	
+
 	-- Add custom iChat commands at the top
 	root:CreateButton("Toggle iChat Window", function()
 		ns.StopFlashButton()
 		ns.ToggleWindow()
 	end)
-	
+
 	root:CreateButton("Settings...", function()
 		-- Ensure the main window is visible before toggling settings
 		if ns.mainWindow and not ns.mainWindow:IsShown() then
@@ -96,9 +96,9 @@ local function GeneratorFunction(owner, rootDescription)
 		end
 		ns.ToggleSettings()
 	end)
-	
+
 	root:CreateDivider()
-	
+
 	-- Titan Panel adds standard options automatically after this:
 	-- - Show Icon
 	-- - Show Label Text
@@ -138,7 +138,7 @@ local function OnLoad(self)
 			DisplayOnRightSide = false,
 		}
 	}
-	
+
 	-- Register for unread updates from iChat
 	-- (minimap.lua will call ns.UpdateTitanButton when unreads change)
 end
@@ -176,26 +176,26 @@ local function CreateFrames()
 	if _G[TITAN_BUTTON] then
 		return -- already created
 	end
-	
+
 	-- Guard: check if Titan Panel is loaded
 	-- TitanPanelComboTemplate is a virtual XML template, not a global table, so we check for the API instead.
 	if not TitanPanelButton_UpdateButton then
 		return
 	end
-	
+
 	-- Create Titan Panel button using the combo template (icon + text)
 	local frame = CreateFrame("Button", TITAN_BUTTON, UIParent, "TitanPanelComboTemplate")
 	frame:SetFrameStrata("FULLSCREEN")
-	
+
 	-- Initialize the plugin
 	OnLoad(frame)
-	
+
 	-- Set up event handlers
 	frame:SetScript("OnShow", function(self)
 		OnShow(self)
 		TitanPanelButton_OnShow(self)
 	end)
-	
+
 	frame:SetScript("OnClick", function(self, button)
 		OnClick(self, button)
 		TitanPanelButton_OnClick(self, button)

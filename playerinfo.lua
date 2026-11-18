@@ -19,10 +19,10 @@ local _, ns = ...
 -- Returns { class, race, classFile, raceFile } or nil
 function ns.GetPlayerInfo(name)
 	if not name then return nil end
-	
+
 	-- Guard: ns.db might not be initialized yet
 	if not ns.db or not ns.db.playerInfoCache then return nil end
-	
+
 	-- Check if this is a BNet conversation
 	if ns.IsBNetConversation and ns.IsBNetConversation(name) then
 		local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(name)
@@ -31,19 +31,19 @@ function ns.GetPlayerInfo(name)
 		end
 		return nil
 	end
-	
+
 	-- Strip realm suffix for lookup
 	local bare = name:match("^([^%-]+)") or name
-	
+
 	-- Check cache first
 	if ns.db.playerInfoCache[bare] then
 		return ns.db.playerInfoCache[bare]
 	end
-	
-	-- Note: Friend/Guild scanning is now proactive (pushed into cache), 
+
+	-- Note: Friend/Guild scanning is now proactive (pushed into cache),
 	-- so we don't need to re-scan on every GetPlayerInfo call.
 	-- Just check visible units as a fallback.
-	
+
 	-- Try visible unit (target, focus, party, raid)
 	local unit = ns.FindUnitByName(bare)
 	if unit then
@@ -61,7 +61,7 @@ function ns.GetPlayerInfo(name)
 			return playerInfo
 		end
 	end
-	
+
 	return nil
 end
 
@@ -69,13 +69,13 @@ end
 function ns.CachePlayerInfo(name, info)
 	if not name or not info then return end
 	if not ns.db then return end -- Guard
-	
+
 	local bare = name:match("^([^%-]+)") or name
-	
+
 	if not ns.db.playerInfoCache then
 		ns.db.playerInfoCache = {}
 	end
-	
+
 	ns.db.playerInfoCache[bare] = info
 end
 
@@ -142,10 +142,10 @@ end
 -- Scan guild roster and cache all info
 function ns.ScanGuildRoster()
 	if not IsInGuild() then return end
-	
+
 	local numTotal = GetNumGuildMembers()
 	for i = 1, numTotal do
-		local name, _, _, _, _, _, _, online, _, _, classFile = GetGuildRosterInfo(i)
+		local name, _, _, _, _, _, _, _, _, _, classFile = GetGuildRosterInfo(i)
 		if name and classFile then -- Cache even if offline, why not
 			local class = LOCALIZED_CLASS_NAMES_MALE[classFile]
 			if class then

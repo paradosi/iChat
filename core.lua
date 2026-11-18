@@ -127,7 +127,7 @@ end
 
 function ns:PLAYER_LOGIN()
     ns.playerName = UnitName("player")
-    
+
     local function RequestFriendInfo()
         if C_FriendList and C_FriendList.ShowFriends then
             C_FriendList.ShowFriends()
@@ -135,13 +135,13 @@ function ns:PLAYER_LOGIN()
             ShowFriends()
         end
     end
-    
+
     RequestFriendInfo()
     frame:UnregisterEvent("PLAYER_LOGIN")
 
     -- Poll friend list every 60s to keep online status current
     C_Timer.NewTicker(60, RequestFriendInfo)
-    
+
     -- Initial player info scans
     C_Timer.After(2, function()
         if ns.ScanFriendList then

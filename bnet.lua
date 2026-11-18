@@ -64,7 +64,7 @@ function ns.GetBNetCharacterName(bnetIDAccount)
 	if not info or not info.gameAccountInfo then
 		return nil
 	end
-	
+
 	local gameInfo = info.gameAccountInfo
 	if gameInfo.isOnline and BNET_CLIENT_WOW and gameInfo.clientProgram == BNET_CLIENT_WOW then
 		local charName = gameInfo.characterName
@@ -73,7 +73,7 @@ function ns.GetBNetCharacterName(bnetIDAccount)
 			return charName .. (realmName and ("-" .. realmName) or "")
 		end
 	end
-	
+
 	return nil
 end
 
@@ -81,11 +81,11 @@ end
 function ns.GetBNetDisplayName(bnetIDAccount)
 	local battleTag = ns.GetBNetBattleTag(bnetIDAccount)
 	local charName = ns.GetBNetCharacterName(bnetIDAccount)
-	
+
 	if charName then
 		return battleTag .. " (" .. charName .. ")"
 	end
-	
+
 	return battleTag
 end
 
@@ -93,17 +93,17 @@ end
 function ns.GetBNetPlayerInfo(bnetIDAccount)
 	local info = ns.GetBNetFriendInfo(bnetIDAccount)
 	if not info or not info.gameAccountInfo then return nil end
-	
+
 	local gameInfo = info.gameAccountInfo
 	if not gameInfo.isOnline or not BNET_CLIENT_WOW or gameInfo.clientProgram ~= BNET_CLIENT_WOW then
 		return nil
 	end
-	
+
 	local className = gameInfo.className
 	local raceName = gameInfo.raceName
-	
+
 	if not className then return nil end
-	
+
 	-- Convert localized class name to classFile
 	local classFile
 	if not LOCALIZED_CLASS_NAMES_MALE then return nil end
@@ -113,7 +113,7 @@ function ns.GetBNetPlayerInfo(bnetIDAccount)
 			break
 		end
 	end
-	
+
 	return {
 		class = className,
 		classFile = classFile,
@@ -134,10 +134,10 @@ function ns.GetBNetGameInfo(bnetIDAccount)
 	if not info or not info.gameAccountInfo or not info.gameAccountInfo.isOnline then
 		return "Offline"
 	end
-	
+
 	local gameInfo = info.gameAccountInfo
 	local client = gameInfo.clientProgram or "?"
-	
+
 	-- WoW-specific info
 	if BNET_CLIENT_WOW and client == BNET_CLIENT_WOW then
 		local charName = gameInfo.characterName or "Unknown"
@@ -145,7 +145,7 @@ function ns.GetBNetGameInfo(bnetIDAccount)
 		local className = gameInfo.className or "?"
 		return string.format("WoW: %s (L%s %s)", charName, level, className)
 	end
-	
+
 	-- Other games (with defensive nil checks for Classic/TBC compatibility)
 	local gameNames = {}
 	if BNET_CLIENT_D3 then gameNames[BNET_CLIENT_D3] = "Diablo 3" end
@@ -158,6 +158,6 @@ function ns.GetBNetGameInfo(bnetIDAccount)
 	if BNET_CLIENT_COD then gameNames[BNET_CLIENT_COD] = "Call of Duty" end
 	if BNET_CLIENT_COD_MW then gameNames[BNET_CLIENT_COD_MW] = "Modern Warfare" end
 	if BNET_CLIENT_COD_MW2 then gameNames[BNET_CLIENT_COD_MW2] = "Modern Warfare 2" end
-	
+
 	return gameNames[client] or ("Playing " .. (client or "Unknown"))
 end

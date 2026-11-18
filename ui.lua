@@ -4,6 +4,7 @@ local _, ns = ...
 -- UIFrameFade fallback. Every current client still ships UIFrameFadeIn/Out
 -- (Blizzard's UIParent code); these only cover a client that someday drops them.
 ---------------------------------------------------------------------------
+-- luacheck: push ignore 121
 if not UIFrameFadeIn then
     function UIFrameFadeIn(frame, timeToFade, startAlpha, endAlpha)
         frame:SetAlpha(endAlpha or 1.0)
@@ -17,6 +18,7 @@ end
 if not UIFrameFadeRemoveFrame then
     function UIFrameFadeRemoveFrame(frame) end
 end
+-- luacheck: pop
 
 ---------------------------------------------------------------------------
 -- UI — Main window, panels, conversation list, compose, context menus,
@@ -786,30 +788,30 @@ function ns.RefreshConversationList()
     for i, data in ipairs(sorted) do
         local entry = ns.convoEntries[i]
         entry.playerName = data.name
-        
+
         -- Display name with colors
         local displayName = data.name
         local useColoredText = false
-        
+
         -- BNet conversations: "BattleTag (CharName)" with BNet blue + class color
         if ns.IsBNetConversation and ns.IsBNetConversation(data.name) then
             local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(data.name)
             if bnetIDAccount then
                 local battleTag = ns.GetBNetBattleTag and ns.GetBNetBattleTag(bnetIDAccount) or "BNet Friend"
                 local charName = ns.GetBNetCharacterName and ns.GetBNetCharacterName(bnetIDAccount)
-                
+
                 if charName then
                     -- Get class color for character name
                     local playerInfo = ns.GetPlayerInfo and ns.GetPlayerInfo(data.name)
                     local classColorHex = "ffffffff" -- white default
-                    
+
                     if playerInfo and playerInfo.classFile and RAID_CLASS_COLORS then
                         local cc = RAID_CLASS_COLORS[playerInfo.classFile]
                         if cc then
                             classColorHex = string.format("ff%02x%02x%02x", cc.r * 255, cc.g * 255, cc.b * 255)
                         end
                     end
-                    
+
                     -- Format: BattleTag (CharName) with BNet blue + class color
                     displayName = string.format("|cff00b8ff%s|r |c%s(%s)|r", battleTag, classColorHex, charName)
                     useColoredText = true
@@ -818,7 +820,7 @@ function ns.RefreshConversationList()
                 end
             end
         end
-        
+
         entry.nameText:SetText(displayName)
 
         -- Set text color (only for non-colored text since colored text has inline codes)
@@ -977,27 +979,27 @@ end
 ---------------------------------------------------------------------------
 function ns.SelectConversation(playerName)
     ns.activeConversation = playerName
-    
+
     -- Display name for BNet: just the account name (e.g., "Jim Fano") in cyan-blue
     local displayName = playerName
     local gameInfo = ""
     local useBNetColors = false
-    
+
     if ns.IsBNetConversation and ns.IsBNetConversation(playerName) then
         local bnetIDAccount = ns.GetBNetIDFromName and ns.GetBNetIDFromName(playerName)
         if bnetIDAccount then
             gameInfo = ns.GetBNetGameInfo and ns.GetBNetGameInfo(bnetIDAccount) or ""
-            
+
             local battleTag = ns.GetBNetBattleTag and ns.GetBNetBattleTag(bnetIDAccount) or "BNet Friend"
-            
+
             -- Simple format: just the account name in BNet blue
             displayName = string.format("|cff00b8ff%s|r", battleTag)
             useBNetColors = true
         end
     end
-    
+
     ns.headerName:SetText(displayName)
-    
+
     -- Set white color for BNet (so inline codes work), UpdatePortrait will handle others
     if useBNetColors then
         ns.headerName:SetTextColor(1, 1, 1)
@@ -1135,7 +1137,7 @@ local function ScheduleFadeOut()
         if ns.mainWindow and ns.mainWindow:IsShown() then
             UIFrameFadeOut(ns.mainWindow, FADE_OUT_SPEED, ns.mainWindow:GetAlpha(), FADE_ALPHA)
             ns.isFaded = true
-            
+
             -- Clear input focus when window fades
             if ns.inputBox then
                 ns.inputBox:ClearFocus()

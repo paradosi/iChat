@@ -75,8 +75,8 @@ end
 function ns.IsIgnored(name)
     if not name then return false end
     local lower = name:lower()
-    
-    local numIgnores = 0
+
+    local numIgnores
     local GetName
     if C_FriendList and C_FriendList.GetNumIgnores then
         numIgnores = C_FriendList.GetNumIgnores()
@@ -85,7 +85,7 @@ function ns.IsIgnored(name)
         numIgnores = GetNumIgnores()
         GetName = GetIgnoreName
     end
-    
+
     for i = 1, numIgnores do
         local ignored = GetName(i)
         if ignored and ignored:lower() == lower then
@@ -239,12 +239,12 @@ end
 function ns:CHAT_MSG_BN_WHISPER(text, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount, ...)
     if not ns.CanRead(text, bnetIDAccount) then return ns.NoteUnreadableWhisper() end
     if not bnetIDAccount then return end
-    
+
     local convoName = "BNet:" .. bnetIDAccount
-    
+
     local isFriend = true -- BNet friends are always friends
     local entry = ns.StoreMessage(convoName, text, "them", isFriend)
-    
+
     -- Update unread if not viewing this conversation
     if ns.activeConversation ~= convoName then
         local convo = ns.db.conversations[convoName]
@@ -253,25 +253,25 @@ function ns:CHAT_MSG_BN_WHISPER(text, sender, _, _, _, _, _, _, _, _, _, _, bnet
             convo.unreadSepIndex = #convo.messages
         end
     end
-    
+
     -- Check if this contact is muted
     local isMuted = ns.db.mutedContacts and ns.db.mutedContacts[convoName]
-    
+
     -- Flash taskbar icon (skip if muted)
     if not isMuted and FlashClientIcon then
         FlashClientIcon()
     end
-    
+
     -- Flash the floating button (skip if muted)
     if not isMuted and ns.FlashButton then
         ns.FlashButton()
     end
-    
+
     -- Play notification sound (skip if muted)
     if not isMuted and ns.PlayNotifySound then
         ns.PlayNotifySound()
     end
-    
+
     -- Update UI
     if ns.UpdateButtonBadge then
         ns.UpdateButtonBadge()
@@ -283,7 +283,7 @@ function ns:CHAT_MSG_BN_WHISPER(text, sender, _, _, _, _, _, _, _, _, _, _, bnet
         ns.AddBubble(entry, convoName)
         ns.ScrollToBottom()
     end
-    
+
     -- Auto-open window on incoming whisper
     if ns.mainWindow and not ns.mainWindow:IsShown() and ns.db.settings.openOnWhisper then
         ns.mainWindow:Show()
@@ -291,7 +291,7 @@ function ns:CHAT_MSG_BN_WHISPER(text, sender, _, _, _, _, _, _, _, _, _, _, bnet
     elseif ns.mainWindow and ns.mainWindow:IsShown() and ns.FlashWindow then
         ns.FlashWindow()
     end
-    
+
     -- Fire WeakAuras event
     if ns.FireWhisperReceived then
         ns.FireWhisperReceived(convoName, text)
@@ -302,17 +302,17 @@ end
 function ns:CHAT_MSG_BN_WHISPER_INFORM(text, sender, _, _, _, _, _, _, _, _, _, _, bnetIDAccount, ...)
     if not ns.CanRead(text, bnetIDAccount) then return end
     if not bnetIDAccount then return end
-    
+
     local convoName = "BNet:" .. bnetIDAccount
     local isFriend = true
     local entry = ns.StoreMessage(convoName, text, "me", isFriend)
     entry.status = "delivered"
-    
+
     -- Fire WeakAuras event
     if ns.FireWhisperSent then
         ns.FireWhisperSent(convoName, text)
     end
-    
+
     if ns.RefreshConversationList then
         ns.RefreshConversationList()
     end
