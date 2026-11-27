@@ -1,24 +1,5 @@
 local _, ns = ...
 
----------------------------------------------------------------------------
--- UIFrameFade fallback. Every current client still ships UIFrameFadeIn/Out
--- (Blizzard's UIParent code); these only cover a client that someday drops them.
----------------------------------------------------------------------------
--- luacheck: push ignore 121
-if not UIFrameFadeIn then
-    function UIFrameFadeIn(frame, timeToFade, startAlpha, endAlpha)
-        frame:SetAlpha(endAlpha or 1.0)
-    end
-end
-if not UIFrameFadeOut then
-    function UIFrameFadeOut(frame, timeToFade, startAlpha, endAlpha)
-        frame:SetAlpha(endAlpha or 0)
-    end
-end
-if not UIFrameFadeRemoveFrame then
-    function UIFrameFadeRemoveFrame(frame) end
-end
--- luacheck: pop
 
 ---------------------------------------------------------------------------
 -- UI — Main window, panels, conversation list, compose, context menus,
@@ -30,8 +11,7 @@ end
 --   - Right panel: chat area (bubbles rendered by bubbles.lua), input bar,
 --     emoji button, send button, quick reply bar
 --   - Auto-fade system: window fades to 25% opacity when idle
---   - Context menus: pin, mute, note, copy, delete (Retail MenuUtil or
---     Classic EasyMenu depending on client version)
+--   - Context menus: pin, mute, note, copy, delete (MenuUtil)
 ---------------------------------------------------------------------------
 
 -- Color palette
@@ -62,11 +42,7 @@ local PILL_TEXTURE = "Interface\\AddOns\\iChat\\media\\textures\\pill"
 -- UpdateHeaderButtons, which resets its scripts
 local function AddActiveFriend()
     if not ns.activeConversation then return end
-    if C_FriendList and C_FriendList.AddFriend then
-        C_FriendList.AddFriend(ns.activeConversation)
-    elseif AddFriend then
-        AddFriend(ns.activeConversation)
-    end
+    C_FriendList.AddFriend(ns.activeConversation)
     C_Timer.After(0.2, function()
         ns:FRIENDLIST_UPDATE()
         ns.UpdateHeaderButtons()
@@ -524,17 +500,9 @@ function ns.CreateRightPanel(parent)
     blockBtn:SetScript("OnClick", function()
         if not ns.activeConversation then return end
         if ns.IsIgnored(ns.activeConversation) then
-            if C_FriendList and C_FriendList.DelIgnore then
-                C_FriendList.DelIgnore(ns.activeConversation)
-            elseif DelIgnore then
-                DelIgnore(ns.activeConversation)
-            end
+            C_FriendList.DelIgnore(ns.activeConversation)
         else
-            if C_FriendList and C_FriendList.AddIgnore then
-                C_FriendList.AddIgnore(ns.activeConversation)
-            elseif AddIgnore then
-                AddIgnore(ns.activeConversation)
-            end
+            C_FriendList.AddIgnore(ns.activeConversation)
         end
         C_Timer.After(0.1, function() ns.UpdateHeaderButtons() end)
     end)
@@ -569,8 +537,7 @@ function ns.CreateRightPanel(parent)
             end
             return
         end
-        local invite = (C_PartyInfo and C_PartyInfo.InviteUnit) or InviteUnit
-        if invite then invite(target) end
+        C_PartyInfo.InviteUnit(target)
     end)
     inviteBtn:Hide()
     ns.inviteBtn = inviteBtn
@@ -1347,7 +1314,7 @@ function ns.ShowContextMenu(playerName)
     end
 
     local function inviteFunc()
-        InviteUnit(playerName)
+        C_PartyInfo.InviteUnit(playerName)
     end
 
     local function copyFunc()
@@ -1379,33 +1346,14 @@ function ns.ShowContextMenu(playerName)
     local muteText = isMuted and "Unmute" or "Mute Notifications"
     local noteText = hasNote and "Edit Note" or "Add Note"
 
-    if MenuUtil and MenuUtil.CreateContextMenu then
-        -- Retail 11.0+: new context menu API (EasyMenu was removed)
-        MenuUtil.CreateContextMenu(UIParent, function(owner, rootDescription)
-            rootDescription:CreateButton(pinText, pinFunc)
-            rootDescription:CreateButton(muteText, muteFunc)
-            rootDescription:CreateButton(noteText, noteFunc)
-            rootDescription:CreateButton("Copy Name", copyFunc)
-            rootDescription:CreateButton("Invite to Group", inviteFunc)
-            rootDescription:CreateButton("|cffcc4444Delete Conversation|r", deleteFunc)
-        end)
-    else
-        -- Classic / TBC / Wrath: use legacy EasyMenu + UIDropDownMenuTemplate
-        if not ns.contextMenuFrame then
-            ns.contextMenuFrame = CreateFrame("Frame", "iChatContextMenu", UIParent, "UIDropDownMenuTemplate")
-        end
-
-        local menuList = {
-            { text = pinText, notCheckable = true, func = pinFunc },
-            { text = muteText, notCheckable = true, func = muteFunc },
-            { text = noteText, notCheckable = true, func = noteFunc },
-            { text = "Copy Name", notCheckable = true, func = copyFunc },
-            { text = "Invite to Group", notCheckable = true, func = inviteFunc },
-            { text = "Delete Conversation", notCheckable = true, colorCode = "|cffcc4444", func = deleteFunc },
-        }
-
-        EasyMenu(menuList, ns.contextMenuFrame, "cursor", 0, 0, "MENU")
-    end
+    MenuUtil.CreateContextMenu(UIParent, function(owner, rootDescription)
+        rootDescription:CreateButton(pinText, pinFunc)
+        rootDescription:CreateButton(muteText, muteFunc)
+        rootDescription:CreateButton(noteText, noteFunc)
+        rootDescription:CreateButton("Copy Name", copyFunc)
+        rootDescription:CreateButton("Invite to Group", inviteFunc)
+        rootDescription:CreateButton("|cffcc4444Delete Conversation|r", deleteFunc)
+    end)
 end
 
 ---------------------------------------------------------------------------

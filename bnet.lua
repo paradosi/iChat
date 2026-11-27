@@ -146,7 +146,7 @@ function ns.GetBNetGameInfo(bnetIDAccount)
 		return string.format("WoW: %s (L%s %s)", charName, level, className)
 	end
 
-	-- Other games (with defensive nil checks for Classic/TBC compatibility)
+	-- Other games (nil checks: not every client defines every BNET_CLIENT_* constant)
 	local gameNames = {}
 	if BNET_CLIENT_D3 then gameNames[BNET_CLIENT_D3] = "Diablo 3" end
 	if BNET_CLIENT_WTCG then gameNames[BNET_CLIENT_WTCG] = "Hearthstone" end

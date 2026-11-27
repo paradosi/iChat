@@ -139,8 +139,7 @@ function ns.InitDB()
     end
 
     -- Check if WIM is loaded — avoid double-suppression
-    local IsLoaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
-    if IsLoaded and IsLoaded("WIM") then
+    if C_AddOns.IsAddOnLoaded("WIM") then
         ns.db.settings.suppressDefault = false
     end
 end

@@ -11,12 +11,10 @@ local _, ns = ...
 -- Provides chat filters to optionally suppress whispers from default UI.
 ---------------------------------------------------------------------------
 
--- Retail moved these behind namespaces; the old globals survive only as
--- Blizzard_Deprecated shims. Every client has the new ones.
-local SendChatMessage = (C_ChatInfo and C_ChatInfo.SendChatMessage) or SendChatMessage
-local SendBNetWhisper = (C_BattleNet and C_BattleNet.SendWhisper) or BNSendWhisper
-local AddMessageEventFilter = (ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter) or ChatFrame_AddMessageEventFilter
-local RemoveMessageEventFilter = (ChatFrameUtil and ChatFrameUtil.RemoveMessageEventFilter) or ChatFrame_RemoveMessageEventFilter
+local SendChatMessage = C_ChatInfo.SendChatMessage
+local SendBNetWhisper = C_BattleNet.SendWhisper
+local AddMessageEventFilter = ChatFrameUtil.AddMessageEventFilter
+local RemoveMessageEventFilter = ChatFrameUtil.RemoveMessageEventFilter
 ns.SendBNetWhisperRaw = SendBNetWhisper
 
 -- "No player named '%s' is currently playing." in the client's own language,
@@ -76,18 +74,8 @@ function ns.IsIgnored(name)
     if not name then return false end
     local lower = name:lower()
 
-    local numIgnores
-    local GetName
-    if C_FriendList and C_FriendList.GetNumIgnores then
-        numIgnores = C_FriendList.GetNumIgnores()
-        GetName = C_FriendList.GetIgnoreName
-    else
-        numIgnores = GetNumIgnores()
-        GetName = GetIgnoreName
-    end
-
-    for i = 1, numIgnores do
-        local ignored = GetName(i)
+    for i = 1, C_FriendList.GetNumIgnores() do
+        local ignored = C_FriendList.GetIgnoreName(i)
         if ignored and ignored:lower() == lower then
             return true
         end
@@ -390,10 +378,10 @@ ns.pendingWhispers = {}
 
 -- Send a whisper
 function ns.SendWhisper(target, text)
-    -- Retail 12.0+: chat is locked down for addons in instances, encounters,
-    -- Mythic+ and PvP. Battle.net whispers carry the same restrictions as
-    -- character whispers (both HasRestrictions in Blizzard's API docs).
-    if C_ChatInfo and C_ChatInfo.InChatMessagingLockdown and C_ChatInfo.InChatMessagingLockdown() then
+    -- Chat is locked down for addons in instances, encounters and PvP.
+    -- Battle.net whispers carry the same restrictions as character whispers
+    -- (both HasRestrictions in Blizzard's API docs).
+    if C_ChatInfo.InChatMessagingLockdown() then
         DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Cannot send — chat is locked down.")
         return
     end

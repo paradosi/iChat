@@ -1,5 +1,13 @@
 # iChat Changelog
 
+## Unreleased
+
+### Changed
+- iChat now supports WoW Forever only. 1.4.13 was the last version for Classic Era, TBC Anniversary and Retail, and it stays available for download
+
+### Fixed
+- "Invite to Group" in a conversation's right-click menu no longer causes an error on WoW Forever
+
 ## [1.4.13](https://github.com/paradosi/iChat/tree/v1.4.13) (2026-11-17)
 
 ### Fixed

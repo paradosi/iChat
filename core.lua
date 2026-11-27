@@ -13,14 +13,14 @@ ns.version = "?"
 ns.playerName = nil
 ns.activeConversation = nil
 
--- Retail 12.x "secret values": inside dungeons and raids, and during encounters,
--- Mythic+ and PvP matches, chat event text and sender names (and some unit
--- info) reach addons as secrets. Any string method, comparison or table key on
--- one raises a Lua error, so every handler checks first. canaccessvalue exists
--- on every client; on Classic it simply always returns true.
+-- Secret values (Forever runs on Retail 12's engine): inside dungeons and
+-- raids, and during encounters and PvP matches, chat event text and sender
+-- names (and some unit info) reach addons as secrets. Any string method,
+-- comparison or table key on one raises a Lua error, so every handler checks
+-- first.
 local canaccessvalue = canaccessvalue
 function ns.CanRead(...)
-    return not canaccessvalue or canaccessvalue(...)
+    return canaccessvalue(...)
 end
 
 -- A whisper iChat could not read stays in the default chat frame: Blizzard
@@ -59,8 +59,7 @@ function ns:ADDON_LOADED(loadedName)
     frame:UnregisterEvent("ADDON_LOADED")
 
     ns.InitDB()
-    local GetMeta = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
-    ns.version = GetMeta and GetMeta(addonName, "Version") or "?"
+    ns.version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
     ns.playerName = UnitName("player")
 
     -- Register whisper events
@@ -104,11 +103,7 @@ function ns:ADDON_LOADED(loadedName)
 
     -- Register guild roster event
     if IsInGuild() then
-        if C_GuildInfo and C_GuildInfo.GuildRoster then
-            C_GuildInfo.GuildRoster()
-        elseif GuildRoster then
-            GuildRoster()
-        end
+        C_GuildInfo.GuildRoster()
     end
 
     -- Apply ElvUI skin if available
@@ -129,11 +124,7 @@ function ns:PLAYER_LOGIN()
     ns.playerName = UnitName("player")
 
     local function RequestFriendInfo()
-        if C_FriendList and C_FriendList.ShowFriends then
-            C_FriendList.ShowFriends()
-        elseif ShowFriends then
-            ShowFriends()
-        end
+        C_FriendList.ShowFriends()
     end
 
     RequestFriendInfo()

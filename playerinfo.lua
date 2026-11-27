@@ -103,18 +103,9 @@ end
 -- { name, level, className, area, connected }
 function ns.GetFriends()
 	local friends = {}
-	if C_FriendList and C_FriendList.GetNumFriends then
-		for i = 1, C_FriendList.GetNumFriends() do
-			local info = C_FriendList.GetFriendInfoByIndex(i)
-			if info and info.name then friends[#friends + 1] = info end
-		end
-	elseif GetNumFriends then
-		for i = 1, GetNumFriends() do
-			local name, level, className, area, connected = GetFriendInfo(i)
-			if name then
-				friends[#friends + 1] = { name = name, level = level, className = className, area = area, connected = connected }
-			end
-		end
+	for i = 1, C_FriendList.GetNumFriends() do
+		local info = C_FriendList.GetFriendInfoByIndex(i)
+		if info and info.name then friends[#friends + 1] = info end
 	end
 	return friends
 end
@@ -170,7 +161,7 @@ function ns.FindUnitByName(name)
 
 	local function matches(unit)
 		local n = UnitName(unit)
-		-- Retail: names of units outside the group can be secret on restricted maps
+		-- Names of units outside the group can be secret on restricted maps
 		if not ns.CanRead(n) then return false end
 		return n == bare or n == name
 	end

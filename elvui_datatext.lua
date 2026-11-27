@@ -21,7 +21,7 @@ if not E then return end
 local DT = E:GetModule("DataTexts", true)
 if not DT then return end
 
--- Guard: RegisterDataText/RegisterDatatext not available (e.g. TBC Classic ElvUI)
+-- Guard: RegisterDataText/RegisterDatatext not available (older ElvUI builds)
 local registerFn = DT.RegisterDataText or DT.RegisterDatatext
 if not registerFn then return end
 
