@@ -1,6 +1,9 @@
 # iChat Changelog
 
-## Unreleased
+## [1.5.0](https://github.com/paradosi/iChat/tree/v1.5.0) (2026-11-27)
+
+### Added
+- The settings window shows the installed version and a button with the GitHub link for help and bug reports. `/ichat version` prints the link too
 
 ### Changed
 - iChat now supports WoW Forever only. 1.4.13 was the last version for Classic Era, TBC Anniversary and Retail, and it stays available for download

@@ -60,6 +60,7 @@ function ns:ADDON_LOADED(loadedName)
 
     ns.InitDB()
     ns.version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
+    ns.website = C_AddOns.GetAddOnMetadata(addonName, "X-Website")
     ns.playerName = UnitName("player")
 
     -- Register whisper events
@@ -247,6 +248,9 @@ function ns.SlashHandler(msg)
         end
     elseif msg == "version" or msg == "ver" then
         DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat|r v" .. ns.version .. (ns.IsSharedAccount() and " (account-wide)" or " (per-character)"))
+        if ns.website then
+            DEFAULT_CHAT_FRAME:AddMessage("|cff007AFFiChat:|r Help and bug reports: " .. ns.website)
+        end
     elseif msg:match("^search%s+") then
         local query = msg:match("^search%s+(.+)")
         if query and ns.searchBox then

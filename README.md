@@ -237,6 +237,12 @@ Stored data includes:
 
 Data persists across sessions. Use `/ichat clear` or the settings panel to manage history.
 
+## Help and bug reports
+
+The bottom of iChat's settings window shows the installed version and a **Help and bug reports** button,
+which opens this repository's address ready to copy (addons can't open a browser). `/ichat version`
+prints both in chat. Please [open an issue](https://github.com/paradosi/iChat/issues) for problems.
+
 ## Optional Dependencies
 
 | Addon | What it adds |

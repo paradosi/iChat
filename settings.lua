@@ -1050,6 +1050,33 @@ function ns.CreateSettingsPanel()
     clearAllBtn:SetPoint("RIGHT", child, "RIGHT")
     yPos = yPos + 34
 
+    -----------------------------------------------------------------------
+    -- About: version and the support link (addons can't open a browser,
+    -- so the link opens in the copy popup)
+    -----------------------------------------------------------------------
+    local aboutDiv = child:CreateTexture(nil, "OVERLAY")
+    aboutDiv:SetHeight(1)
+    aboutDiv:SetPoint("TOPLEFT", 0, -(yPos + 4))
+    aboutDiv:SetPoint("RIGHT", child, "RIGHT")
+    aboutDiv:SetColorTexture(0.15, 0.15, 0.15, 1)
+    yPos = yPos + 16
+
+    local versionText = TrackSF(child:CreateFontString(nil, "OVERLAY"))
+    versionText:SetFont("Fonts\\FRIZQT__.TTF", GetSF(), "")
+    versionText:SetTextColor(0.6, 0.6, 0.6)
+    versionText:SetPoint("TOPLEFT", 0, -yPos)
+    versionText:SetText("iChat version " .. (ns.version or "?"))
+    yPos = yPos + 22
+
+    if ns.website then
+        local supportBtn = CreateActionButton(child, "Help and bug reports (GitHub link)", {0.0, 0.48, 1.0, 1}, function()
+            ns.ShowCopyPopup(ns.website, "Help and bug reports")
+        end)
+        supportBtn:SetPoint("TOPLEFT", 0, -yPos)
+        supportBtn:SetPoint("RIGHT", child, "RIGHT")
+        yPos = yPos + 34
+    end
+
     child:SetHeight(yPos + 8)
 
     ns.settingsPanel = panel
